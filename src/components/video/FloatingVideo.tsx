@@ -1,17 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
-import {
-  X,
-  Volume2,
-  VolumeX,
-  Maximize2,
-  Play,
-  Pause,
-  Sparkles,
-  Tv,
-} from 'lucide-react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { X, Volume2, VolumeX } from 'lucide-react'
 import { VideoModal } from './VideoModal'
 
 interface FloatingVideoProps {
@@ -23,26 +13,20 @@ const STORAGE_KEY = 'pipeflow_video_dismissed'
 
 export function FloatingVideo({
   videoSrc = '/assets/add.mp4',
-  delayMs = 2500,
+  delayMs = 3000,
 }: FloatingVideoProps) {
   const [mounted, setMounted] = useState(false)
   const [isDismissed, setIsDismissed] = useState(true)
   const [isVisible, setIsVisible] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
-  const [isPlaying, setIsPlaying] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [muteBlocked, setMuteBlocked] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
+  // ── Mount + session check + delayed reveal ──────────────────────────────
   useEffect(() => {
     setMounted(true)
 
-    // Check reduced motion
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReducedMotion(motionQuery.matches)
-
-    // Check session dismissal
     const dismissed = sessionStorage.getItem(STORAGE_KEY) === 'true'
     if (dismissed) {
       setIsDismissed(true)
@@ -51,13 +35,14 @@ export function FloatingVideo({
 
     setIsDismissed(false)
 
-    // Delay entrance
     const timer = setTimeout(() => {
       setIsVisible(true)
-      if (videoRef.current) {
-        videoRef.current.play().catch(() => {
-          // Autoplay blocked by browser policy; user interaction will initiate
-          setIsPlaying(false)
+      // Always start muted to comply with browser autoplay policies
+      const vid = videoRef.current
+      if (vid) {
+        vid.muted = true
+        vid.play().catch(() => {
+          // Autoplay blocked entirely — video will wait for user interaction
         })
       }
     }, delayMs)
@@ -65,47 +50,72 @@ export function FloatingVideo({
     return () => clearTimeout(timer)
   }, [delayMs])
 
+  // ── Pause when tab is hidden, resume when visible ────────────────────────
+  useEffect(() => {
+    const handleVisibility = () => {
+      const vid = videoRef.current
+      if (!vid) return
+      if (document.hidden) {
+        vid.pause()
+      } else if (isVisible && !isDismissed) {
+        vid.play().catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [isVisible, isDismissed])
+
+  // ── Dismiss ──────────────────────────────────────────────────────────────
   const handleDismiss = (e: React.MouseEvent) => {
     e.stopPropagation()
     setIsVisible(false)
     setTimeout(() => {
       setIsDismissed(true)
       sessionStorage.setItem(STORAGE_KEY, 'true')
+      videoRef.current?.pause()
     }, 400)
   }
 
-  const handleToggleMute = (e: React.MouseEvent) => {
+  // ── Sound toggle ─────────────────────────────────────────────────────────
+  const handleToggleSound = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
-    }
-  }
+    const vid = videoRef.current
+    if (!vid) return
 
-  const handleTogglePlay = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause()
-        setIsPlaying(false)
-      } else {
-        videoRef.current.play().catch(() => {})
-        setIsPlaying(true)
+    if (isMuted) {
+      // Attempt to unmute + play with sound
+      vid.muted = false
+      vid.volume = 1
+      try {
+        await vid.play()
+        setIsMuted(false)
+        setMuteBlocked(false)
+      } catch {
+        // Browser rejected audible playback — revert to muted
+        vid.muted = true
+        setIsMuted(true)
+        setMuteBlocked(true)
       }
+    } else {
+      vid.muted = true
+      setIsMuted(true)
+      setMuteBlocked(false)
     }
-  }
+  }, [isMuted])
 
+  // ── Open/close modal ────────────────────────────────────────────────────
   const handleOpenModal = () => {
-    if (videoRef.current) {
-      videoRef.current.pause()
-    }
+    videoRef.current?.pause()
     setIsModalOpen(true)
   }
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
-    if (videoRef.current && isPlaying) {
-      videoRef.current.play().catch(() => {})
+    // Resume mini-player (muted to respect autoplay)
+    const vid = videoRef.current
+    if (vid) {
+      vid.muted = isMuted
+      vid.play().catch(() => {})
     }
   }
 
@@ -113,145 +123,93 @@ export function FloatingVideo({
 
   return (
     <>
-      {/* Minimized Bubble (if user minimizes on mobile) */}
-      {isMinimized && isVisible && (
-        <div
-          onClick={() => setIsMinimized(false)}
-          className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-40 bg-navy-900 text-white p-3 rounded-full shadow-2xl border border-brand-blue/50 cursor-pointer flex items-center gap-2 hover:scale-105 transition-all group"
-          role="button"
-          aria-label="Expand PipeFlow promotional video"
+      {/* ── Floating mini video widget ─────────────────────────────────── */}
+      <div
+        className={[
+          // Position: bottom-right, above mobile sticky CTA
+          'fixed bottom-[72px] right-4',
+          'sm:bottom-6 sm:right-6',
+          'z-40',
+          // Size
+          'w-[260px] sm:w-[310px] md:w-[340px]',
+          // Container style: plain white border, subtle shadow
+          'bg-white rounded-xl overflow-hidden',
+          'border border-[#e5e7eb]',
+          'shadow-[0_8px_24px_rgba(0,0,0,0.12)]',
+          // Entrance animation (opacity + slide up)
+          'transition-[opacity,transform] duration-400 ease-out',
+          isVisible
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 translate-y-[15px] pointer-events-none',
+        ].join(' ')}
+        aria-label="PipeFlow promotional video"
+      >
+        {/* ── Close X ──────────────────────────────────────────────────── */}
+        <button
+          type="button"
+          onClick={handleDismiss}
+          aria-label="Close promotional video"
+          className={[
+            'absolute top-2 right-2 z-10',
+            'w-6 h-6 flex items-center justify-center',
+            'rounded-full bg-white/90 hover:bg-white',
+            'border border-[#e5e7eb] shadow-sm',
+            'text-neutral-500 hover:text-neutral-900',
+            'transition-colors duration-150',
+          ].join(' ')}
         >
-          <div className="relative">
-            <Tv className="h-5 w-5 text-brand-blue-lighter" />
-            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-red" />
-            </span>
-          </div>
-          <span className="text-xs font-semibold pr-1">Watch Story</span>
-        </div>
-      )}
+          <X className="h-3.5 w-3.5" />
+        </button>
 
-      {/* Floating Video Widget Card */}
-      {!isMinimized && (
+        {/* ── Video — click to open lightbox ───────────────────────────── */}
         <div
-          className={`fixed bottom-24 right-3 sm:bottom-6 sm:right-6 z-40 w-[240px] sm:w-[320px] md:w-[350px] bg-navy-900 rounded-2xl overflow-hidden shadow-2xl border border-navy-700/80 transition-all duration-500 transform ${
-            isVisible
-              ? 'opacity-100 translate-y-0 scale-100'
-              : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
-          }`}
-          style={prefersReducedMotion ? { transition: 'none' } : undefined}
-          aria-label="PipeFlow promotional service video"
+          className="relative w-full aspect-video bg-black cursor-pointer group"
+          onClick={handleOpenModal}
         >
-          {/* Header Bar */}
-          <div className="flex items-center justify-between px-3 py-1.5 bg-navy-950/90 border-b border-navy-800">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="text-2xs font-semibold uppercase tracking-wider text-neutral-200">
-                PipeFlow Denver Story
-              </span>
-            </div>
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          />
 
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={handleOpenModal}
-                title="Expand video"
-                aria-label="Expand video in full modal"
-                className="p-1 text-neutral-400 hover:text-white rounded-md hover:bg-navy-800 transition-colors"
-              >
-                <Maximize2 className="h-3.5 w-3.5" />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDismiss}
-                title="Close video"
-                aria-label="Dismiss promotional video"
-                className="p-1 text-neutral-400 hover:text-brand-red rounded-md hover:bg-navy-800 transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Video Container — Click to open modal */}
-          <div
-            onClick={handleOpenModal}
-            className="relative aspect-video w-full bg-black cursor-pointer group overflow-hidden"
+          {/* ── Sound toggle — clearly visible, bottom-left of video ──── */}
+          <button
+            type="button"
+            onClick={handleToggleSound}
+            aria-label={isMuted ? 'Tap to enable sound' : 'Mute sound'}
+            className={[
+              'absolute bottom-2.5 left-2.5',
+              'flex items-center gap-1.5',
+              'px-2.5 py-1.5 rounded-lg',
+              'text-xs font-semibold',
+              'backdrop-blur-sm border',
+              'transition-all duration-200',
+              isMuted
+                ? 'bg-black/60 border-white/20 text-white hover:bg-black/80'
+                : 'bg-white/90 border-white/60 text-neutral-900 hover:bg-white',
+            ].join(' ')}
           >
-            <video
-              ref={videoRef}
-              src={videoSrc}
-              autoPlay
-              muted={isMuted}
-              loop
-              playsInline
-              preload="metadata"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-
-            {/* Subtle Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent pointer-events-none" />
-
-            {/* Interactive Hover Controls Overlay */}
-            <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-auto">
-              {/* Play / Pause Toggle */}
-              <button
-                type="button"
-                onClick={handleTogglePlay}
-                aria-label={isPlaying ? 'Pause video' : 'Play video'}
-                className="p-1.5 rounded-lg bg-navy-900/80 hover:bg-navy-900 text-white backdrop-blur-xs transition-colors border border-white/10"
-              >
-                {isPlaying ? (
-                  <Pause className="h-3.5 w-3.5 text-neutral-200" />
-                ) : (
-                  <Play className="h-3.5 w-3.5 text-brand-blue-lighter fill-current" />
-                )}
-              </button>
-
-              {/* Mute Indicator & Unmute Button */}
-              <button
-                type="button"
-                onClick={handleToggleMute}
-                aria-label={isMuted ? 'Tap to unmute' : 'Mute audio'}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-navy-900/80 hover:bg-navy-900 text-white backdrop-blur-xs transition-colors text-2xs font-semibold border border-white/10"
-              >
-                {isMuted ? (
-                  <>
-                    <VolumeX className="h-3.5 w-3.5 text-neutral-400" />
-                    <span className="text-neutral-300">Unmute</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="h-3.5 w-3.5 text-brand-blue-lighter" />
-                    <span className="text-brand-blue-lighter">Mute</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Bottom Quick Bar */}
-          <div
-            onClick={handleOpenModal}
-            className="p-2 bg-navy-950 flex items-center justify-between text-2xs cursor-pointer hover:bg-navy-900 transition-colors border-t border-navy-800"
-          >
-            <span className="text-neutral-300 font-medium truncate">
-              Tap to expand &amp; explore services
-            </span>
-            <span className="text-brand-blue-lighter font-semibold flex items-center gap-1">
-              <span>View</span>
-              <span>→</span>
-            </span>
-          </div>
+            {isMuted ? (
+              <>
+                <VolumeX className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>{muteBlocked ? 'Click to try sound' : '🔊 Tap for sound'}</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="h-3.5 w-3.5 flex-shrink-0 text-brand-blue" />
+                <span>Sound on</span>
+              </>
+            )}
+          </button>
         </div>
-      )}
+      </div>
 
-      {/* Expanded Modal */}
+      {/* ── Lightbox modal ──────────────────────────────────────────────── */}
       <VideoModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
