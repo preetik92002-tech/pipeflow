@@ -162,7 +162,7 @@ export function PipeFlowBookingModal({ isOpen, onClose, initialCategory }: Props
       setSubmitError(null)
       setIsAnimating(false)
       setForm((f) => ({ ...f, category: initialCategory ?? null }))
-      track('booking_modal_open', {})
+      trackEvent('booking_modal_open', {})
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -253,7 +253,7 @@ export function PipeFlowBookingModal({ isOpen, onClose, initialCategory }: Props
         serviceAreaCovered: !!data.covered,
         city: data.city || '',
       }))
-      track('service_area_search', { zip, covered: !!data.covered })
+      trackEvent('service_area_search', { zip, covered: !!data.covered })
     } catch {
       setForm((f) => ({ ...f, serviceAreaCovered: false }))
     } finally {
@@ -279,7 +279,7 @@ export function PipeFlowBookingModal({ isOpen, onClose, initialCategory }: Props
       }
       setSubmittedData(form)
       setIsSuccess(true)
-      track('submit_booking', {
+      trackEvent('submit_booking', {
         category: form.category,
         service: form.serviceName,
         zip: form.zip,
@@ -545,12 +545,12 @@ function Step1Service({
 
   const selectCategory = (cat: Category) => {
     updateForm({ category: cat, serviceId: '', serviceName: '' })
-    track('booking_category_selected', { category: cat })
+    trackEvent('booking_category_selected', { category: cat })
   }
 
   const selectService = (s: ServiceOption) => {
     updateForm({ serviceId: s.id, serviceName: s.name })
-    track('booking_service_selected', { service: s.name })
+    trackEvent('booking_service_selected', { service: s.name })
   }
 
   return (
