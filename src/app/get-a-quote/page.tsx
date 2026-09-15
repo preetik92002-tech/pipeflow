@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { QuoteRequestForm } from '@/components/quote/QuoteRequestForm'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { FileText, Phone } from 'lucide-react'
+import { siteConfig } from '@/lib/config/site'
+import { PageHero } from '@/components/sections/PageHero'
 
 export const metadata: Metadata = genMeta({
   title: 'Request a Free Quote — Denver Plumbing & HVAC | PipeFlow Co.',
@@ -21,23 +24,34 @@ export default async function GetAQuotePage({ searchParams }: GetAQuotePageProps
   const { service, category, area } = await searchParams
 
   return (
-    <div className="bg-neutral-50 min-h-screen section-padding">
-      <div className="container-site">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <h1 className="text-3xl sm:text-4xl font-display font-bold text-navy-900 tracking-tight mb-2">
-            Request an Upfront Quote
-          </h1>
-          <p className="text-xs sm:text-sm text-neutral-600">
-            Tell us about your home mechanical project. We review every request carefully to give
-            you honest, clear pricing options.
-          </p>
-        </div>
+    <div className="bg-neutral-50 min-h-screen">
+      {/* Cinematic Image Hero */}
+      <PageHero
+        imageSrc="/assets/hero-services.jpg"
+        imageAlt="PipeFlow master mechanical systems and upfront transparent quotes"
+        eyebrow="Upfront Honest Pricing"
+        eyebrowIcon={FileText}
+        title="Request a transparent, no-obligation quote."
+        description="Tell us about your home plumbing or HVAC project. We review every specification thoroughly to provide clear, upfront repair and replacement options."
+        primaryCta={{
+          label: `Speak With An Estimator: ${siteConfig.company.phone}`,
+          href: `tel:${siteConfig.company.phone}`,
+          variant: 'red',
+          icon: Phone,
+          isExternal: true,
+        }}
+        badgeText="100% Guaranteed Pricing Before Any Work Begins"
+      />
 
-        <QuoteRequestForm
-          initialService={service}
-          initialCategory={category}
-          initialArea={area}
-        />
+      {/* Quote Form Section */}
+      <div className="section-padding">
+        <div className="container-site">
+          <QuoteRequestForm
+            initialService={service}
+            initialCategory={category}
+            initialArea={area}
+          />
+        </div>
       </div>
     </div>
   )
