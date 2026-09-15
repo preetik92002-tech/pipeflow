@@ -10,10 +10,13 @@ import {
   Clock,
   CheckCircle2,
   Users,
+  Briefcase,
+  Phone,
 } from 'lucide-react'
 import { ProApplicationForm } from '@/components/pro/ProApplicationForm'
 import { Accordion } from '@/components/ui/Accordion'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { PageHero } from '@/components/sections/PageHero'
 
 export const metadata: Metadata = genMeta({
   title: 'Grow Your Business With PipeFlow — Pro Trade Partner Network',
@@ -52,48 +55,29 @@ const proFaqs = [
 export default function JoinUsPage() {
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section with Dedicated Professional Theme */}
-      <section className="bg-navy-950 text-white section-padding relative overflow-hidden">
-        <div
-          className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-brand-blue/20 blur-3xl pointer-events-none"
-          aria-hidden="true"
-        />
-        <div className="container-site relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-blue/20 border border-brand-blue/30 px-3.5 py-1 text-xs font-bold text-brand-blue-lighter uppercase tracking-wider mb-4">
-            <HardHat className="h-4 w-4" />
-            <span>Contractor &amp; Trade Careers</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white tracking-tight mb-4 leading-tight">
-            Grow Your Business With PipeFlow
-          </h1>
-
-          <p className="text-base sm:text-lg text-neutral-300 leading-relaxed max-w-2xl mb-8">
-            Whether you are an independent licensed master looking for steady Front Range dispatch,
-            or an experienced technician seeking an organization that respects the trades—partner with
-            PipeFlow Co.
-          </p>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <p className="font-bold text-white text-sm">Steady Volume</p>
-              <p className="text-neutral-400 text-2xs mt-0.5">Consistent Denver dispatch</p>
-            </div>
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <p className="font-bold text-white text-sm">Weekly Payouts</p>
-              <p className="text-neutral-400 text-2xs mt-0.5">Reliable compensation</p>
-            </div>
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <p className="font-bold text-white text-sm">Tech Support</p>
-              <p className="text-neutral-400 text-2xs mt-0.5">Streamlined app &amp; dispatch</p>
-            </div>
-            <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <p className="font-bold text-white text-sm">Autonomy</p>
-              <p className="text-neutral-400 text-2xs mt-0.5">Flexible territory routes</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Cinematic Hero */}
+      <PageHero
+        imageSrc="/assets/hero-hvac.jpg"
+        imageAlt="Master trade technician carrying manifold gauges overlooking Colorado skyline"
+        eyebrow="Contractor &amp; Trade Careers"
+        eyebrowIcon={HardHat}
+        title="Grow your trade business with PipeFlow."
+        description="Whether you are an independent licensed master looking for steady Front Range dispatch, or an experienced technician seeking an organization that respects the trades—partner with PipeFlow Co."
+        primaryCta={{
+          label: 'Apply to Join Network',
+          href: '#application-form',
+          variant: 'red',
+          icon: Briefcase,
+        }}
+        secondaryCta={{
+          label: 'Call Contractor Relations',
+          href: 'tel:(720)555-0100',
+          variant: 'outline',
+          icon: Phone,
+          isExternal: true,
+        }}
+        badgeText="Weekly Electronic Payouts • Pre-Vetted Colorado Residential Calls"
+      />
 
       {/* Visual & Core Value Proposition Section */}
       <section className="section-padding bg-neutral-50 border-b border-neutral-200">
@@ -113,54 +97,135 @@ export default function JoinUsPage() {
 
             <div className="lg:col-span-7 space-y-4">
               <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">
-                Who We Are Looking For
+                Contractor First Ecosystem
               </span>
-              <h2 className="text-3xl font-display font-bold text-navy-900 tracking-tight">
-                Built By Tradespeople, For Tradespeople
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-navy-900 leading-tight">
+                Spend Less Time Chasing Invoices &amp; More Time Doing Quality Work
               </h2>
-              <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-                We believe skilled plumbers and HVAC mechanics deserve dignity, clean operations, and
-                fair compensation. We don&apos;t micro-manage or push predatory sales quotas. We
-                focus on clean technical execution, honest homeowner communication, and strong
-                contractor relationships.
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                We handle digital marketing, upfront customer qualification, address verification, and
+                billing logistics. You focus on top-tier mechanical diagnostics, clean installations, and code compliance.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                {[
-                  'Journeyman & Master Plumbers',
-                  'Certified Furnace & Heat Pump Mechanics',
-                  'EPA Universal Certified AC Technicians',
-                  'Independent Subcontractors (LLC)',
-                  'Sewer & Hydro-Jetting Specialists',
-                  'Residential Replacement Specialists',
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-xs font-semibold text-neutral-800">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                    <span>{item}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-bold text-xs text-navy-900">Pre-Qualified Homeowners</h3>
+                    <p className="text-2xs text-neutral-500 mt-0.5">
+                      No cold leads or unvetted addresses. Every job has verified requirements.
+                    </p>
                   </div>
-                ))}
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-bold text-xs text-navy-900">Weekly Guaranteed Payouts</h3>
+                    <p className="text-2xs text-neutral-500 mt-0.5">
+                      Direct deposit settlements every single Friday for verified jobs completed.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-bold text-xs text-navy-900">Dispatch Mobile Tools</h3>
+                    <p className="text-2xs text-neutral-500 mt-0.5">
+                      Simple mobile job acceptance, navigation, customer notes, and photo uploads.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-bold text-xs text-navy-900">Territory Autonomy</h3>
+                    <p className="text-2xs text-neutral-500 mt-0.5">
+                      Set your radius. Choose your days. Maintain full command of your schedule.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Application Form Anchor */}
-          <div id="apply" className="scroll-mt-20">
+          {/* Core Benefit Metrics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
+                <DollarSign className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-navy-900 text-sm">Competitive Rates</h3>
+              <p className="text-2xs text-neutral-600 mt-1">
+                Transparent flat-rate compensation models with performance bonuses.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-navy-900 text-sm">Consistent Volume</h3>
+              <p className="text-2xs text-neutral-600 mt-1">
+                Year-round residential plumbing &amp; HVAC demand across Front Range ZIP codes.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-navy-900 text-sm">Dispute Protection</h3>
+              <p className="text-2xs text-neutral-600 mt-1">
+                PipeFlow supports our mechanics with dedicated customer dispute management.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
+                <Award className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-navy-900 text-sm">Master Recognition</h3>
+              <p className="text-2xs text-neutral-600 mt-1">
+                Top-rated contractors receive priority dispatch for high-value installations.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contractor Application Form Section */}
+      <section id="application-form" className="section-padding container-site scroll-mt-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold font-display text-navy-900">
+              Apply to Join the PipeFlow Network
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+              Submit your credentials below. Our contractor onboarding desk reviews applications within 2 business days.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-10 shadow-lg">
             <ProApplicationForm />
           </div>
         </div>
       </section>
 
-      {/* Pro FAQs */}
-      <section className="section-padding bg-white">
-        <div className="container-site max-w-3xl">
+      {/* Pro FAQs Section */}
+      <section className="section-padding bg-neutral-50 border-t border-neutral-200">
+        <div className="container-site max-w-4xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold font-display text-navy-900 mb-2">
-              Contractor &amp; Professional Questions
+            <h2 className="text-2xl sm:text-3xl font-bold font-display text-navy-900">
+              Frequently Asked Questions for Contractors
             </h2>
-            <p className="text-sm text-neutral-600">
-              Details on licensing, dispatch software, compensation, and onboarding requirements.
+            <p className="text-xs text-neutral-500 mt-1">
+              Common questions about licensing, territories, insurance, and onboarding.
             </p>
           </div>
+
           <Accordion items={proFaqs} />
         </div>
       </section>

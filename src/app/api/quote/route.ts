@@ -1,5 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
+import { createClient } from '@/lib/supabase/server'
+import { verifyAdminAuth } from '@/lib/supabase/auth'
+
+export async function GET(request: NextRequest) {
+  try {
+    const authResult = await verifyAdminAuth()
+    if (!authResult.authenticated) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Session missing or invalid' },
+        { status: 401 }
+      )
+    }
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin authorization required' },
+        { status: 403 }
+      )
+    }
+
+    const supabase = await createClient()
+    const { data: quotes, error: dbError } = await supabase
+      .from('quote_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (dbError) {
+      console.warn('[QUOTE API] Supabase query notice:', dbError.message)
+      return NextResponse.json({ quotes: [], warning: dbError.message }, { status: 200 })
+    }
+
+    return NextResponse.json({ quotes: quotes || [] }, { status: 200 })
+  } catch (error: any) {
+    console.error('[QUOTE API GET ERROR]', error)
+    return NextResponse.json(
+      { error: error?.message || 'Failed to retrieve quotes' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,37 +65,33 @@ export async function POST(request: NextRequest) {
     }
 
     const quoteRecord = {
-      quote_id: `QT-${Date.now().toString().slice(-6)}`,
       name: sanitizeString(body.name),
       phone: sanitizeString(body.phone),
       email: sanitizeString(body.email) || null,
-      zip_code: sanitizeString(body.zipCode),
-      service_category: body.serviceCategory,
-      specific_service: body.specificService || 'general',
-      project_type: body.projectType || 'repair',
-      property_type: body.propertyType || 'single-family',
-      preferred_contact_method: body.preferredContactMethod || 'phone',
-      message: sanitizeString(body.message) || null,
-      photo_name: body.photoName || null,
-      photo_size: body.photoSize || null,
-      status: 'pending_review',
-      // Attribution
-      utm_source: body.utm_source || null,
-      utm_medium: body.utm_medium || null,
-      utm_campaign: body.utm_campaign || null,
-      gclid: body.gclid || null,
-      fbclid: body.fbclid || null,
-      referrer: body.referrer || null,
-      landing_page: body.landing_page || null,
+      service_type: body.specificService || body.serviceCategory || 'general',
+      description: sanitizeString(body.message) || sanitizeString(body.projectType) || null,
+      preferred_date: body.preferredDate || null,
+      status: 'pending',
       created_at: new Date().toISOString(),
     }
 
-    console.log('[QUOTE REQUEST RECORDED]', quoteRecord)
+    try {
+      const supabase = await createClient()
+      const { error: insertError } = await supabase.from('quote_requests').insert([quoteRecord])
+      if (insertError) {
+        console.warn('[QUOTE API SUPABASE INSERT NOTICE]', insertError.message)
+      }
+    } catch (dbErr: any) {
+      console.warn('[QUOTE API SUPABASE EXCEPTION]', dbErr?.message)
+    }
+
+    const quoteId = `QT-${Date.now().toString().slice(-6)}`
+    console.log('[QUOTE REQUEST RECORDED]', { quoteId, ...quoteRecord })
 
     return NextResponse.json(
       {
         success: true,
-        quoteId: quoteRecord.quote_id,
+        quoteId,
         message:
           'Your quote request has been received. A PipeFlow specialist will review your project details and reach out with transparent pricing.',
       },

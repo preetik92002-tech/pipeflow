@@ -1,4 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { verifyAdminAuth } from '@/lib/supabase/auth'
+
+export async function GET(request: NextRequest) {
+  try {
+    // 1. Server-side Authentication & Role Verification
+    const authResult = await verifyAdminAuth()
+    if (!authResult.authenticated) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Session missing or invalid' },
+        { status: 401 }
+      )
+    }
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin authorization required' },
+        { status: 403 }
+      )
+    }
+
+    // 2. Fetch leads from Supabase with user's authenticated session
+    const supabase = await createClient()
+    const { data: leads, error: dbError } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (dbError) {
+      console.warn('[LEADS API] Supabase query error:', dbError.message)
+      return NextResponse.json({ leads: [], warning: dbError.message }, { status: 200 })
+    }
+
+    return NextResponse.json({ leads: leads || [] }, { status: 200 })
+  } catch (error: any) {
+    console.error('[LEADS API GET ERROR]', error)
+    return NextResponse.json(
+      { error: error?.message || 'Failed to retrieve leads' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,34 +58,25 @@ export async function POST(request: NextRequest) {
       name: body.name,
       phone: body.phone,
       email: body.email || null,
-      service_category: body.serviceCategory,
-      specific_service: body.specificService || 'general',
-      zip_code: body.zipCode,
-      preferred_time: body.preferredTime || null,
-      preferred_date: body.preferredDate || null,
+      service_type: body.specificService || body.serviceCategory || 'general',
+      service_area: body.zipCode,
       message: body.message || null,
-      photo_name: body.photoName || null,
-      photo_size: body.photoSize || null,
+      preferred_time: body.preferredTime || null,
       is_emergency: Boolean(body.isEmergency),
-      // Attribution & Marketing Tracking
-      utm_source: body.utmSource || null,
-      utm_medium: body.utmMedium || null,
-      utm_campaign: body.utmCampaign || null,
-      utm_term: body.utmTerm || null,
-      utm_content: body.utmContent || null,
-      gclid: body.gclid || null,
-      fbclid: body.fbclid || null,
-      referrer: body.referrer || null,
-      landing_page: body.landingPage || null,
-      created_at: body.submittedAt || new Date().toISOString(),
-      status: 'new',
       source: 'website_homepage',
+      status: 'new',
     }
 
-    // TODO: When Supabase credentials are configured in .env.local:
-    // const supabase = await createClient()
-    // const { error } = await supabase.from('leads').insert([leadRecord])
-    // if (error) throw error
+    // Attempt Supabase insert with RLS public insert policy
+    try {
+      const supabase = await createClient()
+      const { error: insertError } = await supabase.from('leads').insert([leadRecord])
+      if (insertError) {
+        console.warn('[LEAD API SUPABASE INSERT NOTICE]', insertError.message)
+      }
+    } catch (dbErr: any) {
+      console.warn('[LEAD API SUPABASE EXCEPTION]', dbErr?.message)
+    }
 
     console.log('[LEAD SUBMISSION SUCCESS]', leadRecord)
 

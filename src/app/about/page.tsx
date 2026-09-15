@@ -12,9 +12,12 @@ import {
   Calendar,
   Phone,
   Clock,
+  Sparkles,
+  FileText,
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { PageHero } from '@/components/sections/PageHero'
 
 export const metadata: Metadata = genMeta({
   title: 'About PipeFlow Co. — Denver Plumbing & HVAC Specialists',
@@ -49,160 +52,105 @@ const values = [
 export default function AboutPage() {
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero */}
-      <section className="bg-navy-900 text-white section-padding relative overflow-hidden">
-        <div
-          className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-brand-blue/20 blur-3xl pointer-events-none"
-          aria-hidden="true"
-        />
-        <div className="container-site relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-blue/20 border border-brand-blue/30 px-3.5 py-1 text-xs font-bold text-brand-blue-lighter uppercase tracking-wider mb-4">
-            <Compass className="h-3.5 w-3.5" />
-            <span>The PipeFlow Story</span>
-          </div>
+      {/* Cinematic Hero */}
+      <PageHero
+        imageSrc="/assets/hero-about.jpg"
+        imageAlt="PipeFlow master blueprints, precision mechanical tools, and Colorado mountain backdrop"
+        eyebrow="Our Story &amp; Standards"
+        eyebrowIcon={Compass}
+        title="Built for Colorado homes."
+        description="Founded in Denver to raise the standard of home service engineering. We unite master plumbing diagnostics and cold-climate HVAC systems under a single, dependable standard of excellence."
+        primaryCta={{
+          label: 'Book a Service',
+          href: '/book-service',
+          variant: 'red',
+          icon: Calendar,
+        }}
+        secondaryCta={{
+          label: 'Explore Our Services',
+          href: '/services',
+          variant: 'outline',
+          icon: Sparkles,
+        }}
+        badgeText="100% Colorado Licensed &amp; Insured Mechanics"
+      />
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white tracking-tight mb-4 leading-tight">
-            Built on Craftsmanship. Focused on Colorado Homes.
-          </h1>
-
-          <p className="text-base sm:text-lg text-neutral-300 leading-relaxed max-w-2xl mb-8">
-            PipeFlow Co. was founded with a straightforward mission: eliminate the stress, guesswork,
-            and hidden fees of residential home mechanical services across Denver and the Front Range.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/book-service" className="btn-primary !py-3.5 !px-7 text-sm">
-              <Calendar className="h-4 w-4" />
-              Schedule With Us
-            </Link>
-            <Link href="/services" className="btn-outline !text-white !border-white/30 text-sm !py-3.5 !px-6">
-              Explore Our Services
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Who We Are & Our Approach */}
-      <section className="section-padding bg-neutral-50 border-b border-neutral-200">
-        <div className="container-site">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Photo */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] shadow-xl border border-neutral-200">
-                <Image
-                  src="/assets/service-detail-2.jpg"
-                  alt="PipeFlow technician inspecting water fixtures with precision diagnostic instruments in Colorado"
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                />
-              </div>
+      {/* Story & Philosophy */}
+      <section className="section-padding container-site">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-6 space-y-6">
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-brand-blue uppercase tracking-wider">
+              <span>The PipeFlow Standard</span>
             </div>
-
-            {/* Right Text */}
-            <div className="lg:col-span-7 space-y-4">
-              <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">
-                Who We Are &amp; Our Approach
-              </span>
-              <h2 className="text-3xl font-display font-bold text-navy-900 tracking-tight">
-                Home Mechanical Service Without the Sales Pressure
-              </h2>
-              <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-                Too many home service companies operate like high-pressure sales outfits rather than
-                diligent tradespeople. At PipeFlow Co., our technicians are problem solvers, not
-                commission-driven salespeople.
-              </p>
-              <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-                When you invite us into your home, we perform an exhaustive mechanical inspection,
-                explain the physical cause of the issue in plain English, and provide a fixed upfront
-                price quote before turning a single wrench. You decide how you want to proceed—no
-                pressure, no surprises.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* What Makes PipeFlow Different: Plumbing + HVAC Under One Roof */}
-      <section className="section-padding bg-white border-b border-neutral-200">
-        <div className="container-site">
-          <div className="max-w-3xl mx-auto text-center mb-14">
-            <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">
-              Unified Whole-Home Mechanical Care
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-navy-900 tracking-tight mt-1 mb-3">
-              Why Plumbing + HVAC Under One Brand Matters
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-navy-900 leading-tight">
+              Why We Built PipeFlow Co. For The Front Range
             </h2>
             <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-              Your home&apos;s water heater, furnace humidifier, gas lines, boiler, and air
-              conditioning condensate lines are physically intertwined. Uniting these trades ensures
-              seamless mechanical diagnostics.
+              Colorado homes operate in one of the most demanding climatic environments in the nation.
+              From 60-degree temperature swings in autumn to weeks of sustained sub-zero winter freeze,
+              residential mechanical infrastructure must be engineered with uncompromising precision.
             </p>
-          </div>
+            <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
+              We founded PipeFlow to replace opaque pricing, subcontractors, and generic repairs with
+              rigorous diagnostic testing, transparent quotes, and master technicians who take genuine pride in their craft.
+            </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="p-8 rounded-3xl bg-blue-50/60 border border-blue-100 flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-brand-blue text-white flex items-center justify-center mb-5 shadow-xs">
-                  <Droplets className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-bold text-navy-900 mb-2">Licensed Plumbing Fleet</h3>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                  Specialized in Front Range water conditions: high mineral content, freezing winter
-                  exposure, high municipal pressure regulation, and clay-soil sewer shifting.
-                </p>
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-100">
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
+                <p className="text-2xl font-bold font-display text-navy-900">100%</p>
+                <p className="text-2xs font-semibold text-neutral-500 uppercase mt-0.5">Licensed &amp; Insured</p>
               </div>
-              <div className="mt-6 pt-4 border-t border-blue-200/60 text-xs font-semibold text-brand-blue">
-                Drain Cleaning &bull; Water Heaters &bull; Leak Detection &bull; Repiping
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
+                <p className="text-2xl font-bold font-display text-navy-900">24/7</p>
+                <p className="text-2xs font-semibold text-neutral-500 uppercase mt-0.5">Emergency Dispatch</p>
               </div>
             </div>
+          </div>
 
-            <div className="p-8 rounded-3xl bg-orange-50/60 border border-orange-100 flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center mb-5 shadow-xs">
-                  <Wind className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-bold text-navy-900 mb-2">Certified HVAC Division</h3>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                  Calibrated for 5,280+ feet altitude: ensuring correct furnace combustion, high-COP
-                  cold-climate heat pump performance, and balanced whole-home humidity control.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-orange-200/60 text-xs font-semibold text-orange-600">
-                Furnaces &bull; Heat Pumps &bull; Central AC &bull; Whole-Home Humidifiers
+          <div className="lg:col-span-6 relative">
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-neutral-200">
+              <Image
+                src="/assets/hero-hvac.jpg"
+                alt="PipeFlow technician inspecting HVAC rooftop mechanical unit against Colorado skyline"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-blue-lighter">Field Leadership</p>
+                <p className="text-sm font-bold mt-1">Dedicated technicians equipped with modern diagnostic tools</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Our Values */}
-      <section className="section-padding bg-neutral-50 border-b border-neutral-200">
+      {/* Core Values Grid */}
+      <section className="bg-neutral-50 section-padding border-y border-neutral-200">
         <div className="container-site">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl font-display font-bold text-navy-900 tracking-tight mb-2">
-              Our Core Guiding Values
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl font-bold font-display text-navy-900">
+              Core Principles Guiding Every Visit
             </h2>
-            <p className="text-sm text-neutral-600">
-              The foundational commitments that guide every truck dispatch and customer interaction.
+            <p className="text-xs sm:text-sm text-neutral-500 mt-2">
+              How we approach your home, your mechanical systems, and your safety.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((val) => {
-              const Icon = val.icon
+            {values.map((v) => {
+              const Icon = v.icon
               return (
                 <div
-                  key={val.title}
-                  className="p-6 rounded-2xl bg-white border border-neutral-200 shadow-xs flex flex-col justify-between"
+                  key={v.title}
+                  className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs hover:shadow-lg transition-all"
                 >
-                  <div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-4">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="text-base font-bold text-navy-900 mb-1.5">{val.title}</h3>
-                    <p className="text-xs text-neutral-600 leading-relaxed">{val.desc}</p>
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-brand-blue mb-4">
+                    <Icon className="h-6 w-6" />
                   </div>
+                  <h3 className="text-base font-bold font-display text-navy-900">{v.title}</h3>
+                  <p className="text-xs text-neutral-600 mt-2 leading-relaxed">{v.desc}</p>
                 </div>
               )
             })}
@@ -210,26 +158,26 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Closing Conversion Section */}
-      <section className="section-padding bg-white">
-        <div className="container-site">
-          <div className="rounded-3xl bg-navy-900 text-white p-8 sm:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 max-w-5xl mx-auto">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold font-display text-white">
-                Experience the PipeFlow Difference
-              </h2>
-              <p className="text-xs sm:text-sm text-neutral-300 mt-1.5 max-w-md leading-relaxed">
-                Book an appointment online or speak directly with our Denver dispatch coordinator today.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
-              <Link href="/book-service" className="btn-primary !py-3.5 !px-6 text-xs">
-                Schedule Service Visit
-              </Link>
-              <a href={`tel:${siteConfig.company.phone}`} className="btn-outline !text-white !border-white/30 text-xs !py-3.5 !px-5">
-                Call {siteConfig.company.phone}
-              </a>
-            </div>
+      {/* CTA Section */}
+      <section className="bg-navy-900 text-white py-16">
+        <div className="container-site flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-bold font-display text-white">
+              Ready to Experience The PipeFlow Difference?
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-300 mt-1 max-w-xl">
+              Schedule your diagnostic appointment or request a detailed estimate from Denver master technicians.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/book-service" className="btn-primary !py-3.5 !px-6 text-xs bg-brand-red hover:bg-brand-red-dark">
+              <Calendar className="h-4 w-4" />
+              <span>Book Appointment</span>
+            </Link>
+            <Link href="/get-a-quote" className="btn-outline !py-3.5 !px-6 text-xs text-white border-white/30">
+              <FileText className="h-4 w-4" />
+              <span>Get Free Estimate</span>
+            </Link>
           </div>
         </div>
       </section>

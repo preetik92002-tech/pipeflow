@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   Users,
@@ -18,8 +18,10 @@ import {
   Menu,
   X,
   ShieldCheck,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
+import { createClient } from '@/lib/supabase/client'
 
 const adminNav = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -35,7 +37,29 @@ const adminNav = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
+
+  // Don't render admin sidebar shell for login and unauthorized pages
+  const isBarePage = pathname === '/admin/login' || pathname === '/admin/unauthorized'
+  if (isBarePage) {
+    return <>{children}</>
+  }
+
+  const handleSignOut = async () => {
+    try {
+      setSigningOut(true)
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      router.push('/admin/login')
+      router.refresh()
+    } catch {
+      router.push('/admin/login')
+    } finally {
+      setSigningOut(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-neutral-100 flex flex-col md:flex-row">
@@ -102,8 +126,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
-        {/* Bottom Status & View Site Link */}
-        <div className="p-4 border-t border-navy-800 space-y-3">
+        {/* Bottom Status, View Site & Sign Out */}
+        <div className="p-4 border-t border-navy-800 space-y-2">
           <Link
             href="/"
             target="_blank"
@@ -115,7 +139,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </span>
           </Link>
 
-          <div className="flex items-center gap-2 px-2 text-2xs text-neutral-400">
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-red-950/40 hover:bg-red-900/50 text-red-200 text-xs font-semibold transition-colors border border-red-900/50"
+          >
+            <span className="flex items-center gap-2">
+              <LogOut className="h-3.5 w-3.5 text-red-300" />
+              <span>{signingOut ? 'Signing out...' : 'Sign Out'}</span>
+            </span>
+          </button>
+
+          <div className="flex items-center gap-2 px-2 pt-1 text-2xs text-neutral-400">
             <ShieldCheck className="h-3.5 w-3.5 text-green-400" />
             <span>Supabase RLS Protected</span>
           </div>

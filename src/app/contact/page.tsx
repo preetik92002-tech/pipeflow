@@ -14,9 +14,11 @@ import {
   Flame,
   Droplets,
   ExternalLink,
+  Calendar,
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
+import { PageHero } from '@/components/sections/PageHero'
 
 export default function ContactPage() {
   const { company } = siteConfig
@@ -63,13 +65,13 @@ export default function ContactPage() {
       })
 
       if (!res.ok) {
-        throw new Error('Failed to submit message.')
+        throw new Error('Failed to submit message. Please call our Denver office directly.')
       }
 
-      trackEvent('email_click', { cta_location: 'contact_page_form' })
       setSubmitted(true)
-    } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Error submitting message.')
+      trackEvent('phone_click', { cta_location: 'contact_form_success' })
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Something went wrong. Please try calling us.')
     } finally {
       setIsSubmitting(false)
     }
@@ -77,24 +79,29 @@ export default function ContactPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero */}
-      <section className="bg-navy-900 text-white section-padding relative overflow-hidden">
-        <div className="container-site relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-blue/20 border border-brand-blue/30 px-3.5 py-1 text-xs font-bold text-brand-blue-lighter uppercase tracking-wider mb-4">
-            <Phone className="h-3.5 w-3.5" />
-            <span>Denver Headquarters &amp; Dispatch</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white tracking-tight mb-4 leading-tight">
-            Contact PipeFlow Co.
-          </h1>
-
-          <p className="text-base sm:text-lg text-neutral-300 leading-relaxed max-w-2xl">
-            Have a question about an upcoming project, need service area confirmation, or require
-            immediate 24/7 emergency dispatch? We are here to help.
-          </p>
-        </div>
-      </section>
+      {/* Cinematic Hero */}
+      <PageHero
+        imageSrc="/assets/hero-about.jpg"
+        imageAlt="PipeFlow Denver headquarters and dispatch operations overlooking Colorado mountain range"
+        eyebrow="Denver Headquarters &amp; Dispatch"
+        eyebrowIcon={Phone}
+        title="Get in touch with PipeFlow Co."
+        description="Have a question about an upcoming project, need service area confirmation, or require immediate 24/7 emergency dispatch? We are here to help."
+        primaryCta={{
+          label: `Call Dispatch: ${company.phone}`,
+          href: `tel:${company.phone}`,
+          variant: 'red',
+          icon: Phone,
+          isExternal: true,
+        }}
+        secondaryCta={{
+          label: 'Book Online',
+          href: '/book-service',
+          variant: 'outline',
+          icon: Calendar,
+        }}
+        badgeText="Denver Front Range Master Plumbers &amp; HVAC Mechanics"
+      />
 
       {/* Main Grid */}
       <div className="section-padding bg-neutral-50">
@@ -143,214 +150,182 @@ export default function ContactPage() {
 
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-200">
                     <div className="w-8 h-8 rounded-lg bg-brand-blue text-white flex items-center justify-center flex-shrink-0">
-                      <Clock className="h-4 w-4" />
+                      <MapPin className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-2xs text-neutral-400 font-bold uppercase tracking-wider">
-                        Hours of Operation
+                        Denver Metro Dispatch Hub
                       </p>
-                      <p className="font-bold text-navy-900 text-sm">Monday – Friday: 7:00 AM – 7:00 PM</p>
-                      <p className="text-2xs text-neutral-500 mt-0.5">
-                        Saturday – Sunday: 8:00 AM – 5:00 PM &bull; 24/7 Emergency Line Open
+                      <p className="font-bold text-navy-900 text-xs">
+                        {company.address}, {company.city}, {company.state} {company.zip}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-200">
                     <div className="w-8 h-8 rounded-lg bg-brand-blue text-white flex items-center justify-center flex-shrink-0">
-                      <MapPin className="h-4 w-4" />
+                      <Clock className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-2xs text-neutral-400 font-bold uppercase tracking-wider">
-                        Denver Operating Territory
+                        Operating Hours
                       </p>
-                      <p className="font-bold text-navy-900 text-sm">
-                        {company.city}, {company.state} {company.zip}
-                      </p>
-                      <p className="text-2xs text-neutral-500 mt-0.5">
-                        Serving Denver, Arapahoe, Jefferson, Adams &amp; Douglas Counties
+                      <p className="font-bold text-navy-900 text-xs">Mon – Sat: 7:00 AM – 8:00 PM</p>
+                      <p className="text-brand-red font-bold text-2xs mt-0.5">
+                        24/7 Emergency Response on Standby
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Emergency Instructions Card */}
-              <div className="bg-red-50/90 rounded-3xl border border-red-200 p-6 sm:p-8 space-y-4">
-                <div className="flex items-center gap-2 text-brand-red font-bold text-sm">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>Emergency Home Protocols</span>
-                </div>
-                <div className="space-y-3 text-xs text-neutral-700">
-                  <div className="p-3 bg-white/80 rounded-xl border border-red-100">
-                    <p className="font-bold text-navy-900 flex items-center gap-1.5 mb-0.5">
-                      <Droplets className="h-3.5 w-3.5 text-brand-blue" />
-                      Active Water Burst / Flooding:
-                    </p>
-                    <p>
-                      Immediately shut off your home main water valve (typically in the basement near the water meter or front street curb).
-                    </p>
-                  </div>
-
-                  <div className="p-3 bg-white/80 rounded-xl border border-red-100">
-                    <p className="font-bold text-navy-900 flex items-center gap-1.5 mb-0.5">
-                      <Flame className="h-3.5 w-3.5 text-orange-500" />
-                      Natural Gas Odor (Rotten Eggs):
-                    </p>
-                    <p>
-                      Evacuate all family members immediately. Do not flip light switches or ignite flames. Call Xcel Energy (1-800-895-2999) or 911.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Map-Ready Location Card */}
-              <div className="bg-navy-900 rounded-3xl border border-navy-800 p-6 text-white text-xs space-y-2">
-                <p className="font-bold text-sm flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4 text-brand-blue-lighter" />
-                  Front Range Service Radius
+              {/* Service Areas Quick Link */}
+              <div className="p-6 rounded-3xl bg-navy-900 text-white space-y-3">
+                <h3 className="text-sm font-bold font-display">Need Territory Route Verification?</h3>
+                <p className="text-xs text-neutral-300 leading-relaxed">
+                  We service five Front Range counties including Denver, Arapahoe, Jefferson, Adams, and Douglas.
                 </p>
-                <p className="text-neutral-300 leading-relaxed">
-                  Mobile trucks dispatched daily across I-25, I-70, C-470, and E-470 corridors.
-                </p>
+                <Link
+                  href="/service-areas"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-blue-lighter hover:underline pt-1"
+                >
+                  <span>Explore Colorado Service Areas</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
               </div>
             </div>
 
-            {/* Right Column: Contact Message Form (7 cols) */}
+            {/* Right Column: Interactive Inquiry Form (7 cols) */}
             <div className="lg:col-span-7">
-              <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-10 shadow-xl">
+              <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-8 lg:p-10 shadow-sm">
+                <h2 className="text-xl font-bold font-display text-navy-900 mb-1">
+                  Send a Direct Message
+                </h2>
+                <p className="text-xs text-neutral-500 mb-6">
+                  Fill out the details below and our service desk will reply promptly during operating hours.
+                </p>
+
                 {submitted ? (
-                  <div className="py-12 text-center max-w-md mx-auto animate-fade-in">
-                    <div className="w-16 h-16 rounded-full bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-4 border border-green-200">
-                      <CheckCircle2 className="h-8 w-8" />
-                    </div>
-                    <h2 className="text-2xl font-bold font-display text-navy-900 mb-2">Message Sent!</h2>
-                    <p className="text-sm text-neutral-600 leading-relaxed mb-6">
-                      Thank you, <strong>{name}</strong>. A member of our Denver team will review your
-                      inquiry and respond within one business day.
+                  <div className="p-8 text-center bg-green-50 border border-green-200 rounded-2xl space-y-3">
+                    <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
+                    <h3 className="text-lg font-bold text-navy-900">Message Received</h3>
+                    <p className="text-xs text-neutral-600 max-w-md mx-auto">
+                      Thank you for contacting PipeFlow Co. A member of our Denver team will review your inquiry and get back to you shortly.
                     </p>
                     <button
                       type="button"
-                      onClick={() => setSubmitted(false)}
-                      className="btn-outline !py-2 !px-5 text-xs"
+                      onClick={() => {
+                        setSubmitted(false)
+                        setMessage('')
+                      }}
+                      className="btn-outline !py-2 !px-4 text-xs mt-2"
                     >
-                      Send Another Message
+                      Send Another Inquiry
                     </button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Honeypot */}
-                    <div className="hidden" aria-hidden="true">
-                      <label htmlFor="hp_contact">Leave blank</label>
-                      <input
-                        id="hp_contact"
-                        type="text"
-                        value={honeypot}
-                        onChange={(e) => setHoneypot(e.target.value)}
-                        tabIndex={-1}
-                        autoComplete="off"
-                      />
-                    </div>
+                    {/* Anti-spam honeypot */}
+                    <input
+                      type="text"
+                      name="website_url_hp"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      className="hidden"
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
 
-                    <div>
-                      <h2 className="text-2xl font-bold font-display text-navy-900 mb-1">
-                        Send Us a Direct Message
-                      </h2>
-                      <p className="text-xs text-neutral-500">
-                        Fill out the form below and our team will get back to you promptly.
-                      </p>
-                    </div>
+                    {errorMessage && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <span>{errorMessage}</span>
+                      </div>
+                    )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="form-label font-bold text-navy-900 text-xs">
-                          Your Name <span className="text-brand-red">*</span>
+                        <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                          Full Name <span className="text-brand-red">*</span>
                         </label>
                         <input
                           type="text"
+                          required
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          placeholder="e.g. Rachel Adams"
+                          placeholder="Your Name"
                           className="form-input text-xs"
                         />
                       </div>
 
                       <div>
-                        <label className="form-label font-bold text-navy-900 text-xs">
+                        <label className="block text-xs font-semibold text-neutral-700 mb-1">
                           Phone Number <span className="text-brand-red">*</span>
                         </label>
                         <input
                           type="tel"
+                          required
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          placeholder="(720) 555-0199"
+                          placeholder="(720) 000-0000"
                           className="form-input text-xs"
                         />
                       </div>
+                    </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="form-label font-bold text-navy-900 text-xs">Email Address</label>
+                        <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                          Email Address
+                        </label>
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          placeholder="rachel@example.com"
+                          placeholder="your.email@example.com"
                           className="form-input text-xs"
                         />
                       </div>
 
                       <div>
-                        <label className="form-label font-bold text-navy-900 text-xs">Inquiry Topic</label>
+                        <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                          Subject / Inquiry Type
+                        </label>
                         <select
                           value={subject}
                           onChange={(e) => setSubject(e.target.value)}
                           className="form-input text-xs"
                         >
-                          <option value="general">General Inquiries</option>
-                          <option value="plumbing-question">Plumbing Technical Question</option>
-                          <option value="hvac-question">HVAC Technical Question</option>
-                          <option value="quote-followup">Follow-Up on an Existing Quote</option>
-                          <option value="warranty">Warranty or Completed Service</option>
+                          <option value="general">General Question</option>
+                          <option value="plumbing">Plumbing Inquiry</option>
+                          <option value="hvac">HVAC / Heating Inquiry</option>
+                          <option value="commercial">Commercial Services</option>
+                          <option value="billing">Billing &amp; Invoices</option>
                         </select>
                       </div>
                     </div>
 
                     <div>
-                      <label className="form-label font-bold text-navy-900 text-xs">
-                        How can we help you? <span className="text-brand-red">*</span>
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                        How can we help? <span className="text-brand-red">*</span>
                       </label>
                       <textarea
-                        rows={4}
+                        required
+                        rows={5}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Write your question or request here..."
-                        className="form-input text-xs resize-none"
+                        placeholder="Please describe your plumbing or heating questions, project scope, or address..."
+                        className="form-input text-xs"
                       />
                     </div>
-
-                    {errorMessage && (
-                      <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                        <span>{errorMessage}</span>
-                      </div>
-                    )}
 
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="btn-primary w-full !py-3.5 text-sm shadow-md disabled:opacity-50"
+                      className="btn-primary w-full !py-3.5 text-xs flex items-center justify-center gap-2"
                     >
-                      {isSubmitting ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          Sending Message...
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <Send className="h-4 w-4" />
-                          Send Message
-                        </span>
-                      )}
+                      <Send className="h-4 w-4" />
+                      <span>{isSubmitting ? 'Transmitting Message...' : 'Send Message To PipeFlow'}</span>
                     </button>
                   </form>
                 )}

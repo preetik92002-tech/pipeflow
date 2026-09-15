@@ -1,5 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
+import { createClient } from '@/lib/supabase/server'
+import { verifyAdminAuth } from '@/lib/supabase/auth'
+
+export async function GET(request: NextRequest) {
+  try {
+    const authResult = await verifyAdminAuth()
+    if (!authResult.authenticated) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Session missing or invalid' },
+        { status: 401 }
+      )
+    }
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin authorization required' },
+        { status: 403 }
+      )
+    }
+
+    const supabase = await createClient()
+    const { data: bookings, error: dbError } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (dbError) {
+      console.warn('[BOOKINGS API] Supabase query notice:', dbError.message)
+      return NextResponse.json({ bookings: [], warning: dbError.message }, { status: 200 })
+    }
+
+    return NextResponse.json({ bookings: bookings || [] }, { status: 200 })
+  } catch (error: any) {
+    console.error('[BOOKINGS API GET ERROR]', error)
+    return NextResponse.json(
+      { error: error?.message || 'Failed to retrieve bookings' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +53,6 @@ export async function POST(request: NextRequest) {
 
     if (spamCheck.isSpam) {
       console.warn('[SPAM BOOKING REJECTED]', spamCheck.reason)
-      // Return 200 to confuse bots without storing spam
       return NextResponse.json({ success: true, message: 'Booking received' }, { status: 200 })
     }
 
@@ -39,15 +78,18 @@ export async function POST(request: NextRequest) {
       problem_description: sanitizeString(body.problemDescription) || null,
       is_emergency: Boolean(body.isEmergency),
       status: 'requested',
-      // Attribution
-      utm_source: body.utm_source || null,
-      utm_medium: body.utm_medium || null,
-      utm_campaign: body.utm_campaign || null,
-      gclid: body.gclid || null,
-      fbclid: body.fbclid || null,
-      referrer: body.referrer || null,
-      landing_page: body.landing_page || null,
       created_at: new Date().toISOString(),
+    }
+
+    // Insert to Supabase with public insert policy
+    try {
+      const supabase = await createClient()
+      const { error: insertError } = await supabase.from('bookings').insert([bookingRecord])
+      if (insertError) {
+        console.warn('[BOOKING API SUPABASE INSERT NOTICE]', insertError.message)
+      }
+    } catch (dbErr: any) {
+      console.warn('[BOOKING API SUPABASE EXCEPTION]', dbErr?.message)
     }
 
     console.log('[NEW BOOKING REQUEST RECEIVED]', bookingRecord)

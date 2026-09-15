@@ -7,6 +7,7 @@ import { Search, BookOpen, Calendar, Clock, ArrowRight, User, Phone, Sparkles } 
 import { BlogCard } from './BlogCard'
 import { siteConfig } from '@/lib/config/site'
 import type { BlogPost, BlogCategory } from '@/lib/blog/types'
+import { PageHero } from '@/components/sections/PageHero'
 
 interface BlogListClientProps {
   initialPosts: BlogPost[]
@@ -40,67 +41,54 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-navy-900 text-white section-padding relative overflow-hidden">
-        <div
-          className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-blue/20 blur-3xl pointer-events-none"
-          aria-hidden="true"
-        />
-        <div className="container-site relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-blue/20 border border-brand-blue/30 px-3.5 py-1 text-xs font-bold text-brand-blue-lighter uppercase tracking-wider mb-4">
-              <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>The PipeFlow Journal</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white tracking-tight mb-4">
-              Plumbing &amp; HVAC Wisdom for Colorado Homes
-            </h1>
-            <p className="text-base sm:text-lg text-neutral-300 leading-relaxed max-w-2xl mb-8">
-              Straightforward diagnostic guides, winter freeze protocols, and heating &amp; cooling
-              advice engineered for the unique climate of the Colorado Front Range.
-            </p>
+      {/* Cinematic Blog Hero */}
+      <PageHero
+        imageSrc="/assets/hero-blog.jpg"
+        imageAlt="PipeFlow plumbing and HVAC research station with notebook, tools, and Denver skyline backdrop"
+        eyebrow="PipeFlow Resources"
+        eyebrowIcon={BookOpen}
+        title="Plumbing & HVAC insights for your Colorado home."
+        description="Straightforward diagnostic guides, winter freeze protocols, and heating & cooling advice engineered for the unique climate of the Colorado Front Range."
+        primaryCta={{
+          label: 'Book a Service',
+          href: '/book-service',
+          variant: 'red',
+          icon: Calendar,
+        }}
+        secondaryCta={{
+          label: 'Get Free Estimate',
+          href: '/get-a-quote',
+          variant: 'outline',
+          icon: Sparkles,
+        }}
+        badgeText="Updated Weekly by Licensed Colorado Master Technicians"
+      />
 
-            {/* Search Bar */}
-            <div className="relative max-w-xl">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search articles (e.g. frozen pipes, water heater, heat pump)..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white/15 backdrop-blur-md text-sm"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Category Pills Bar */}
-      <section className="border-b border-neutral-200 bg-white sticky top-[72px] z-20 shadow-xs">
-        <div className="container-site py-3 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2 min-w-max">
+      {/* Main Content Area */}
+      <div className="section-padding container-site">
+        {/* Search & Category Filter Bar */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-8 mb-12 border-b border-neutral-200">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             <button
               type="button"
               onClick={() => setSelectedCategory('all')}
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 selectedCategory === 'all'
-                  ? 'bg-navy-900 text-white shadow-xs'
+                  ? 'bg-navy-900 text-white shadow-sm'
                   : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
               }`}
             >
-              All Topics
+              All Articles ({initialPosts.length})
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                   selectedCategory === cat.id
-                    ? 'bg-navy-900 text-white shadow-xs'
+                    ? 'bg-navy-900 text-white shadow-sm'
                     : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                 }`}
               >
@@ -108,178 +96,134 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
               </button>
             ))}
           </div>
+
+          {/* Search Input */}
+          <div className="relative w-full lg:w-72 shrink-0">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search guides & solutions..."
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-neutral-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-blue"
+            />
+          </div>
         </div>
-      </section>
 
-      {/* Content Area */}
-      <div className="section-padding bg-neutral-50">
-        <div className="container-site">
-          {filteredPosts.length === 0 ? (
-            <div className="py-20 text-center rounded-3xl bg-white border border-neutral-200 p-8 max-w-lg mx-auto shadow-sm">
-              <Search className="h-10 w-10 text-neutral-300 mx-auto mb-3" />
-              <h3 className="text-xl font-bold text-navy-900 mb-1">No Articles Found</h3>
-              <p className="text-sm text-neutral-500 mb-5">
-                We couldn&apos;t find any articles matching &ldquo;{searchQuery}&rdquo;. Try another
-                keyword or clear your filters.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('')
-                  setSelectedCategory('all')
-                }}
-                className="btn-outline text-xs"
-              >
-                Reset Search Filters
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              {/* Main Column (8 cols) */}
-              <div className="lg:col-span-8 space-y-10">
-                {/* Highlighted Lead / Featured Article */}
-                {featuredPost && (
-                  <article className="group rounded-3xl bg-white border border-neutral-200/80 overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2">
-                      <div className="relative aspect-[4/3] md:aspect-auto overflow-hidden bg-neutral-100">
-                        <Image
-                          src={featuredPost.featuredImage || '/assets/service-detail-2.jpg'}
-                          alt={featuredPost.featuredImageAlt || featuredPost.title}
-                          fill
-                          priority
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, 40vw"
-                        />
-                        <div className="absolute top-4 left-4">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-red text-white px-3 py-1 text-2xs font-bold uppercase tracking-wider shadow-sm">
-                            <Sparkles className="h-3 w-3" />
-                            Featured
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-6 sm:p-8 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center gap-2.5 text-2xs text-neutral-400 mb-2">
-                            <Calendar className="h-3 w-3" />
-                            <time>
-                              {new Date(featuredPost.publishedAt).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </time>
-                            <span>&bull;</span>
-                            <Clock className="h-3 w-3" />
-                            <span>{featuredPost.readingTimeMinutes} min read</span>
-                          </div>
-
-                          <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">
-                            {featuredPost.categoryName}
-                          </span>
-
-                          <h2 className="text-2xl font-display font-bold text-navy-900 mt-1 mb-3 group-hover:text-brand-blue transition-colors leading-snug">
-                            <Link href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
-                          </h2>
-
-                          <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed line-clamp-3 mb-6">
-                            {featuredPost.excerpt}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
-                          <span className="text-2xs font-medium text-neutral-500 flex items-center gap-1.5">
-                            <User className="h-3.5 w-3.5 text-neutral-400" />
-                            <span>{featuredPost.author}</span>
-                          </span>
-
-                          <Link
-                            href={`/blog/${featuredPost.slug}`}
-                            className="btn-primary !py-2 !px-4 text-xs"
-                          >
-                            Read Full Guide
-                            <ArrowRight className="h-3.5 w-3.5" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                )}
-
-                {/* Grid of Remaining Posts */}
-                {remainingPosts.length > 0 && (
-                  <div>
-                    <h2 className="text-xl font-bold text-navy-900 mb-6 flex items-center gap-2">
-                      <span className="h-1 w-6 rounded-full bg-brand-blue inline-block" />
-                      Recent Articles
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {remainingPosts.map((post) => (
-                        <BlogCard key={post.id} post={post} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+        {/* Featured Post Card (if available and not filtered out) */}
+        {featuredPost && selectedCategory === 'all' && !searchQuery && (
+          <div className="mb-16">
+            <div className="bg-navy-900 text-white rounded-3xl overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12 border border-navy-800">
+              <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[420px]">
+                <Image
+                  src={featuredPost.featuredImage}
+                  alt={featuredPost.featuredImageAlt || featuredPost.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  className="object-cover"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="bg-brand-red text-white px-3 py-1 rounded-full text-2xs font-bold uppercase tracking-wider shadow-md">
+                    Featured Insight
+                  </span>
+                </div>
               </div>
 
-              {/* Sidebar Column (4 cols) */}
-              <aside className="lg:col-span-4 space-y-8">
-                {/* Quick Emergency Dispatch Card */}
-                <div className="rounded-3xl bg-navy-900 text-white p-6 sm:p-7 shadow-lg border border-navy-800">
-                  <div className="w-10 h-10 rounded-xl bg-brand-red text-white flex items-center justify-center mb-4 shadow-sm">
-                    <Phone className="h-5 w-5" />
+              <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-3 text-2xs text-neutral-400 mb-3">
+                    <span className="bg-navy-800 text-brand-blue-lighter px-2.5 py-0.5 rounded-md font-semibold">
+                      {featuredPost.categoryName}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {featuredPost.readingTimeMinutes} min read
+                    </span>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-1.5">Facing an Active Leak or No Heat?</h3>
-                  <p className="text-xs text-neutral-300 leading-relaxed mb-5">
-                    Don&apos;t wait for damage to spread. Our Denver dispatch crew is on call 24/7 for urgent residential plumbing &amp; furnace repairs.
+
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-white mb-3 hover:text-brand-blue-lighter transition-colors">
+                    <Link href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
+                  </h2>
+
+                  <p className="text-xs sm:text-sm text-neutral-300 line-clamp-3 mb-6 leading-relaxed">
+                    {featuredPost.excerpt}
                   </p>
-                  <a
-                    href={`tel:${siteConfig.company.phone}`}
-                    className="btn-primary w-full !py-3 text-xs justify-center text-center shadow-sm"
+                </div>
+
+                <div className="pt-6 border-t border-navy-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs text-neutral-300">
+                    <User className="h-3.5 w-3.5 text-neutral-400" />
+                    <span>{featuredPost.author}</span>
+                  </div>
+                  <Link
+                    href={`/blog/${featuredPost.slug}`}
+                    className="text-xs font-bold text-brand-blue-lighter hover:text-white flex items-center gap-1.5"
                   >
-                    Call Now: {siteConfig.company.phone}
-                  </a>
-                </div>
-
-                {/* Most Read Articles */}
-                <div className="rounded-3xl bg-white border border-neutral-200/80 p-6 shadow-card">
-                  <h3 className="text-base font-bold text-navy-900 mb-4 pb-3 border-b border-neutral-100 uppercase tracking-wider text-xs">
-                    Popular Guides
-                  </h3>
-                  <div className="space-y-4 divide-y divide-neutral-100">
-                    {popularPosts.map((p, idx) => (
-                      <article key={p.id} className={idx > 0 ? 'pt-4' : ''}>
-                        <span className="text-2xs font-bold text-brand-blue uppercase tracking-wider">
-                          {p.categoryName}
-                        </span>
-                        <h4 className="text-sm font-bold text-navy-900 hover:text-brand-blue transition-colors mt-0.5 leading-snug">
-                          <Link href={`/blog/${p.slug}`}>{p.title}</Link>
-                        </h4>
-                        <div className="flex items-center gap-2 text-2xs text-neutral-400 mt-1">
-                          <Clock className="h-3 w-3" />
-                          <span>{p.readingTimeMinutes} min read</span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Direct Booking Promo */}
-                <div className="rounded-3xl bg-blue-50/80 border border-blue-100 p-6 text-center">
-                  <h3 className="text-base font-bold text-navy-900 mb-1">Need Scheduled Service?</h3>
-                  <p className="text-xs text-neutral-600 mb-4 leading-relaxed">
-                    Book an on-time diagnostic visit with fixed upfront pricing anywhere in the Denver area.
-                  </p>
-                  <Link href="/book-service" className="btn-outline !py-2 !px-5 text-xs w-full justify-center">
-                    Book an Appointment
+                    <span>Read Full Guide</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
-              </aside>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Articles Grid */}
+        {filteredPosts.length > 0 ? (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(selectedCategory === 'all' && !searchQuery ? remainingPosts : filteredPosts).map(
+                (post) => (
+                  <BlogCard key={post.id} post={post} />
+                )
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="py-20 text-center bg-neutral-50 rounded-3xl border border-neutral-200">
+            <BookOpen className="h-10 w-10 text-neutral-300 mx-auto mb-3" />
+            <h3 className="text-lg font-bold font-display text-navy-900">No Guides Match Your Search</h3>
+            <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto mb-6">
+              Try adjusting your query or clear the filter to browse all Colorado home insights.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setSelectedCategory('all')
+              }}
+              className="btn-outline !py-2 !px-4 text-xs"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Newsletter / Direct Inquiry Bar */}
+      <section className="bg-navy-950 text-white py-14 border-t border-navy-800">
+        <div className="container-site flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div>
+            <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
+              Have a Specific Mechanical Problem in Your Home?
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
+              Our master plumbers and HVAC mechanics provide direct diagnostics, system load calculations, and upfront estimates.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/book-service" className="btn-primary !py-3 !px-6 text-xs bg-brand-red hover:bg-brand-red-dark">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>Schedule Inspection</span>
+            </Link>
+            <a href={`tel:${siteConfig.company.phone}`} className="btn-outline !py-3 !px-5 text-xs text-white border-white/30">
+              <Phone className="h-3.5 w-3.5" />
+              <span>{siteConfig.company.phone}</span>
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
-export default BlogListClient
