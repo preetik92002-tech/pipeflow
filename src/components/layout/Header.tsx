@@ -7,12 +7,14 @@ import { Phone, Calendar, FileText, Menu } from 'lucide-react'
 import { Navigation } from './Navigation'
 import { MobileNavigation } from './MobileNavigation'
 import { AnnouncementBar } from './AnnouncementBar'
+import { useBookingModal } from '@/components/booking/BookingModalProvider'
 import { siteConfig } from '@/lib/config/site'
 import { cn } from '@/lib/cn'
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { openModal } = useBookingModal()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16)
@@ -82,13 +84,14 @@ export function Header() {
                 {siteConfig.ctas.getQuote.label}
               </Link>
 
-              <Link
-                href={siteConfig.ctas.bookService.href}
+              <button
+                type="button"
+                onClick={() => openModal()}
                 className="btn-primary !py-2 !px-4 !text-sm"
               >
                 <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                 {siteConfig.ctas.bookService.label}
-              </Link>
+              </button>
             </div>
 
             {/* Mobile hamburger */}
@@ -112,6 +115,7 @@ export function Header() {
         items={siteConfig.nav}
         config={siteConfig.ctas}
         phone={siteConfig.company.phone}
+        onBookService={() => openModal()}
       />
     </>
   )

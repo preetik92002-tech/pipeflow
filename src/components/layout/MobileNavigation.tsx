@@ -14,9 +14,10 @@ interface MobileNavigationProps {
   items: NavItem[]
   config: CTAConfig
   phone: string
+  onBookService?: () => void
 }
 
-export function MobileNavigation({ isOpen, onClose, items, config, phone }: MobileNavigationProps) {
+export function MobileNavigation({ isOpen, onClose, items, config, phone, onBookService }: MobileNavigationProps) {
   const pathname = usePathname()
 
   useEffect(() => {
@@ -123,13 +124,24 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
 
         {/* CTA section */}
         <div className="border-t border-neutral-100 p-4 space-y-2 flex-shrink-0">
-          <Link
-            href={config.bookService.href}
-            className="btn-primary w-full justify-center"
-          >
-            <Calendar className="h-4 w-4" aria-hidden="true" />
-            {config.bookService.label}
-          </Link>
+          {onBookService ? (
+            <button
+              type="button"
+              onClick={() => { onClose(); onBookService(); }}
+              className="btn-primary w-full justify-center"
+            >
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              {config.bookService.label}
+            </button>
+          ) : (
+            <Link
+              href={config.bookService.href}
+              className="btn-primary w-full justify-center"
+            >
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              {config.bookService.label}
+            </Link>
+          )}
           <Link
             href={config.getQuote.href}
             className="btn-outline w-full justify-center"

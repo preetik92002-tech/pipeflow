@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { FloatingCallButton } from '@/components/layout/FloatingCallButton'
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
+import { BookingModalProvider } from '@/components/booking/BookingModalProvider'
 import { generateMetadata as genMeta, generateLocalBusinessSchema } from '@/lib/seo/metadata'
 import './globals.css'
 
@@ -36,14 +37,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen flex flex-col">
-        <AnalyticsProvider />
-        <Header />
-        <main id="main-content" className="flex-1 pb-16 lg:pb-0" tabIndex={-1}>
-          {children}
-        </main>
-        <Footer />
-        <StickyMobileCTA />
-        <FloatingCallButton />
+        <BookingModalProvider>
+          <AnalyticsProvider />
+          <Header />
+          <main id="main-content" className="flex-1 pb-16 lg:pb-0" tabIndex={-1}>
+            {children}
+          </main>
+          <Footer />
+          <StickyMobileCTA />
+          <FloatingCallButton />
+        </BookingModalProvider>
       </body>
     </html>
   )

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, Suspense } from 'react'
 import Image from 'next/image'
@@ -198,14 +198,16 @@ export default function AdminLoginPage() {
 
         <div className="relative z-10 flex flex-col h-full px-10 py-12 xl:px-16">
           <Link href="/" className="inline-block w-fit">
-            <Image
-              src="/assets/logo.png"
-              alt="PipeFlow Co."
-              width={160}
-              height={48}
-              className="h-10 w-auto object-contain brightness-0 invert"
-              priority
-            />
+            <div className="bg-white rounded-xl px-4 py-2 inline-block">
+              <Image
+                src="/assets/logo.png"
+                alt="PipeFlow Co."
+                width={160}
+                height={48}
+                className="h-10 w-auto object-contain"
+                priority
+              />
+            </div>
           </Link>
 
           <div className="mt-auto mb-auto pt-16">

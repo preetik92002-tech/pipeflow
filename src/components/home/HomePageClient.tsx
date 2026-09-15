@@ -15,15 +15,17 @@ import { BlogPreview } from '@/components/sections/BlogPreview'
 import { PartnerCTA } from '@/components/sections/PartnerCTA'
 import { FinalCTA } from '@/components/sections/FinalCTA'
 import { FloatingVideo } from '@/components/video/FloatingVideo'
+import { useBookingModal } from '@/components/booking/BookingModalProvider'
 import { siteConfig } from '@/lib/config/site'
 
 export function HomePageClient() {
   const [selectedCategory, setSelectedCategory] = useState<'plumbing' | 'hvac'>('plumbing')
+  const { openModal } = useBookingModal()
 
   return (
     <>
       {/* 1. High-Impact Animated Hero with Service Chips */}
-      <Hero onSelectCategory={(cat) => setSelectedCategory(cat)} />
+      <Hero onSelectCategory={(cat) => setSelectedCategory(cat)} onBookService={() => openModal()} />
 
       {/* 2. Fast-Response & Trust Strip */}
       <EmergencyResponseStrip />
