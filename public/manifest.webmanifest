@@ -1,0 +1,16 @@
+{
+  "name": "PipeFlow Co.",
+  "short_name": "PipeFlow",
+  "description": "Denver Plumbing & HVAC Services",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1728",
+  "theme_color": "#1F5FAD",
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
