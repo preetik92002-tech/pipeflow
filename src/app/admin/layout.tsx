@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -40,9 +40,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  const [authorized, setAuthorized] = useState<boolean | null>(null)
 
   // Don't render admin sidebar shell for login and unauthorized pages
   const isBarePage = pathname === '/admin/login' || pathname === '/admin/unauthorized'
+
+  useEffect(() => {
+    if (isBarePage) return
+
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push(`/admin/login?redirectTo=${encodeURIComponent(pathname)}`)
+      } else {
+        setAuthorized(true)
+      }
+    })
+  }, [pathname, isBarePage, router])
+
   if (isBarePage) {
     return <>{children}</>
   }
