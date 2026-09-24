@@ -36,7 +36,8 @@ export async function verifyAdminAuth(): Promise<AdminAuthResult> {
     }
 
     // 1. Check user metadata first (if role is directly encoded into app_metadata or user_metadata)
-    const metaRole = (user.app_metadata?.role || user.user_metadata?.role) as string | undefined
+    // user_metadata is user-editable and must never grant administrative access.
+    const metaRole = user.app_metadata?.role as string | undefined
     if (metaRole && ADMIN_ROLES.includes(metaRole.toLowerCase())) {
       return {
         authenticated: true,
@@ -73,13 +74,14 @@ export async function verifyAdminAuth(): Promise<AdminAuthResult> {
       role: profile?.role || 'user',
       error: 'Forbidden: User is authenticated but does not possess admin privileges.',
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Server error verifying authentication.'
     return {
       authenticated: false,
       authorized: false,
       user: null,
       role: null,
-      error: err?.message || 'Server error verifying authentication.',
+      error: message,
     }
   }
 }

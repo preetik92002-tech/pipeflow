@@ -1,4 +1,5 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import 'server-only'
 
 /**
  * Server-only Supabase admin client utilizing the SERVICE_ROLE key.
@@ -12,14 +13,12 @@ export function createAdminClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !serviceRoleKey) {
-    console.warn(
-      '[SUPABASE ADMIN] Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. Admin bypass client running in stub mode.'
-    )
+    throw new Error('Supabase admin access is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.')
   }
 
   return createSupabaseClient(
-    supabaseUrl || 'https://placeholder.supabase.co',
-    serviceRoleKey || 'placeholder-service-key',
+    supabaseUrl,
+    serviceRoleKey,
     {
       auth: {
         persistSession: false,

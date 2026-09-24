@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
+import { checkSpam, checkRateLimit, sanitizeString } from '@/lib/forms/spamProtection'
+import { randomUUID } from 'crypto'
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,8 +48,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    const spamCheck = checkSpam({ honeypotValue: body.website_url_hp, submittedAt: body.formOpenedAt })
+    if (spamCheck.isSpam) return NextResponse.json({ success: true, message: 'Request received' }, { status: 200 })
+    const rateLimit = checkRateLimit(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown', 8, 60)
+    if (!rateLimit.allowed) return NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 })
+
     // Validate core contact and service fields
-    if (!body.name || !body.phone || !body.serviceCategory || !body.zipCode) {
+    if (!body.name || !body.phone || !(body.serviceCategory || body.serviceType)) {
       return NextResponse.json(
         { error: 'Missing required fields (Name, Phone, Service Category, ZIP code)' },
         { status: 400 }
@@ -55,30 +62,27 @@ export async function POST(request: NextRequest) {
     }
 
     const leadRecord = {
-      name: body.name,
-      phone: body.phone,
-      email: body.email || null,
-      service_type: body.specificService || body.serviceCategory || 'general',
-      service_area: body.zipCode,
-      message: body.message || null,
-      preferred_time: body.preferredTime || null,
+      lead_id: `LD-${randomUUID()}`,
+      name: sanitizeString(body.name),
+      phone: sanitizeString(body.phone),
+      email: sanitizeString(body.email) || null,
+      service_category: sanitizeString(body.serviceCategory || body.serviceType || 'general'),
+      specific_service: sanitizeString(body.specificService || body.serviceType) || null,
+      zip_code: sanitizeString(body.zipCode) || null,
+      service_area: sanitizeString(body.serviceArea || body.zipCode) || null,
+      message: sanitizeString(body.message) || null,
+      preferred_time: sanitizeString(body.preferredTime) || null,
       is_emergency: Boolean(body.isEmergency),
-      source: 'website_homepage',
+      lead_type: body.serviceType ? 'contact' : 'service_request',
       status: 'new',
     }
 
-    // Attempt Supabase insert with RLS public insert policy
-    try {
-      const supabase = await createClient()
-      const { error: insertError } = await supabase.from('leads').insert([leadRecord])
-      if (insertError) {
-        console.warn('[LEAD API SUPABASE INSERT NOTICE]', insertError.message)
-      }
-    } catch (dbErr: any) {
-      console.warn('[LEAD API SUPABASE EXCEPTION]', dbErr?.message)
+    const supabase = await createClient()
+    const { error: insertError } = await supabase.from('leads').insert([leadRecord])
+    if (insertError) {
+      console.error('[LEAD API] Database insert failed:', insertError.message)
+      return NextResponse.json({ error: 'We could not save your request. Please try again or call us.' }, { status: 503 })
     }
-
-    console.log('[LEAD SUBMISSION SUCCESS]', leadRecord)
 
     return NextResponse.json(
       {

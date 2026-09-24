@@ -21,14 +21,30 @@ export async function middleware(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const isConfigured =
+  const isConfigured = Boolean(
     supabaseUrl &&
     supabaseKey &&
     !supabaseUrl.includes('placeholder') &&
     !supabaseKey.includes('placeholder')
+  )
+
+  const isProtectedAdminRoute =
+    pathname.startsWith('/admin') &&
+    pathname !== '/admin/login' &&
+    pathname !== '/admin/unauthorized'
+
+  // Fail closed: without Supabase configuration, no protected admin route is available.
+  if (isProtectedAdminRoute && !isConfigured) {
+    return NextResponse.redirect(new URL('/admin/login?setup=required', request.url))
+  }
 
   // Always refresh cookies for Supabase session persistence
-  if (isConfigured) {
+  if (
+    supabaseUrl &&
+    supabaseKey &&
+    !supabaseUrl.includes('placeholder') &&
+    !supabaseKey.includes('placeholder')
+  ) {
     const supabase = createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
@@ -51,18 +67,13 @@ export async function middleware(request: NextRequest) {
 
     // 1. If trying to access admin login page while already authenticated as admin, redirect to /admin
     if (pathname === '/admin/login' && user) {
-      const metaRole = (user.app_metadata?.role || user.user_metadata?.role) as string | undefined
+      const metaRole = user.app_metadata?.role as string | undefined
       if (metaRole && ADMIN_ROLES.includes(metaRole.toLowerCase())) {
         return NextResponse.redirect(new URL('/admin/dashboard', request.url))
       }
     }
 
     // 2. Protect all /admin routes except /admin/login and /admin/unauthorized
-    const isProtectedAdminRoute =
-      pathname.startsWith('/admin') &&
-      pathname !== '/admin/login' &&
-      pathname !== '/admin/unauthorized'
-
     if (isProtectedAdminRoute) {
       // Not logged in -> redirect to admin login with return URL
       if (!user) {
@@ -72,7 +83,7 @@ export async function middleware(request: NextRequest) {
       }
 
       // Check role authorization
-      const metaRole = (user.app_metadata?.role || user.user_metadata?.role) as string | undefined
+      const metaRole = user.app_metadata?.role as string | undefined
       let isAuthorized = metaRole ? ADMIN_ROLES.includes(metaRole.toLowerCase()) : false
 
       // If not in metadata, check via user query in profiles table
@@ -88,10 +99,8 @@ export async function middleware(request: NextRequest) {
         }
       }
 
-      // If user has no role or is not admin, redirect to unauthorized page
-      // Note: If no profiles table exists yet (initial install), we allow authenticated user through
-      // so they can configure the app initially without being locked out.
-      if (!isAuthorized && metaRole && !ADMIN_ROLES.includes(metaRole.toLowerCase())) {
+      // Missing profile data is not authorization. Deny by default.
+      if (!isAuthorized) {
         return NextResponse.redirect(new URL('/admin/unauthorized', request.url))
       }
     }

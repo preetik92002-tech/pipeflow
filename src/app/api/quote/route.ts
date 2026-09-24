@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
 import { createClient } from '@/lib/supabase/server'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
+import { randomUUID } from 'crypto'
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,8 +23,9 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
     const { data: quotes, error: dbError } = await supabase
-      .from('quote_requests')
+      .from('leads')
       .select('*')
+      .eq('lead_type', 'quote_request')
       .order('created_at', { ascending: false })
 
     if (dbError) {
@@ -65,24 +67,24 @@ export async function POST(request: NextRequest) {
     }
 
     const quoteRecord = {
+      lead_id: `QT-${randomUUID()}`,
       name: sanitizeString(body.name),
       phone: sanitizeString(body.phone),
       email: sanitizeString(body.email) || null,
-      service_type: body.specificService || body.serviceCategory || 'general',
-      description: sanitizeString(body.message) || sanitizeString(body.projectType) || null,
-      preferred_date: body.preferredDate || null,
-      status: 'pending',
-      created_at: new Date().toISOString(),
+      service_category: sanitizeString(body.serviceCategory || 'general'),
+      specific_service: sanitizeString(body.specificService) || null,
+      zip_code: sanitizeString(body.zipCode),
+      message: sanitizeString(body.message) || sanitizeString(body.projectType) || null,
+      preferred_time: sanitizeString(body.preferredDate) || null,
+      lead_type: 'quote_request',
+      status: 'new',
     }
 
-    try {
-      const supabase = await createClient()
-      const { error: insertError } = await supabase.from('quote_requests').insert([quoteRecord])
-      if (insertError) {
-        console.warn('[QUOTE API SUPABASE INSERT NOTICE]', insertError.message)
-      }
-    } catch (dbErr: any) {
-      console.warn('[QUOTE API SUPABASE EXCEPTION]', dbErr?.message)
+    const supabase = await createClient()
+    const { error: insertError } = await supabase.from('leads').insert([quoteRecord])
+    if (insertError) {
+      console.error('[QUOTE API] Database insert failed:', insertError.message)
+      return NextResponse.json({ error: 'We could not save your quote request. Please try again.' }, { status: 503 })
     }
 
     const quoteId = `QT-${Date.now().toString().slice(-6)}`

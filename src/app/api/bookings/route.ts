@@ -81,18 +81,12 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     }
 
-    // Insert to Supabase with public insert policy
-    try {
-      const supabase = await createClient()
-      const { error: insertError } = await supabase.from('bookings').insert([bookingRecord])
-      if (insertError) {
-        console.warn('[BOOKING API SUPABASE INSERT NOTICE]', insertError.message)
-      }
-    } catch (dbErr: any) {
-      console.warn('[BOOKING API SUPABASE EXCEPTION]', dbErr?.message)
+    const supabase = await createClient()
+    const { error: insertError } = await supabase.from('bookings').insert([bookingRecord])
+    if (insertError) {
+      console.error('[BOOKING API] Database insert failed:', insertError.message)
+      return NextResponse.json({ error: 'We could not save your booking request. Please try again.' }, { status: 503 })
     }
-
-    console.log('[NEW BOOKING REQUEST RECEIVED]', bookingRecord)
 
     return NextResponse.json(
       {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
 import { createClient } from '@/lib/supabase/server'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
+import { randomUUID } from 'crypto'
 
 export async function GET(request: NextRequest) {
   try {
@@ -65,31 +66,28 @@ export async function POST(request: NextRequest) {
     }
 
     const applicationRecord = {
-      full_name: sanitizeString(body.name),
+      application_id: `PA-${randomUUID()}`,
+      name: sanitizeString(body.name),
+      company: sanitizeString(body.company) || null,
       phone: sanitizeString(body.phone),
       email: sanitizeString(body.email),
       trade: body.trade, // 'plumbing' | 'hvac' | 'both' | 'other'
-      years_experience: typeof body.years_experience === 'number' ? body.years_experience : 3,
-      license_number: sanitizeString(body.licenseInfo) || null,
+      experience: sanitizeString(String(body.experience ?? body.years_experience ?? '')) || null,
+      license_info: sanitizeString(body.licenseInfo) || null,
+      insurance_info: sanitizeString(body.insuranceInfo) || null,
+      website: sanitizeString(body.website) || null,
       service_areas: body.serviceAreas || [],
       message: sanitizeString(body.message) || null,
-      status: 'pending',
-      created_at: new Date().toISOString(),
+      document_name: sanitizeString(body.documentName) || null,
+      status: 'new',
     }
 
-    try {
-      const supabase = await createClient()
-      const { error: insertError } = await supabase
-        .from('pro_applications')
-        .insert([applicationRecord])
-      if (insertError) {
-        console.warn('[PRO APPLICATION SUPABASE INSERT NOTICE]', insertError.message)
-      }
-    } catch (dbErr: any) {
-      console.warn('[PRO APPLICATION SUPABASE EXCEPTION]', dbErr?.message)
+    const supabase = await createClient()
+    const { error: insertError } = await supabase.from('pro_applications').insert([applicationRecord])
+    if (insertError) {
+      console.error('[PRO APPLICATION API] Database insert failed:', insertError.message)
+      return NextResponse.json({ error: 'We could not save your application. Please try again.' }, { status: 503 })
     }
-
-    console.log('[NEW PRO APPLICATION RECORDED]', applicationRecord)
 
     return NextResponse.json(
       {
