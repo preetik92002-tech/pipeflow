@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 2. User Profiles & Roles
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.roles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name TEXT UNIQUE NOT NULL,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- 3. Service Categories & Services
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.service_categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   description TEXT,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.service_categories (
 );
 
 CREATE TABLE IF NOT EXISTS public.services (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   category_id UUID REFERENCES public.service_categories(id) ON DELETE SET NULL,
@@ -76,7 +76,7 @@ CREATE INDEX IF NOT EXISTS idx_services_active ON public.services(active);
 -- 4. Service Areas & Location Coverage
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.service_areas (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   state TEXT DEFAULT 'CO',
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.service_areas (
 );
 
 CREATE TABLE IF NOT EXISTS public.service_area_zips (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   service_area_id UUID NOT NULL REFERENCES public.service_areas(id) ON DELETE CASCADE,
   zip_code TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS public.service_area_zips (
 );
 
 CREATE TABLE IF NOT EXISTS public.service_area_services (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   service_area_id UUID NOT NULL REFERENCES public.service_areas(id) ON DELETE CASCADE,
   service_id UUID NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -113,7 +113,7 @@ CREATE INDEX IF NOT EXISTS idx_service_area_zips_code ON public.service_area_zip
 -- 5. Lead CRM, Attribution & Inquiries
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.leads (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   lead_id TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   phone TEXT NOT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS public.leads (
 );
 
 CREATE TABLE IF NOT EXISTS public.lead_notes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   lead_id UUID NOT NULL REFERENCES public.leads(id) ON DELETE CASCADE,
   author_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
   content TEXT NOT NULL,
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS public.lead_notes (
 );
 
 CREATE TABLE IF NOT EXISTS public.lead_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   lead_id UUID NOT NULL REFERENCES public.leads(id) ON DELETE CASCADE,
   event_type TEXT NOT NULL, -- 'status_change' | 'assignment' | 'note_added' | 'email_sent' | 'call_logged'
   details JSONB DEFAULT '{}'::JSONB,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS public.lead_events (
 );
 
 CREATE TABLE IF NOT EXISTS public.lead_assignments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   lead_id UUID NOT NULL REFERENCES public.leads(id) ON DELETE CASCADE,
   assigned_to UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   assigned_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
@@ -178,7 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_leads_zip ON public.leads(zip_code);
 -- 6. Bookings & Inquiries
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.bookings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   booking_id TEXT UNIQUE NOT NULL,
   lead_id UUID REFERENCES public.leads(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
@@ -208,7 +208,7 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
 -- 7. Pro Trade Partner Applications
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.pro_applications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   application_id TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   company TEXT,
@@ -235,7 +235,7 @@ CREATE INDEX IF NOT EXISTS idx_pro_apps_status ON public.pro_applications(status
 -- 8. Blog Engine
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.blog_categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   description TEXT,
@@ -244,14 +244,14 @@ CREATE TABLE IF NOT EXISTS public.blog_categories (
 );
 
 CREATE TABLE IF NOT EXISTS public.blog_tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.blogs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   seo_title TEXT,
@@ -285,14 +285,14 @@ CREATE TABLE IF NOT EXISTS public.blogs (
 );
 
 CREATE TABLE IF NOT EXISTS public.blog_tag_relations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   blog_id UUID NOT NULL REFERENCES public.blogs(id) ON DELETE CASCADE,
   tag_id UUID NOT NULL REFERENCES public.blog_tags(id) ON DELETE CASCADE,
   UNIQUE(blog_id, tag_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.blog_media (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   blog_id UUID REFERENCES public.blogs(id) ON DELETE CASCADE,
   filename TEXT NOT NULL,
   url TEXT NOT NULL,
@@ -309,7 +309,7 @@ CREATE INDEX IF NOT EXISTS idx_blogs_published_at ON public.blogs(published_at);
 -- 9. General Media Library
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.media (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   filename TEXT NOT NULL,
   url TEXT NOT NULL,
   bucket TEXT NOT NULL DEFAULT 'site-media',
@@ -327,7 +327,7 @@ CREATE TABLE IF NOT EXISTS public.media (
 -- 10. Testimonials, FAQs & Offers
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.testimonials (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   reviewer_name TEXT NOT NULL,
   reviewer_city TEXT,
   rating INT DEFAULT 5,
@@ -341,7 +341,7 @@ CREATE TABLE IF NOT EXISTS public.testimonials (
 );
 
 CREATE TABLE IF NOT EXISTS public.faqs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   question TEXT NOT NULL,
   answer TEXT NOT NULL,
   category TEXT,
@@ -351,7 +351,7 @@ CREATE TABLE IF NOT EXISTS public.faqs (
 );
 
 CREATE TABLE IF NOT EXISTS public.offers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   badge TEXT,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
@@ -367,7 +367,7 @@ CREATE TABLE IF NOT EXISTS public.offers (
 -- 11. Website Pages, Navigation & Site Settings
 -- --------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.pages (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   meta_title TEXT,
@@ -380,7 +380,7 @@ CREATE TABLE IF NOT EXISTS public.pages (
 );
 
 CREATE TABLE IF NOT EXISTS public.page_sections (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   page_id UUID NOT NULL REFERENCES public.pages(id) ON DELETE CASCADE,
   section_key TEXT NOT NULL,
   title TEXT,
@@ -391,7 +391,7 @@ CREATE TABLE IF NOT EXISTS public.page_sections (
 );
 
 CREATE TABLE IF NOT EXISTS public.navigation_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   label TEXT NOT NULL,
   href TEXT NOT NULL,
   location TEXT DEFAULT 'header', -- 'header' | 'footer' | 'mobile'
@@ -402,7 +402,7 @@ CREATE TABLE IF NOT EXISTS public.navigation_items (
 );
 
 CREATE TABLE IF NOT EXISTS public.site_settings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   setting_key TEXT UNIQUE NOT NULL,
   setting_value JSONB NOT NULL DEFAULT '{}'::JSONB,
   description TEXT,
@@ -410,7 +410,7 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
 );
 
 CREATE TABLE IF NOT EXISTS public.seo_settings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   default_title TEXT NOT NULL,
   title_template TEXT NOT NULL,
   default_description TEXT NOT NULL,
@@ -421,7 +421,7 @@ CREATE TABLE IF NOT EXISTS public.seo_settings (
 );
 
 CREATE TABLE IF NOT EXISTS public.analytics_settings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   ga_measurement_id TEXT,
   google_ads_id TEXT,
   meta_pixel_id TEXT,
