@@ -1,4 +1,4 @@
-import GetAQuotePage, { metadata } from '@/app/get-a-quote/page'
+import GetAQuotePage, { generateMetadata } from '@/app/get-a-quote/page'
 
-export { metadata }
+export { generateMetadata }
 export default GetAQuotePage

@@ -14,3 +14,7 @@ CREATE POLICY "Public read safe site settings" ON public.site_settings
 DROP POLICY IF EXISTS "Public read seo settings" ON public.seo_settings;
 CREATE POLICY "Public read seo settings" ON public.seo_settings
   FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read analytics settings" ON public.analytics_settings;
+CREATE POLICY "Public read analytics settings" ON public.analytics_settings
+  FOR SELECT USING (true);

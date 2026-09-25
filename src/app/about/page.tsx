@@ -19,12 +19,12 @@ import { siteConfig } from '@/lib/config/site'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import { PageHero } from '@/components/sections/PageHero'
 
-export const metadata: Metadata = genMeta({
+export async function generateMetadata(): Promise<Metadata> { return genMeta({
   title: 'About PipeFlow Co. — Denver Plumbing & HVAC Specialists',
   description:
     'Learn about PipeFlow Co., our dedication to Colorado craftsmanship, upfront honest pricing, and uniting residential plumbing and HVAC under one trusted brand.',
   path: '/about',
-})
+}) }
 
 const values = [
   {

@@ -20,7 +20,7 @@ import {
 import { siteConfig } from '@/lib/config/site'
 import { getService, getServices, getServiceAreas, toSiteService } from '@/lib/cms/queries'
 import { Accordion } from '@/components/ui/Accordion'
-import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
 
 interface ServiceDetailPageProps {
   params: Promise<{
@@ -54,7 +54,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
   const service = toSiteService(serviceRecord)
 
   const isPlumbing = category === 'plumbing'
-  const [categoryServices, serviceAreas] = await Promise.all([getServices(category), getServiceAreas()])
+  const [categoryServices, serviceAreas, company] = await Promise.all([getServices(category), getServiceAreas(), getPublicCompanySettings()])
   const relatedServices = categoryServices.map(toSiteService)
     .filter((s) => s.slug !== slug)
     .slice(0, 3)
@@ -66,8 +66,8 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
     description: service.shortDescription,
     provider: {
       '@type': 'Plumber',
-      name: siteConfig.company.name,
-      telephone: siteConfig.company.phone,
+      name: company.name || siteConfig.company.name,
+      telephone: company.phone || siteConfig.company.phone,
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Denver',
@@ -215,11 +215,11 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
               Get a Quote
             </Link>
             <a
-              href={`tel:${siteConfig.company.phone}`}
+              href={`tel:${company.phone || siteConfig.company.phone}`}
               className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white px-2 py-3.5"
             >
               <Phone className="h-4 w-4 text-brand-red" />
-              Call: {siteConfig.company.phone}
+              Call: {company.phone || siteConfig.company.phone}
             </a>
           </div>
         </div>
@@ -340,8 +340,8 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
               >
                 Book This Service
               </Link>
-              <a href={`tel:${siteConfig.company.phone}`} className="btn-outline !text-white !border-white/30 text-xs !py-3 !px-5">
-                Call {siteConfig.company.phone}
+              <a href={`tel:${company.phone || siteConfig.company.phone}`} className="btn-outline !text-white !border-white/30 text-xs !py-3 !px-5">
+                Call {company.phone || siteConfig.company.phone}
               </a>
             </div>
           </div>

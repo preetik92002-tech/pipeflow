@@ -17,7 +17,7 @@ import {
   ArrowLeft,
   ShieldCheck,
 } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
 import type { Service } from '@/types'
 
@@ -34,6 +34,7 @@ export function GuidedBookingFunnel({
   initialArea,
   services,
 }: GuidedBookingFunnelProps) {
+  const { company } = useSiteSettings()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [bookingConfirmed, setBookingConfirmed] = useState<string | null>(null)
@@ -168,11 +169,11 @@ export function GuidedBookingFunnel({
             Return to Homepage
           </Link>
           <a
-            href={`tel:${siteConfig.company.phone}`}
+            href={`tel:${company.phone}`}
             className="btn-outline !py-2.5 !px-6 text-xs inline-flex items-center gap-1.5"
           >
             <Phone className="h-3.5 w-3.5 text-brand-red" />
-            Call Dispatch: {siteConfig.company.phone}
+            Call Dispatch: {company.phone}
           </a>
         </div>
       </div>

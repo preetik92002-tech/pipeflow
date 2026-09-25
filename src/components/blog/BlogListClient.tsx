@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Search, BookOpen, Calendar, Clock, ArrowRight, User, Phone, Sparkles } from 'lucide-react'
 import { BlogCard } from './BlogCard'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import type { BlogPost, BlogCategory } from '@/lib/blog/types'
 import { PageHero } from '@/components/sections/PageHero'
 
@@ -15,6 +15,7 @@ interface BlogListClientProps {
 }
 
 export function BlogListClient({ initialPosts, categories }: BlogListClientProps) {
+  const { company } = useSiteSettings()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
@@ -217,9 +218,9 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
               <Calendar className="h-3.5 w-3.5" />
               <span>Schedule Inspection</span>
             </Link>
-            <a href={`tel:${siteConfig.company.phone}`} className="btn-outline !py-3 !px-5 text-xs text-white border-white/30">
+            <a href={`tel:${company.phone}`} className="btn-outline !py-3 !px-5 text-xs text-white border-white/30">
               <Phone className="h-3.5 w-3.5" />
-              <span>{siteConfig.company.phone}</span>
+              <span>{company.phone}</span>
             </a>
           </div>
         </div>

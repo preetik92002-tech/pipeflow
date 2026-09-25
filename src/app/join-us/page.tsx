@@ -18,12 +18,12 @@ import { Accordion } from '@/components/ui/Accordion'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import { PageHero } from '@/components/sections/PageHero'
 
-export const metadata: Metadata = genMeta({
+export async function generateMetadata(): Promise<Metadata> { return genMeta({
   title: 'Grow Your Business With PipeFlow — Pro Trade Partner Network',
   description:
     'Join PipeFlow Co. as a licensed plumber, HVAC technician, or independent service contractor in Denver, Colorado. Steady residential dispatch, weekly payouts, and top support.',
   path: '/join-us',
-})
+}) }
 
 const proFaqs = [
   {

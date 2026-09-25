@@ -1,4 +1,4 @@
-import JoinUsPage, { metadata } from '@/app/join-us/page'
+import JoinUsPage, { generateMetadata } from '@/app/join-us/page'
 
-export { metadata }
+export { generateMetadata }
 export default JoinUsPage

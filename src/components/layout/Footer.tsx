@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
+import { useSiteSettings } from './SiteSettingsProvider'
 
 const serviceLinks = [
   { label: 'Leak Repair & Detection', href: '/services/plumbing/leak-repair' },
@@ -59,7 +60,9 @@ const resourceLinks = [
 
 export function Footer() {
   const year = new Date().getFullYear()
-  const { company, social } = siteConfig
+  const { company: staticCompany, social } = siteConfig
+  const { company: liveCompany, emergencyAvailable } = useSiteSettings()
+  const company = { ...staticCompany, ...liveCompany }
 
   return (
     <footer
@@ -236,7 +239,7 @@ export function Footer() {
             </h4>
             <div className="space-y-3 text-neutral-300">
               <div>
-                <span className="text-2xs uppercase tracking-wider text-neutral-500 block">24/7 Phone Line</span>
+                <span className="text-2xs uppercase tracking-wider text-neutral-500 block">{emergencyAvailable ? '24/7 Phone Line' : 'Phone Line'}</span>
                 <a
                   href={`tel:${company.phone}`}
                   className="font-bold text-white hover:text-brand-blue-lighter transition-colors text-sm"

@@ -18,7 +18,7 @@ import { getPublishedBlogBySlug, getPublishedBlogs, toBlogPost, toBlogPosts } fr
 import { siteConfig } from '@/lib/config/site'
 import { Accordion } from '@/components/ui/Accordion'
 import { BlogCard } from '@/components/blog/BlogCard'
-import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>
@@ -53,6 +53,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound()
   }
 
+  const company = await getPublicCompanySettings()
+
   const relatedPosts = toBlogPosts(await getPublishedBlogs())
     .filter((related) => related.slug !== post.slug && related.categoryId === post.categoryId)
     .slice(0, 3)
@@ -74,7 +76,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     },
     publisher: {
       '@type': 'Organization',
-      name: siteConfig.company.name,
+      name: company.name || siteConfig.company.name,
       logo: {
         '@type': 'ImageObject',
         url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'}/assets/logo.png`,
@@ -300,11 +302,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 Request Upfront Quote
               </Link>
               <a
-                href={`tel:${siteConfig.company.phone}`}
+                href={`tel:${company.phone || siteConfig.company.phone}`}
                 className="inline-flex items-center gap-2 text-xs font-bold text-white/90 hover:text-white px-3 py-3"
               >
                 <Phone className="h-4 w-4 text-brand-red" />
-                Call: {siteConfig.company.phone}
+                Call: {company.phone || siteConfig.company.phone}
               </a>
             </div>
           </div>

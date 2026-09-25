@@ -16,7 +16,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import type { Service } from '@/types'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
@@ -50,6 +50,7 @@ interface AttributionData {
 }
 
 export function TellUsForm({ services }: { services: Service[] }) {
+  const { company } = useSiteSettings()
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -183,10 +184,10 @@ export function TellUsForm({ services }: { services: Service[] }) {
                 <div className="text-left">
                   <p className="text-xs text-neutral-300 font-medium">Need immediate help?</p>
                   <a
-                    href={`tel:${siteConfig.company.phone}`}
+                    href={`tel:${company.phone}`}
                     className="text-sm font-bold text-white hover:text-brand-blue-lighter transition-colors"
                   >
-                    {siteConfig.company.phone}
+                    {company.phone}
                   </a>
                 </div>
               </div>
@@ -206,7 +207,7 @@ export function TellUsForm({ services }: { services: Service[] }) {
                   and will contact you shortly to confirm your dispatch window.
                 </p>
                 <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-left mb-6 text-xs text-neutral-600 space-y-1">
-                  <p><strong>For emergency burst pipes or heating outages:</strong> Call us right away at {siteConfig.company.phone} for 24/7 priority response.</p>
+                  <p><strong>For emergency burst pipes or heating outages:</strong> Call us right away at {company.phone} for 24/7 priority response.</p>
                 </div>
                 <button
                   type="button"

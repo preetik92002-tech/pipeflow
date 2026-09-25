@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Settings,
   Phone,
@@ -46,15 +46,70 @@ export default function AdminSettingsPage() {
   const [emergencyAvailable, setEmergencyAvailable] = useState(true)
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3500)
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const loadSettings = async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const response = await fetch('/api/admin/settings')
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to load settings.')
+      if (result.company?.name) setCompanyName(result.company.name)
+      if (result.company?.phone) setPhone(result.company.phone)
+      if (result.company?.email) setEmail(result.company.email)
+      setAddress(result.company?.address ?? siteConfig.company.address)
+      setCity(result.company?.city ?? siteConfig.company.city)
+      setState(result.company?.state ?? siteConfig.company.state)
+      setZip(result.company?.zip ?? siteConfig.company.zip)
+      setLicense(result.company?.license ?? siteConfig.company.license)
+      setBannerEnabled(Boolean(result.banner?.enabled))
+      setBannerMessages(Array.isArray(result.banner?.messages) ? result.banner.messages.join('\n') : typeof result.banner?.text === 'string' ? result.banner.text : siteConfig.announcement.messages.join('\n'))
+      setGaMeasurementId(result.analytics?.ga_measurement_id || '')
+      setGoogleAdsId(result.analytics?.google_ads_id || '')
+      setGoogleAdsConversionLabel(result.analytics?.google_ads_conversion_label || '')
+      setMetaPixelId(result.analytics?.meta_pixel_id || '')
+      setTrackingEnabled(result.analytics?.tracking_enabled ?? false)
+      setWeekdayHours(result.hours?.weekday || '')
+      setWeekendHours(result.hours?.weekend || '')
+      setEmergencyAvailable(Boolean(result.hours?.emergency_available))
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Unable to load settings.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { void loadSettings() }, [])
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    showToast('These settings are not connected to persistent storage. Changes were not saved.')
+    setSaving(true)
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company: { name: companyName, phone, email, address, city, state, zip, license },
+          banner: { enabled: bannerEnabled, messages: bannerMessages.split('\n').map((line) => line.trim()).filter(Boolean) },
+          analytics: { ga_measurement_id: gaMeasurementId, google_ads_id: googleAdsId, google_ads_conversion_label: googleAdsConversionLabel, meta_pixel_id: metaPixelId, tracking_enabled: trackingEnabled },
+          hours: { weekday: weekdayHours, weekend: weekendHours, emergency_available: emergencyAvailable },
+        }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to save settings.')
+      showToast('Settings saved.')
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Unable to save settings.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -78,14 +133,17 @@ export default function AdminSettingsPage() {
         </div>
         <button
           onClick={handleSave}
+          disabled={saving || loading}
           className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-dark text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-xs self-start sm:self-auto"
         >
           <Save className="h-4 w-4" />
-          Save Settings
+          {saving ? 'Saving…' : 'Save Settings'}
         </button>
       </div>
 
       <form onSubmit={handleSave} className="space-y-8">
+        {loadError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{loadError} <button type="button" className="ml-2 underline" onClick={() => void loadSettings()}>Retry</button></div>}
+        {loading && <p role="status" className="text-sm text-neutral-600">Loading saved settings…</p>}
         {/* Database / Supabase Connection Status Card */}
         <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

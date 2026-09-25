@@ -24,7 +24,7 @@ import {
   PhoneCall,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { trackEvent } from '@/lib/analytics/tracker'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -104,6 +104,7 @@ function getAttribution() {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PipeFlowBookingModal({ isOpen, onClose, initialCategory, services: cmsServices, servicesError }: Props) {
+  const { company } = useSiteSettings()
   const [step, setStep] = useState(1)
   const [animDir, setAnimDir] = useState<'forward' | 'back'>('forward')
   const [isAnimating, setIsAnimating] = useState(false)
@@ -454,7 +455,7 @@ export function PipeFlowBookingModal({ isOpen, onClose, initialCategory, service
                   </button>
                 ) : (
                   <a
-                    href={`tel:${siteConfig.company.phone.replace(/\D/g, '')}`}
+                    href={`tel:${company.phone.replace(/\D/g, '')}`}
                     className="text-xs text-neutral-400 hover:text-brand-blue transition-colors flex items-center gap-1.5"
                   >
                     <PhoneCall className="h-3.5 w-3.5" />
@@ -633,6 +634,7 @@ function Step2Location({
   onCheckZip: (zip: string) => void
   zipChecking: boolean
 }) {
+  const { company } = useSiteSettings()
   const handleZipChange = (v: string) => {
     const clean = v.replace(/\D/g, '').slice(0, 5)
     updateForm({ zip: clean, serviceAreaCovered: null, city: '' })
@@ -695,7 +697,7 @@ function Step2Location({
               currently cover ZIP {form.zip}. You can still submit a request — we&apos;ll contact
               you if coverage expands, or you can{' '}
               <a
-                href={`tel:${siteConfig.company.phone.replace(/\D/g, '')}`}
+                    href={`tel:${company.phone.replace(/\D/g, '')}`}
                 className="underline font-semibold"
               >
                 call us directly
@@ -733,6 +735,7 @@ function Step3Schedule({
   form: BookingFormData
   updateForm: (p: Partial<BookingFormData>) => void
 }) {
+  const { company } = useSiteSettings()
   const today = new Date().toISOString().split('T')[0]
 
   return (
@@ -807,10 +810,10 @@ function Step3Schedule({
           For <span className="font-semibold text-brand-red">same-day emergency service</span>, skip
           scheduling and call us directly at{' '}
           <a
-            href={`tel:${siteConfig.company.phone.replace(/\D/g, '')}`}
+            href={`tel:${company.phone.replace(/\D/g, '')}`}
             className="font-bold text-brand-blue underline"
           >
-            {siteConfig.company.phone}
+            {company.phone}
           </a>
           .
         </p>
@@ -1020,6 +1023,7 @@ function SuccessScreen({
   data: BookingFormData | null
   onClose: () => void
 }) {
+  const { company } = useSiteSettings()
   return (
     <div className="flex flex-col items-center justify-center p-8 sm:p-10 text-center min-h-[380px]">
       <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-5">
@@ -1068,7 +1072,7 @@ function SuccessScreen({
           Done
         </button>
         <a
-          href={`tel:${siteConfig.company.phone.replace(/\D/g, '')}`}
+          href={`tel:${company.phone.replace(/\D/g, '')}`}
           className="flex-1 px-6 py-3 rounded-xl border-2 border-navy-900 text-navy-900 font-bold text-sm hover:bg-navy-50 transition-colors flex items-center justify-center gap-1.5"
         >
           <PhoneCall className="h-4 w-4" />

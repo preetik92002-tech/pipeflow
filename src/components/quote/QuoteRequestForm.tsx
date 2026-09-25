@@ -14,7 +14,7 @@ import {
   Building,
   Home,
 } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
 import type { Service } from '@/types'
 
@@ -31,6 +31,7 @@ export function QuoteRequestForm({
   initialArea,
   services,
 }: QuoteRequestFormProps) {
+  const { company } = useSiteSettings()
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -205,8 +206,8 @@ export function QuoteRequestForm({
                 <p className="font-bold text-navy-900">Need Immediate Emergency Dispatch?</p>
                 <p className="text-neutral-500">
                   Call our 24/7 desk directly at{' '}
-                  <a href={`tel:${siteConfig.company.phone}`} className="font-bold text-brand-blue hover:underline">
-                    {siteConfig.company.phone}
+                  <a href={`tel:${company.phone}`} className="font-bold text-brand-blue hover:underline">
+                    {company.phone}
                   </a>
                   .
                 </p>

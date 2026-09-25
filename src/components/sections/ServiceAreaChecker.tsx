@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Search, CheckCircle2, AlertCircle, Phone, ArrowRight } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import type { ServiceArea } from '@/types'
 
 export function ServiceAreaChecker({ areas }: { areas: ServiceArea[] }) {
+  const { company } = useSiteSettings()
   const [zipInput, setZipInput] = useState('')
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -109,10 +110,10 @@ export function ServiceAreaChecker({ areas }: { areas: ServiceArea[] }) {
                         <ArrowRight className="h-3 w-3" />
                       </Link>
                       <a
-                        href={`tel:${siteConfig.company.phone}`}
+                        href={`tel:${company.phone}`}
                         className="text-xs font-semibold text-green-800 hover:underline"
                       >
-                        or call {siteConfig.company.phone}
+                        or call {company.phone}
                       </a>
                     </div>
                   </div>
@@ -129,11 +130,11 @@ export function ServiceAreaChecker({ areas }: { areas: ServiceArea[] }) {
                       dispatch team directly. We frequently accommodate surrounding Front Range properties.
                     </p>
                     <a
-                      href={`tel:${siteConfig.company.phone}`}
+                      href={`tel:${company.phone}`}
                       className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-navy-900 bg-amber-200/80 px-3 py-1.5 rounded-lg hover:bg-amber-300 transition-colors"
                     >
                       <Phone className="h-3.5 w-3.5 text-brand-red" />
-                      Call Dispatch: {siteConfig.company.phone}
+                      Call Dispatch: {company.phone}
                     </a>
                   </div>
                 </div>

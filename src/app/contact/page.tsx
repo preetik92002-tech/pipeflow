@@ -16,12 +16,12 @@ import {
   ExternalLink,
   Calendar,
 } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
 import { PageHero } from '@/components/sections/PageHero'
 
 export default function ContactPage() {
-  const { company } = siteConfig
+  const { company } = useSiteSettings()
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)

@@ -10,11 +10,13 @@ import { AnnouncementBar } from './AnnouncementBar'
 import { useBookingModal } from '@/components/booking/BookingModalProvider'
 import { siteConfig } from '@/lib/config/site'
 import { cn } from '@/lib/cn'
+import { useSiteSettings } from './SiteSettingsProvider'
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { openModal } = useBookingModal()
+  const { company, announcementMessages } = useSiteSettings()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16)
@@ -24,7 +26,7 @@ export function Header() {
 
   return (
     <>
-      <AnnouncementBar messages={siteConfig.announcement.messages} />
+      {announcementMessages.length > 0 && <AnnouncementBar messages={announcementMessages} />}
       <header
         className={cn(
           'sticky top-0 z-40 w-full bg-white transition-all duration-300',
@@ -67,12 +69,12 @@ export function Header() {
             {/* Desktop CTA cluster */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
               <Link
-                href={`tel:${siteConfig.ctas.callNow.phone}`}
+                href={`tel:${company.phone}`}
                 className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-navy-700 hover:bg-neutral-100 transition-colors"
-                aria-label={`Call us: ${siteConfig.ctas.callNow.phone}`}
+                aria-label={`Call us: ${company.phone}`}
               >
                 <Phone className="h-3.5 w-3.5 text-brand-red" aria-hidden="true" />
-                <span className="hidden xl:inline text-sm font-semibold">{siteConfig.ctas.callNow.phone}</span>
+                <span className="hidden xl:inline text-sm font-semibold">{company.phone}</span>
                 <span className="xl:hidden text-sm font-semibold">Call</span>
               </Link>
 
@@ -114,7 +116,7 @@ export function Header() {
         onClose={() => setMobileMenuOpen(false)}
         items={siteConfig.nav}
         config={siteConfig.ctas}
-        phone={siteConfig.company.phone}
+        phone={company.phone}
         onBookService={() => openModal()}
       />
     </>

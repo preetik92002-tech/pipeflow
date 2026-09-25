@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
 import { QuoteRequestForm } from '@/components/quote/QuoteRequestForm'
-import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
 import { FileText, Phone } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { PageHero } from '@/components/sections/PageHero'
 import { getServices, toSiteService } from '@/lib/cms/queries'
 
-export const metadata: Metadata = genMeta({
+export async function generateMetadata(): Promise<Metadata> { return genMeta({
   title: 'Request a Free Quote — Denver Plumbing & HVAC | PipeFlow Co.',
   description:
     'Get a transparent, upfront quote for plumbing repairs, furnace replacement, heat pump upgrades, or AC installation in the Denver metro area.',
   path: '/get-a-quote',
-})
+}) }
 
 interface GetAQuotePageProps {
   searchParams: Promise<{
@@ -23,6 +23,7 @@ interface GetAQuotePageProps {
 
 export default async function GetAQuotePage({ searchParams }: GetAQuotePageProps) {
   const { service, category, area } = await searchParams
+  const company = await getPublicCompanySettings()
   const services = (await getServices()).map(toSiteService)
 
   return (
@@ -36,8 +37,8 @@ export default async function GetAQuotePage({ searchParams }: GetAQuotePageProps
         title="Request a transparent, no-obligation quote."
         description="Tell us about your home plumbing or HVAC project. We review every specification thoroughly to provide clear, upfront repair and replacement options."
         primaryCta={{
-          label: `Speak With An Estimator: ${siteConfig.company.phone}`,
-          href: `tel:${siteConfig.company.phone}`,
+          label: `Speak With An Estimator: ${company.phone || siteConfig.company.phone}`,
+          href: `tel:${company.phone || siteConfig.company.phone}`,
           variant: 'red',
           icon: Phone,
           isExternal: true,

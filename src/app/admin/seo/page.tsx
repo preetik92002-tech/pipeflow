@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Globe,
   Search,
@@ -37,6 +37,11 @@ export default function AdminSEOPage() {
     `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://pipeflowco.com/sitemap.xml`
   )
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [homepageTitle, setHomepageTitle] = useState('')
+  const [homepageDescription, setHomepageDescription] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
@@ -55,9 +60,46 @@ export default function AdminSEOPage() {
     setKeywords(keywords.filter((k) => k !== kw))
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const loadSettings = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/admin/seo')
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to load SEO settings.')
+      const data = result.settings
+      if (data) {
+        setSiteTitle(data.default_title || '')
+        setTitleTemplate(data.title_template || '%s | PipeFlow Co.')
+        setMetaDescription(data.default_description || '')
+        setCanonicalDomain(data.canonical_domain || 'https://pipeflowco.com')
+        setOgImage(data.default_og_image || '')
+        setKeywords(data.keywords || [])
+        setCustomRobots(data.robots_txt_custom || '')
+        setHomepageTitle(data.homepage_title || '')
+        setHomepageDescription(data.homepage_description || '')
+      }
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load SEO settings.')
+    } finally { setLoading(false) }
+  }
+
+  useEffect(() => { void loadSettings() }, [])
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    showToast('SEO settings are not connected to persistent storage. Changes were not saved.')
+    setSaving(true)
+    try {
+      const response = await fetch('/api/admin/seo', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ default_title: siteTitle, title_template: titleTemplate, default_description: metaDescription, canonical_domain: canonicalDomain, default_og_image: ogImage, keywords, robots_txt_custom: customRobots, homepage_title: homepageTitle, homepage_description: homepageDescription }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to save SEO settings.')
+      showToast('SEO settings saved.')
+    } catch (reason) {
+      showToast(reason instanceof Error ? reason.message : 'Unable to save SEO settings.')
+    } finally { setSaving(false) }
   }
 
   return (
@@ -82,14 +124,16 @@ export default function AdminSEOPage() {
         </div>
         <button
           onClick={handleSave}
+          disabled={saving || loading}
           className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-dark text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-xs self-start sm:self-auto"
         >
           <Save className="h-4 w-4" />
-          Save Changes
+          {saving ? 'Saving…' : 'Save Changes'}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {(loading || error) && <div role={error ? 'alert' : 'status'} className="lg:col-span-3 rounded-xl border border-neutral-200 bg-white p-4 text-sm">{error ? <>{error} <button type="button" className="underline" onClick={() => void loadSettings()}>Retry</button></> : 'Loading saved SEO settings…'}</div>}
         {/* Left 2 Cols: Form Config */}
         <form onSubmit={handleSave} className="lg:col-span-2 space-y-6">
           {/* Metadata Card */}
@@ -151,6 +195,15 @@ export default function AdminSEOPage() {
                 onChange={(e) => setCanonicalDomain(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-neutral-300 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-blue"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-700 mb-1">Default Open Graph Image URL</label>
+              <input type="text" value={ogImage} onChange={(e) => setOgImage(e.target.value)} className="w-full px-3.5 py-2.5 border border-neutral-300 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-blue" />
+            </div>
+            <div className="border-t border-neutral-200 pt-5 space-y-4">
+              <h3 className="text-sm font-bold text-navy-900">Homepage search metadata</h3>
+              <input type="text" aria-label="Homepage SEO title" placeholder="Homepage SEO title" value={homepageTitle} onChange={(e) => setHomepageTitle(e.target.value)} className="w-full px-3.5 py-2.5 border border-neutral-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue" />
+              <textarea aria-label="Homepage SEO description" rows={3} placeholder="Homepage SEO description" value={homepageDescription} onChange={(e) => setHomepageDescription(e.target.value)} className="w-full px-3.5 py-2.5 border border-neutral-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue" />
             </div>
           </div>
 

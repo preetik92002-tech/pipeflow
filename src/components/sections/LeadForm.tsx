@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Phone, Send, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { siteConfig } from '@/lib/config/site'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import type { ServiceArea } from '@/types'
 
 const schema = z.object({
@@ -29,6 +29,7 @@ interface LeadFormProps {
 }
 
 export function LeadForm({ className, compact = false, title, areas }: LeadFormProps) {
+  const { company } = useSiteSettings()
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -67,10 +68,10 @@ export function LeadForm({ className, compact = false, title, areas }: LeadFormP
         <p className="text-sm text-neutral-600">
           We&apos;ll be in touch shortly. For emergencies, call us directly at{' '}
           <a
-            href={`tel:${siteConfig.company.phone}`}
+            href={`tel:${company.phone}`}
             className="font-semibold text-brand-blue hover:underline"
           >
-            {siteConfig.company.phone}
+            {company.phone}
           </a>
           .
         </p>
@@ -271,11 +272,11 @@ export function LeadForm({ className, compact = false, title, areas }: LeadFormP
         <p className="mt-3 text-xs text-neutral-400 text-center">
           Or call us directly:{' '}
           <a
-            href={`tel:${siteConfig.company.phone}`}
+            href={`tel:${company.phone}`}
             className="font-semibold text-brand-blue hover:underline"
           >
             <Phone className="inline h-3 w-3 mr-0.5" aria-hidden="true" />
-            {siteConfig.company.phone}
+            {company.phone}
           </a>
         </p>
       </form>

@@ -1,4 +1,4 @@
-import BookServicePage, { metadata } from '@/app/book-service/page'
+import BookServicePage, { generateMetadata } from '@/app/book-service/page'
 
-export { metadata }
+export { generateMetadata }
 export default BookServicePage

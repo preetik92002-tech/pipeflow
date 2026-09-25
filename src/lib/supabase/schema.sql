@@ -6,6 +6,7 @@
 --   supabase/migrations/20260924000000_forms_auth_fixes.sql
 --   supabase/migrations/20260925000000_website_cms.sql
 --   supabase/migrations/20260925110000_rls_tightening.sql
+--   supabase/migrations/20260925120000_persist_site_and_seo_settings.sql
 --
 -- Canonical content tables:
 -- homepage_content(id, content, updated_at)

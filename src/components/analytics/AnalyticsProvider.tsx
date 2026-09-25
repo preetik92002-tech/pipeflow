@@ -3,10 +3,12 @@
 import { useEffect } from 'react'
 import Script from 'next/script'
 import { initAttribution, trackEvent } from '@/lib/analytics/tracker'
+import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 
 export function AnalyticsProvider() {
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
+  const { analytics } = useSiteSettings()
+  const gaId = analytics.enabled ? (analytics.gaMeasurementId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) : undefined
+  const metaPixelId = analytics.enabled ? (analytics.metaPixelId || process.env.NEXT_PUBLIC_META_PIXEL_ID) : undefined
 
   useEffect(() => {
     // Initialize attribution storage on initial load
