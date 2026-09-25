@@ -16,17 +16,20 @@ import {
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
+import type { Service } from '@/types'
 
 interface QuoteRequestFormProps {
   initialService?: string
   initialCategory?: string
   initialArea?: string
+  services: Service[]
 }
 
 export function QuoteRequestForm({
   initialService,
   initialCategory = 'plumbing',
   initialArea,
+  services,
 }: QuoteRequestFormProps) {
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -134,7 +137,7 @@ export function QuoteRequestForm({
     }
   }
 
-  const availableServices = siteConfig.defaultServices.filter((s) => s.category === category)
+  const availableServices = services.filter((s) => s.category === category)
 
   if (submitted) {
     return (
@@ -243,7 +246,7 @@ export function QuoteRequestForm({
                 onChange={(e) => {
                   const cat = e.target.value as 'plumbing' | 'hvac'
                   setCategory(cat)
-                  const firstMatching = siteConfig.defaultServices.find((s) => s.category === cat)
+                  const firstMatching = services.find((s) => s.category === cat)
                   if (firstMatching) setSpecificService(firstMatching.slug)
                 }}
                 className="form-input text-xs"

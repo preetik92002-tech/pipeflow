@@ -11,6 +11,7 @@ import {
 import dynamic from 'next/dynamic'
 
 type Category = 'plumbing' | 'hvac'
+interface ServiceOption { id: string; name: string; category: Category; description: string }
 
 interface BookingModalContextValue {
   openModal: (initialCategory?: Category) => void
@@ -33,6 +34,18 @@ const PipeFlowBookingModal = dynamic(
 export function BookingModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [initialCategory, setInitialCategory] = useState<Category | undefined>(undefined)
+  const [services, setServices] = useState<ServiceOption[]>([])
+  const [servicesError, setServicesError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    void fetch('/api/public/services', { cache: 'no-store' }).then(async (response) => {
+      const result: { services?: Array<{ id: string; title: string; slug: string; category: Category; short_description: string }>; error?: string } = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to load the service list.')
+      if (active) setServices((result.services ?? []).map((service) => ({ id: service.slug, name: service.title, category: service.category, description: service.short_description })))
+    }).catch((error: unknown) => { if (active) setServicesError(error instanceof Error ? error.message : 'Unable to load the service list.') })
+    return () => { active = false }
+  }, [])
 
   const openModal = useCallback((cat?: Category) => {
     setInitialCategory(cat)
@@ -60,6 +73,8 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
           isOpen={isOpen}
           onClose={closeModal}
           initialCategory={initialCategory}
+          services={services}
+          servicesError={servicesError}
         />
       )}
     </BookingModalContext.Provider>

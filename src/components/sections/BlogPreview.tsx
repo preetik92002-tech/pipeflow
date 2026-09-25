@@ -3,13 +3,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, BookOpen, Calendar } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
+import type { BlogPost } from '@/lib/blog/types'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
-export function BlogPreview() {
-  const posts = siteConfig.defaultBlogPosts.filter((p) => p.published).slice(0, 3)
+export function BlogPreview({ posts }: { posts: BlogPost[] }) {
+  const visiblePosts = posts.slice(0, 3)
 
-  if (posts.length === 0) return null
+  if (visiblePosts.length === 0) return null
 
   return (
     <section
@@ -48,7 +48,7 @@ export function BlogPreview() {
 
         {/* 3 Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {posts.map((post, index) => (
+          {visiblePosts.map((post, index) => (
             <ScrollReveal
               key={post.id}
               delay={index * 100}
@@ -58,10 +58,10 @@ export function BlogPreview() {
             >
               <article className="group flex flex-col rounded-3xl bg-white border border-neutral-200/80 overflow-hidden shadow-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 h-full">
                 {/* Image */}
-                {post.imageUrl && (
+                {post.featuredImage && (
                   <div className="relative aspect-[16/10] overflow-hidden bg-neutral-100">
                     <Image
-                      src={post.imageUrl}
+                      src={post.featuredImage}
                       alt={post.title}
                       fill
                       className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
@@ -69,7 +69,7 @@ export function BlogPreview() {
                     />
                     <div className="absolute top-4 left-4">
                       <span className="rounded-full bg-navy-900/90 text-white px-3 py-1 text-2xs font-bold uppercase tracking-wider backdrop-blur-xs shadow-sm">
-                        {post.category}
+                        {post.categoryName}
                       </span>
                     </div>
                   </div>
@@ -80,7 +80,7 @@ export function BlogPreview() {
                   <div>
                     <div className="flex items-center gap-1.5 text-2xs text-neutral-400 mb-2.5">
                       <Calendar className="h-3 w-3" aria-hidden="true" />
-                      <time>{post.publishedAt}</time>
+                      <time>{new Date(post.publishedAt).toLocaleDateString()}</time>
                     </div>
 
                     <h3 className="text-lg font-bold font-heading text-navy-900 mb-2 group-hover:text-brand-blue transition-colors line-clamp-2">

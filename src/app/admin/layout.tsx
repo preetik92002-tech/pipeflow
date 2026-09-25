@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
+  Home,
   Users,
   HardHat,
   BookOpen,
@@ -19,15 +20,20 @@ import {
   X,
   ShieldCheck,
   LogOut,
+  MessageSquare,
+  CircleHelp,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { createClient } from '@/lib/supabase/client'
 
 const adminNav = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'Homepage', href: '/admin/home', icon: Home },
   { label: 'Leads & Inquiries', href: '/admin/leads', icon: Users },
   { label: 'Pro Applications', href: '/admin/pro-applications', icon: HardHat },
   { label: 'Blog Engine', href: '/admin/blogs', icon: BookOpen },
+  { label: 'Testimonials', href: '/admin/testimonials', icon: MessageSquare },
+  { label: 'FAQs', href: '/admin/faqs', icon: CircleHelp },
   { label: 'Services', href: '/admin/services', icon: Wrench },
   { label: 'Service Areas', href: '/admin/service-areas', icon: MapPin },
   { label: 'Media Library', href: '/admin/media', icon: ImageIcon },

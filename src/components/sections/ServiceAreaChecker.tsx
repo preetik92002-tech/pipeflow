@@ -5,37 +5,31 @@ import Link from 'next/link'
 import { MapPin, Search, CheckCircle2, AlertCircle, Phone, ArrowRight } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
+import type { ServiceArea } from '@/types'
 
-export function ServiceAreaChecker() {
+export function ServiceAreaChecker({ areas }: { areas: ServiceArea[] }) {
   const [zipInput, setZipInput] = useState('')
+  const [checking, setChecking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [checkResult, setCheckResult] = useState<{
     searched: boolean
     covered: boolean
     areaName?: string
   } | null>(null)
 
-  const handleCheck = (e: React.FormEvent) => {
+  const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault()
     const trimmed = zipInput.trim()
     if (!trimmed) return
-
-    // Search against approved areas
-    let match = siteConfig.defaultServiceAreas.find(
-      (area) => area.zipCodes && area.zipCodes.includes(trimmed)
-    )
-
-    // Also match if user typed city name
-    if (!match) {
-      match = siteConfig.defaultServiceAreas.find(
-        (area) => area.name.toLowerCase() === trimmed.toLowerCase()
-      )
-    }
-
-    if (match) {
-      setCheckResult({ searched: true, covered: true, areaName: match.name })
-    } else {
-      setCheckResult({ searched: true, covered: false })
-    }
+    setChecking(true); setError(null); setCheckResult(null)
+    try {
+      const key = /^\d{5}$/.test(trimmed) ? 'zip' : 'city'
+      const response = await fetch(`/api/service-areas/check?${key}=${encodeURIComponent(trimmed)}`)
+      const result: { covered?: boolean; city?: string | null; error?: string } = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Service area availability is temporarily unavailable.')
+      setCheckResult({ searched: true, covered: Boolean(result.covered), areaName: result.city || undefined })
+    } catch (e) { setError(e instanceof Error ? e.message : 'Unable to check availability.') }
+    finally { setChecking(false) }
   }
 
   return (
@@ -58,15 +52,14 @@ export function ServiceAreaChecker() {
             Check Service Availability
           </h2>
           <p className="text-neutral-600 text-base sm:text-lg">
-            PipeFlow Co. proudly provides fast dispatch across Denver, Arapahoe, Jefferson, Adams,
-            and Douglas counties.
+            Check an active service location by ZIP code or city.
           </p>
         </ScrollReveal>
 
         {/* Interactive ZIP / City Checker Box */}
         <ScrollReveal delay={120} direction="up" distance={20} className="max-w-xl mx-auto mb-14">
           <form
-            onSubmit={handleCheck}
+            onSubmit={(event) => void handleCheck(event)}
             className="flex flex-col sm:flex-row items-stretch gap-2.5 p-2 rounded-2xl bg-neutral-50 border border-neutral-200 shadow-sm"
           >
             <div className="relative flex-1">
@@ -75,13 +68,13 @@ export function ServiceAreaChecker() {
                 aria-hidden="true"
               />
               <input
-                type="text"
+              type="text"
                 value={zipInput}
                 onChange={(e) => {
                   setZipInput(e.target.value)
                   if (checkResult) setCheckResult(null)
                 }}
-                placeholder="Enter 5-digit ZIP code or Denver city..."
+                placeholder="Enter a 5-digit ZIP code or city..."
                 className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-neutral-200 text-sm text-navy-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-blue"
               />
             </div>
@@ -89,9 +82,10 @@ export function ServiceAreaChecker() {
               type="submit"
               className="btn-primary !py-3 !px-6 text-sm whitespace-nowrap shadow-xs hover:shadow-md"
             >
-              Check Availability
+              {checking ? 'Checking…' : 'Check Availability'}
             </button>
           </form>
+          {error && <p role="alert" className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
 
           {/* Instant Result Card */}
           {checkResult && checkResult.searched && (
@@ -150,7 +144,7 @@ export function ServiceAreaChecker() {
 
         {/* Location Cards Grid */}
         <ScrollReveal delay={200} direction="up" distance={20} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
-          {siteConfig.defaultServiceAreas.map((area) => (
+          {areas.map((area) => (
             <Link
               key={area.id}
               href={`/service-areas/${area.slug}`}
@@ -173,7 +167,7 @@ export function ServiceAreaChecker() {
 
         {/* Custom Coverage Note */}
         <ScrollReveal delay={280} direction="up" className="text-center text-xs text-neutral-500">
-          <span>Need service in Boulder, Longmont, or Castle Pines? </span>
+          <span>Don&apos;t see your community? </span>
           <Link href="/contact" className="font-semibold text-brand-blue hover:underline">
             Contact dispatch for route availability
           </Link>

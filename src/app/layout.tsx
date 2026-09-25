@@ -22,10 +22,12 @@ const sora = Sora({
   weight: ['400', '500', '600', '700', '800'],
 })
 
-export const metadata: Metadata = genMeta()
+export async function generateMetadata(): Promise<Metadata> {
+  return genMeta()
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const ldJson = generateLocalBusinessSchema()
+  const ldJson = await generateLocalBusinessSchema()
 
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>

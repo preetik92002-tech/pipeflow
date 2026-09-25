@@ -4,6 +4,7 @@ import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import { ShieldCheck, Phone, Calendar } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { PageHero } from '@/components/sections/PageHero'
+import { getServices, toSiteService } from '@/lib/cms/queries'
 
 export const metadata: Metadata = genMeta({
   title: 'Book a Service Appointment — Denver Plumbing & HVAC | PipeFlow Co.',
@@ -22,6 +23,7 @@ interface BookServicePageProps {
 
 export default async function BookServicePage({ searchParams }: BookServicePageProps) {
   const { service, category, area } = await searchParams
+  const services = (await getServices()).map(toSiteService)
 
   return (
     <div className="bg-neutral-50 min-h-screen">
@@ -50,6 +52,7 @@ export default async function BookServicePage({ searchParams }: BookServicePageP
             initialService={service}
             initialCategory={category}
             initialArea={area}
+            services={services}
           />
         </div>
       </div>

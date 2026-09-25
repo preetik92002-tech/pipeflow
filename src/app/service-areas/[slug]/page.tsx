@@ -15,43 +15,40 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
+import { getServiceArea, getServices, toSiteService, toSiteServiceArea } from '@/lib/cms/queries'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  return siteConfig.defaultServiceAreas.map((area) => ({
-    slug: area.slug,
-  }))
-}
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: LocationPageProps): Promise<Metadata> {
   const { slug } = await params
-  const area = siteConfig.defaultServiceAreas.find((a) => a.slug === slug)
+  const area = await getServiceArea(slug)
 
   if (!area) {
     return { title: 'Service Area Not Found | PipeFlow Co.' }
   }
 
   return genMeta({
-    title: `Plumber & HVAC Services in ${area.name}, CO | PipeFlow Co.`,
-    description: `Licensed plumbing, heating, and air conditioning services in ${area.name}, Colorado. Same-day emergency response, upfront pricing, and certified local technicians.`,
+    title: area.seo_title || `Plumber & HVAC Services in ${area.name}, ${area.state} | PipeFlow Co.`,
+    description: area.seo_description || area.description || `Licensed plumbing, heating, and air conditioning services in ${area.name}, ${area.state}.`,
     path: `/service-areas/${area.slug}`,
   })
 }
 
 export default async function LocationPage({ params }: LocationPageProps) {
   const { slug } = await params
-  const area = siteConfig.defaultServiceAreas.find((a) => a.slug === slug)
+  const areaRecord = await getServiceArea(slug)
 
-  if (!area) {
-    notFound()
-  }
+  if (!areaRecord) notFound()
+  const area = { ...toSiteServiceArea(areaRecord), zipCodes: areaRecord.zip_codes }
 
-  const plumbingServices = siteConfig.defaultServices.filter((s) => s.category === 'plumbing')
-  const hvacServices = siteConfig.defaultServices.filter((s) => s.category === 'hvac')
+  const [plumbingRows, hvacRows] = await Promise.all([getServices('plumbing'), getServices('hvac')])
+  const plumbingServices = plumbingRows.map(toSiteService)
+  const hvacServices = hvacRows.map(toSiteService)
 
   const localSchema = {
     '@context': 'https://schema.org',
@@ -126,7 +123,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
           </h1>
 
           <p className="text-base sm:text-lg text-neutral-300 leading-relaxed max-w-2xl mb-8">
-            PipeFlow Co. provides licensed residential plumbing, heating, and cooling services across{' '}
+            {area.description || 'PipeFlow Co. provides licensed residential plumbing, heating, and cooling services across'}{' '}
             {area.name} and surrounding neighborhoods. Same-day emergency response, upfront
             transparent pricing, and certified local technicians.
           </p>

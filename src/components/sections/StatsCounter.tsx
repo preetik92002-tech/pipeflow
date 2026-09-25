@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import type { HomepageContent } from '@/lib/cms/types'
 
 interface Stat {
   value: number
@@ -59,38 +61,17 @@ function StatItem({ stat, isVisible }: { stat: Stat; isVisible: boolean }) {
   )
 }
 
-export function StatsCounter() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.3 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
-
+export function StatsCounter({ stats }: { stats: HomepageContent['stats'] }) {
+  const activeStats = [...stats].filter((stat) => stat.active).sort((a, b) => a.order - b.order)
+  if (!activeStats.length) return null
   return (
     <section
-      ref={ref}
       className="bg-white border-y border-neutral-100 py-12"
       aria-label="Company statistics"
     >
       <div className="container-site">
-        <p className="text-center text-xs font-semibold text-amber-600 uppercase tracking-widest mb-8 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 max-w-max mx-auto">
-          ⚠ Add real business statistics through the admin panel
-        </p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:divide-x lg:divide-neutral-100">
-          {STATS.map((stat) => (
-            <StatItem key={stat.label} stat={stat} isVisible={isVisible} />
-          ))}
+          {activeStats.map((stat) => <div key={`${stat.order}-${stat.label}`} className="text-center px-4 py-2"><div className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-navy-800 mb-1">{stat.number}</div><p className="text-sm text-neutral-500 font-medium">{stat.label}</p></div>)}
         </div>
       </div>
     </section>

@@ -19,8 +19,8 @@ import {
   Calendar,
   Image as ImageIcon,
 } from 'lucide-react'
-import { blogService, defaultBlogCategories } from '@/lib/blog/blogService'
 import type { BlogPost, BlogStatus, BlogFAQ } from '@/lib/blog/types'
+import { MediaSelect } from '@/components/admin/MediaSelect'
 
 interface BlogEditorProps {
   initialPost?: Partial<BlogPost>
@@ -30,6 +30,8 @@ interface BlogEditorProps {
 export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
   const router = useRouter()
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   // Form State
   const [title, setTitle] = useState(initialPost?.title || '')
@@ -38,7 +40,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
   const [body, setBody] = useState(initialPost?.body || '')
   const [author, setAuthor] = useState(initialPost?.author || 'PipeFlow Master Trades Team')
   const [authorRole, setAuthorRole] = useState(initialPost?.authorRole || 'Plumbing & HVAC Specialist')
-  const [categoryId, setCategoryId] = useState(initialPost?.categoryId || 'cat-1')
+  const [categoryId, setCategoryId] = useState(initialPost?.categorySlug || 'plumbing')
   const [status, setStatus] = useState<BlogStatus>(initialPost?.status || 'draft')
   const [featuredImage, setFeaturedImage] = useState(
     initialPost?.featuredImage || '/assets/service-plumbing.jpg'
@@ -85,7 +87,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
     setFaqs(faqs.filter((_, i) => i !== index))
   }
 
-  const handleSave = (targetStatus?: BlogStatus) => {
+  const handleSave = async (targetStatus?: BlogStatus) => {
     if (!title.trim()) {
       alert('Please enter an article title')
       return
@@ -97,8 +99,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
       .map((t) => t.trim())
       .filter(Boolean)
 
-    const savedRecord = blogService.savePost({
-      id: initialPost?.id,
+    const record = {
       title,
       slug:
         slug.trim() ||
@@ -121,11 +122,34 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
       noindex,
       ctaType,
       faqs,
-      publishedAt: initialPost?.publishedAt || new Date().toISOString(),
-    })
+      published_at: finalStatus === 'published' ? (initialPost?.publishedAt || new Date().toISOString()) : (initialPost?.publishedAt || null),
+    }
+
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const response = await fetch(initialPost?.id ? `/api/admin/cms/blog?id=${encodeURIComponent(initialPost.id)}` : '/api/admin/cms/blog', {
+        method: initialPost?.id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: record.title, slug: record.slug, excerpt: record.excerpt, body: record.body,
+          featured_image: record.featuredImage, featured_image_alt: record.featuredImageAlt,
+          author: record.author, status: record.status, published_at: record.published_at,
+          seo_title: record.seoTitle, seo_description: record.seoDescription,
+          category_name: categoryId === 'hvac' ? 'HVAC' : categoryId === 'emergency' ? 'Emergency' : 'Plumbing', category_slug: categoryId, noindex: record.noindex,
+        }),
+      })
+      const result: { error?: string } = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to save this article.')
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Unable to save this article.')
+      setSaving(false)
+      return
+    }
 
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+    setSaving(false)
 
     if (isNew) {
       router.push('/admin/blogs')
@@ -187,7 +211,8 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
 
           <button
             type="button"
-            onClick={() => handleSave('draft')}
+            onClick={() => void handleSave('draft')}
+            disabled={saving}
             className="btn-outline !py-2 !px-4 text-xs"
           >
             Save Draft
@@ -195,11 +220,12 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
 
           <button
             type="button"
-            onClick={() => handleSave('published')}
+            onClick={() => void handleSave('published')}
+            disabled={saving}
             className="btn-primary !py-2 !px-5 text-xs"
           >
             <Save className="h-3.5 w-3.5" />
-            {status === 'published' ? 'Update & Keep Published' : 'Publish Article'}
+            {saving ? 'Saving…' : status === 'published' ? 'Update & Keep Published' : 'Publish Article'}
           </button>
         </div>
       </header>
@@ -210,6 +236,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
           ✓ Article saved successfully! Changes are immediately live in the blog engine.
         </div>
       )}
+      {saveError && <p role="alert" className="mx-auto max-w-7xl px-6 pt-4 text-sm text-red-700">{saveError}</p>}
 
       {/* Editor 2-Column Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
@@ -409,7 +436,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
                   onChange={(e) => setCategoryId(e.target.value)}
                   className="form-input text-xs"
                 >
-                  {defaultBlogCategories.map((cat) => (
+                  {[{ id: 'plumbing', name: 'Plumbing' }, { id: 'hvac', name: 'HVAC' }, { id: 'emergency', name: 'Emergency' }].map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
                     </option>
@@ -446,16 +473,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
               </h3>
               <div>
                 <label className="form-label font-bold text-navy-900">Image Asset URL</label>
-                <select
-                  value={featuredImage}
-                  onChange={(e) => setFeaturedImage(e.target.value)}
-                  className="form-input text-xs"
-                >
-                  <option value="/assets/hero-hvac-tech.jpg">HVAC Technician (/assets/hero-hvac-tech.jpg)</option>
-                  <option value="/assets/service-plumbing.jpg">Plumber Faucet (/assets/service-plumbing.jpg)</option>
-                  <option value="/assets/service-detail-1.jpg">Branded Glove (/assets/service-detail-1.jpg)</option>
-                  <option value="/assets/service-detail-2.jpg">Fixture Inspection (/assets/service-detail-2.jpg)</option>
-                </select>
+                <MediaSelect value={featuredImage} onChange={setFeaturedImage} title="Select featured blog image" />
               </div>
 
               <div>

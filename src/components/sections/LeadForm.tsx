@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { Phone, Send, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { siteConfig } from '@/lib/config/site'
+import type { ServiceArea } from '@/types'
 
 const schema = z.object({
   name: z.string().min(2, 'Please enter your full name'),
@@ -24,9 +25,10 @@ interface LeadFormProps {
   className?: string
   compact?: boolean
   title?: string
+  areas: ServiceArea[]
 }
 
-export function LeadForm({ className, compact = false, title }: LeadFormProps) {
+export function LeadForm({ className, compact = false, title, areas }: LeadFormProps) {
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -209,7 +211,7 @@ export function LeadForm({ className, compact = false, title }: LeadFormProps) {
               className={cn('form-input', errors.serviceArea && 'form-input-error')}
             >
               <option value="">Select your area...</option>
-              {siteConfig.defaultServiceAreas.map((area) => (
+              {areas.map((area) => (
                 <option key={area.id} value={area.slug}>
                   {area.name}, CO
                 </option>

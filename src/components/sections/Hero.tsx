@@ -47,11 +47,12 @@ const TRANSITION_MS = 900
 interface HeroProps {
   /** Called when the user selects a service category (for downstream section sync) */
   onSelectCategory?: (category: 'plumbing' | 'hvac') => void
-  /** Called when "Book a Service" is clicked — use to open modal */
-  onBookService?: () => void
+  content?: { eyebrow: string; headline: string; description: string; primaryCtaText: string; primaryCtaUrl: string; secondaryCtaText: string; secondaryCtaUrl: string; image: string; active: boolean }
 }
 
-export function Hero({ onBookService }: HeroProps) {
+export function Hero({ content }: HeroProps) {
+  const slides = content?.image ? [{ ...SLIDES[0], src: content.image, alt: content.headline }] : SLIDES
+  const slideCount = slides.length
   const [current, setCurrent] = useState(0)
   const [prev, setPrev] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
@@ -90,12 +91,12 @@ export function Hero({ onBookService }: HeroProps) {
   )
 
   const nextSlide = useCallback(() => {
-    goToSlide((current + 1) % SLIDES.length)
-  }, [current, goToSlide])
+    goToSlide((current + 1) % slideCount)
+  }, [current, goToSlide, slideCount])
 
   const prevSlide = useCallback(() => {
-    goToSlide((current - 1 + SLIDES.length) % SLIDES.length)
-  }, [current, goToSlide])
+    goToSlide((current - 1 + slideCount) % slideCount)
+  }, [current, goToSlide, slideCount])
 
   // ── Auto-advance timer ──────────────────────────────────────────────────────
   const startTimer = useCallback(() => {
@@ -149,11 +150,7 @@ export function Hero({ onBookService }: HeroProps) {
     return () => window.removeEventListener('keydown', handler)
   }, [prevSlide, nextSlide])
 
-  const handleBookService = () => {
-    if (onBookService) {
-      onBookService()
-    }
-  }
+  if (content && !content.active) return null
 
   return (
     <section
@@ -168,7 +165,7 @@ export function Hero({ onBookService }: HeroProps) {
       onTouchEnd={handleTouchEnd}
     >
       {/* ── Slide layers ── */}
-      {SLIDES.map((slide, idx) => {
+      {slides.map((slide, idx) => {
         const isActive = idx === current
         const isPrev = idx === prev
 
@@ -216,6 +213,12 @@ export function Hero({ onBookService }: HeroProps) {
         )
       })}
 
+      {content && <div className="absolute z-20 left-5 right-5 top-1/2 -translate-y-1/2 sm:left-10 lg:left-16 max-w-2xl text-white pointer-events-none">
+        <p className="text-xs sm:text-sm uppercase tracking-[0.18em] font-bold text-white/85 drop-shadow">{content.eyebrow}</p>
+        <h1 className="mt-2 text-3xl sm:text-5xl lg:text-6xl font-display font-bold leading-tight drop-shadow-lg">{content.headline}</h1>
+        <p className="mt-3 max-w-xl text-sm sm:text-lg text-white/90 drop-shadow">{content.description}</p>
+      </div>}
+
       {/* ── CTA Button Layer — ONLY two buttons, fixed position on the image ── */}
       <div
         className="absolute inset-x-0 bottom-0 z-30 pointer-events-none"
@@ -223,9 +226,8 @@ export function Hero({ onBookService }: HeroProps) {
       >
         <div className="pointer-events-auto px-4 sm:px-8 lg:px-12 pb-8 sm:pb-10 lg:pb-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full max-w-lg lg:max-w-xl">
           {/* BOOK A SERVICE */}
-          <button
-            type="button"
-            onClick={handleBookService}
+          <Link
+            href={content?.primaryCtaUrl || siteConfig.ctas.bookService.href}
             className={cn(
               'group flex items-center justify-center gap-2.5',
               'px-7 py-3.5 sm:py-4',
@@ -237,15 +239,15 @@ export function Hero({ onBookService }: HeroProps) {
               'transition-all duration-200',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50'
             )}
-            aria-label="Book a plumbing or HVAC service with PipeFlow"
+            aria-label={content?.primaryCtaText || 'Book a plumbing or HVAC service with PipeFlow'}
           >
             <Calendar className="h-4 w-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" aria-hidden="true" />
-            <span>Book a Service</span>
-          </button>
+            <span>{content?.primaryCtaText || 'Book a Service'}</span>
+          </Link>
 
           {/* GET A QUOTE */}
           <Link
-            href={siteConfig.ctas.getQuote.href}
+            href={content?.secondaryCtaUrl || siteConfig.ctas.getQuote.href}
             className={cn(
               'group flex items-center justify-center gap-2.5',
               'px-7 py-3.5 sm:py-4',
@@ -262,7 +264,7 @@ export function Hero({ onBookService }: HeroProps) {
             aria-label="Get a free plumbing or HVAC quote from PipeFlow"
           >
             <FileText className="h-4 w-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" aria-hidden="true" />
-            <span>Get a Quote</span>
+            <span>{content?.secondaryCtaText || 'Get a Quote'}</span>
           </Link>
         </div>
       </div>
@@ -273,7 +275,7 @@ export function Hero({ onBookService }: HeroProps) {
         role="tablist"
         aria-label="Slide indicators"
       >
-        {SLIDES.map((slide, idx) => (
+        {slides.map((slide, idx) => (
           <button
             key={idx}
             role="tab"
@@ -292,14 +294,14 @@ export function Hero({ onBookService }: HeroProps) {
 
       {/* Screen-reader live region for slide announcements */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {SLIDES[current].alt}
+        {slides[current].alt}
       </div>
 
       {/* Preload next slide */}
       <link
         rel="preload"
         as="image"
-        href={SLIDES[(current + 1) % SLIDES.length].src}
+        href={slides[(current + 1) % slideCount].src}
       />
     </section>
   )

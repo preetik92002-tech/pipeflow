@@ -4,9 +4,12 @@ import type { FAQ } from '@/types'
 
 interface FAQSectionProps {
   faqs: FAQ[]
+  heading?: string
+  description?: string
 }
 
-export function FAQSection({ faqs }: FAQSectionProps) {
+export function FAQSection({ faqs, heading = 'Frequently Asked Questions', description = 'Have more questions? Contact our team.' }: FAQSectionProps) {
+  if (!faqs.length) return null
   const sorted = [...faqs].sort((a, b) => a.order - b.order)
   const items = sorted.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))
 
@@ -18,10 +21,10 @@ export function FAQSection({ faqs }: FAQSectionProps) {
             id="faq-heading"
             className="text-3xl sm:text-4xl font-display font-bold text-navy-800 mb-3"
           >
-            Frequently Asked Questions
+            {heading}
           </h2>
           <p className="text-neutral-500">
-            Have more questions?{' '}
+            {description}{' '}
             <Link href="/contact" className="text-brand-blue hover:underline font-medium">
               Contact our team
             </Link>

@@ -51,6 +51,7 @@ export interface Testimonial {
   date: string
   verified: boolean
   source?: 'google' | 'yelp' | 'bbb' | 'internal'
+  imageUrl?: string
 }
 
 export interface TrustBadge {

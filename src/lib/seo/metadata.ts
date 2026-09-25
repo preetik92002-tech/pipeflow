@@ -1,5 +1,24 @@
 import type { Metadata } from 'next'
 import { siteConfig } from '@/lib/config/site'
+import { createClient } from '@/lib/supabase/server'
+
+export type PublicSeoSettings = {
+  default_title: string
+  title_template: string
+  default_description: string
+  keywords: string[] | null
+  default_og_image: string | null
+  canonical_domain: string | null
+  homepage_title: string | null
+  homepage_description: string | null
+}
+
+export async function getPublicSeoSettings(): Promise<PublicSeoSettings | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('seo_settings').select('default_title,title_template,default_description,keywords,default_og_image,canonical_domain,homepage_title,homepage_description').limit(1).maybeSingle()
+  if (error) throw new Error(`Unable to load public SEO settings: ${error.message}`)
+  return data as PublicSeoSettings | null
+}
 
 interface GenerateMetadataOptions {
   title?: string
@@ -9,26 +28,27 @@ interface GenerateMetadataOptions {
   noIndex?: boolean
 }
 
-export function generateMetadata(options: GenerateMetadataOptions = {}): Metadata {
+export async function generateMetadata(options: GenerateMetadataOptions = {}): Promise<Metadata> {
+  const settings = await getPublicSeoSettings()
   const {
     title,
-    description = siteConfig.seo.defaultDescription,
+    description = settings?.default_description || siteConfig.seo.defaultDescription,
     path = '',
-    image = '/assets/logo.png',
+    image = settings?.default_og_image || '/assets/logo.png',
     noIndex = false,
   } = options
 
   const fullTitle = title
-    ? siteConfig.seo.titleTemplate.replace('%s', title)
-    : siteConfig.seo.defaultTitle
+    ? (settings?.title_template || siteConfig.seo.titleTemplate).replace('%s', title)
+    : settings?.default_title || siteConfig.seo.defaultTitle
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
+  const baseUrl = settings?.canonical_domain || process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
   const url = `${baseUrl}${path}`
 
   return {
     title: fullTitle,
     description,
-    keywords: siteConfig.seo.keywords,
+    keywords: settings?.keywords || siteConfig.seo.keywords,
     authors: [{ name: siteConfig.company.name }],
     creator: siteConfig.company.name,
     openGraph: {
@@ -52,28 +72,30 @@ export function generateMetadata(options: GenerateMetadataOptions = {}): Metadat
   }
 }
 
-export function generateLocalBusinessSchema() {
+export async function generateLocalBusinessSchema() {
+  const supabase = await createClient()
+  const [companyRow, seo] = await Promise.all([
+    supabase.from('site_settings').select('setting_value').eq('setting_key', 'company_info').maybeSingle(),
+    getPublicSeoSettings(),
+  ])
+  if (companyRow.error) throw new Error(`Unable to load public business settings: ${companyRow.error.message}`)
+  const company = (companyRow.data?.setting_value ?? {}) as Partial<typeof siteConfig.company>
   return {
     '@context': 'https://schema.org',
     '@type': 'Plumber',
-    name: siteConfig.company.name,
-    description: siteConfig.seo.defaultDescription,
+    name: company.name || siteConfig.company.name,
+    description: seo?.default_description || siteConfig.seo.defaultDescription,
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com',
-    telephone: siteConfig.company.phone,
-    email: siteConfig.company.email,
+    telephone: company.phone || siteConfig.company.phone,
+    email: company.email || siteConfig.company.email,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: siteConfig.company.address,
-      addressLocality: siteConfig.company.city,
-      addressRegion: siteConfig.company.state,
-      postalCode: siteConfig.company.zip,
+      streetAddress: company.address || siteConfig.company.address,
+      addressLocality: company.city || siteConfig.company.city,
+      addressRegion: company.state || siteConfig.company.state,
+      postalCode: company.zip || siteConfig.company.zip,
       addressCountry: 'US',
     },
-    areaServed: siteConfig.defaultServiceAreas.map((area) => ({
-      '@type': 'City',
-      name: area.name,
-      containedInPlace: { '@type': 'State', name: 'Colorado' },
-    })),
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',

@@ -5,9 +5,11 @@ import type { ServiceArea } from '@/types'
 
 interface ServiceAreaSectionProps {
   areas: ServiceArea[]
+  heading?: string
+  description?: string
 }
 
-export function ServiceAreaSection({ areas }: ServiceAreaSectionProps) {
+export function ServiceAreaSection({ areas, heading = 'Service Areas', description = 'Proudly serving Denver and surrounding Colorado communities.' }: ServiceAreaSectionProps) {
   return (
     <section className="section-padding bg-white" aria-labelledby="areas-heading">
       <div className="container-site">
@@ -17,10 +19,10 @@ export function ServiceAreaSection({ areas }: ServiceAreaSectionProps) {
               id="areas-heading"
               className="text-3xl sm:text-4xl font-display font-bold text-navy-800 mb-2"
             >
-              Service Areas
+              {heading}
             </h2>
             <p className="text-neutral-500">
-              Proudly serving Denver and surrounding Colorado communities.
+              {description}
             </p>
           </div>
           <Link href="/service-areas" className="btn-outline whitespace-nowrap flex-shrink-0">

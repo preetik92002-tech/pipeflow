@@ -1,25 +1,19 @@
-'use client'
-
-import { useParams, notFound } from 'next/navigation'
-import { blogService } from '@/lib/blog/blogService'
+import { notFound, redirect } from 'next/navigation'
 import { BlogEditor } from '@/components/admin/BlogEditor'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdminAuth } from '@/lib/supabase/auth'
+import { toBlogPost } from '@/lib/cms/queries'
+import type { CmsBlog } from '@/lib/cms/types'
 
-export default function EditBlogPage() {
-  const params = useParams()
-  const id = params?.id as string
+export const dynamic = 'force-dynamic'
 
-  const post = blogService.getPostById(id)
-
-  if (!post) {
-    return (
-      <div className="p-12 text-center bg-white rounded-2xl border border-neutral-200 m-6">
-        <h2 className="text-lg font-bold text-navy-900 mb-2">Article Not Found</h2>
-        <p className="text-xs text-neutral-500 mb-4">
-          The requested article ID could not be located in the database.
-        </p>
-      </div>
-    )
-  }
-
-  return <BlogEditor initialPost={post} isNew={false} />
+export default async function EditBlogPage({ params }: { params: Promise<{ id: string }> }) {
+  const auth = await verifyAdminAuth()
+  if (!auth.authenticated) redirect('/admin/login')
+  if (!auth.authorized) redirect('/admin/unauthorized')
+  const { id } = await params
+  const { data, error } = await createAdminClient().from('blogs').select('*').eq('id', id).maybeSingle()
+  if (error) throw new Error(`Unable to load article: ${error.message}`)
+  if (!data) notFound()
+  return <BlogEditor initialPost={toBlogPost(data as CmsBlog)} isNew={false} />
 }

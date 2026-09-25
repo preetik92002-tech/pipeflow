@@ -14,8 +14,8 @@ const ADMIN_ROLES = ['super_admin', 'admin', 'editor', 'marketing']
 
 /**
  * Server-side authentication and admin authorization check.
- * Validates the caller using Supabase server cookie session,
- * then checks their role in the `profiles` table or user metadata.
+ * Validates the caller using the Supabase server cookie session,
+ * then checks the trusted app metadata claim or the `profiles` role.
  */
 export async function verifyAdminAuth(): Promise<AdminAuthResult> {
   try {
@@ -35,7 +35,7 @@ export async function verifyAdminAuth(): Promise<AdminAuthResult> {
       }
     }
 
-    // 1. Check user metadata first (if role is directly encoded into app_metadata or user_metadata)
+    // 1. Check the trusted app_metadata claim. user_metadata is user-editable.
     // user_metadata is user-editable and must never grant administrative access.
     const metaRole = user.app_metadata?.role as string | undefined
     if (metaRole && ADMIN_ROLES.includes(metaRole.toLowerCase())) {

@@ -5,8 +5,9 @@ import { Tag, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
-export function SpecialOffer() {
-  const offer = siteConfig.defaultSpecialOffer
+export function SpecialOffer({ content }: { content?: { heading: string; description: string; ctaText: string; ctaUrl: string; image: string; active: boolean } }) {
+  const original = siteConfig.defaultSpecialOffer
+  const offer = content ? { ...original, title: content.heading, description: content.description, ctaText: content.ctaText, ctaHref: content.ctaUrl, active: content.active } : original
 
   if (!offer || !offer.active) return null
 

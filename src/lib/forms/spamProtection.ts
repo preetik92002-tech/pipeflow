@@ -23,6 +23,9 @@ export function checkSpam(options: SpamCheckOptions): { isSpam: boolean; reason?
   if (submittedAt) {
     const submitTime = new Date(submittedAt).getTime()
     const now = Date.now()
+    if (!Number.isFinite(submitTime) || submitTime > now + 5000) {
+      return { isSpam: true, reason: 'Invalid form timestamp' }
+    }
     const diffSeconds = (now - submitTime) / 1000
 
     // If client timestamp is in the future or under minimumSeconds

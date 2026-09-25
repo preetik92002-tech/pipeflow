@@ -1,0 +1,15 @@
+import Link from 'next/link'
+import { ArrowRight, Calendar, FileText, Wrench } from 'lucide-react'
+import type { CmsService } from '@/lib/cms/types'
+import { PageHero } from '@/components/sections/PageHero'
+
+export function ServicesDirectory({ services, category }: { services: CmsService[]; category?: 'plumbing' | 'hvac' }) {
+  const divisions = category ? [{ slug: category, label: category === 'plumbing' ? 'Residential Plumbing Services' : 'Heating, Heat Pumps & Cooling', services }] : [
+    { slug: 'plumbing', label: 'Residential Plumbing Services', services: services.filter((service) => service.category === 'plumbing') },
+    { slug: 'hvac', label: 'Heating, Heat Pumps & Cooling', services: services.filter((service) => service.category === 'hvac') },
+  ]
+  return <div className="bg-white min-h-screen">
+    <PageHero imageSrc={category === 'hvac' ? '/assets/hero-hvac-tech.jpg' : '/assets/hero-services.jpg'} imageAlt="PipeFlow licensed plumbing and HVAC professionals" eyebrow={category ? `${category.toUpperCase()} Services` : 'Plumbing & HVAC Services'} eyebrowIcon={Wrench} title={category === 'plumbing' ? 'Residential plumbing services for Colorado homes' : category === 'hvac' ? 'Heating and cooling services built for Colorado homes' : 'Plumbing & HVAC services built around your home'} description="From emergency repairs to preventative maintenance, PipeFlow brings qualified professionals and upfront pricing to every Front Range call." primaryCta={{ label: 'Book a Service', href: '/book-service', variant: 'red', icon: Calendar }} secondaryCta={{ label: 'Request a Quote', href: '/get-a-quote', variant: 'outline', icon: FileText }} badgeText="Same-day service and 24/7 emergency dispatch" />
+    <div className="section-padding container-site space-y-14">{divisions.map((division) => <section key={division.slug} id={`${division.slug}-section`} className="scroll-mt-28"><div className="mb-8 border-b border-neutral-200 pb-5"><p className="text-xs font-bold text-brand-blue uppercase tracking-wider">{division.slug}</p><h2 className="mt-2 text-3xl font-display font-bold text-navy-900">{division.label}</h2></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{division.services.map((service) => <article key={service.id} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card hover:shadow-card-hover transition-all flex flex-col"><h3 className="text-lg font-bold text-navy-900">{service.title}</h3><p className="mt-2 text-sm text-neutral-600 flex-1">{service.short_description}</p><div className="mt-5 border-t border-neutral-100 pt-4 flex items-center justify-between"><Link href={`/services/${service.category}/${service.slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-brand-blue">View details <ArrowRight className="h-3.5 w-3.5" /></Link><Link href={`/book-service?service=${service.slug}&category=${service.category}`} className="rounded-lg bg-navy-900 px-3 py-1.5 text-2xs font-bold text-white">Book</Link></div></article>)}</div></section>)}</div>
+  </div>
+}

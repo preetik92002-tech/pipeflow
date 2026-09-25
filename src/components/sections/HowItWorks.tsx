@@ -3,7 +3,8 @@
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { AnimatedProcessSteps } from './AnimatedProcessSteps'
 
-export function HowItWorks() {
+export function HowItWorks({ content }: { content: { heading: string; description: string; active: boolean; steps: { title: string; description: string; order: number }[] } }) {
+  if (!content.active) return null
   return (
     <section
       className="section-padding bg-neutral-50 border-b border-neutral-200/80 overflow-hidden relative"
@@ -19,15 +20,15 @@ export function HowItWorks() {
             id="how-it-works-heading"
             className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-navy-900 tracking-tight mb-4"
           >
-            How PipeFlow Works
+            {content.heading}
           </h2>
           <p className="text-neutral-600 text-base sm:text-lg">
-            From your first message to completed repair, we make getting quality plumbing and HVAC service straightforward and stress-free.
+            {content.description}
           </p>
         </ScrollReveal>
 
         {/* Animated Step Progression */}
-        <AnimatedProcessSteps />
+        <AnimatedProcessSteps content={content.steps} />
       </div>
     </section>
   )

@@ -3,8 +3,11 @@ import { checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
 import { createClient } from '@/lib/supabase/server'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
 import { randomUUID } from 'crypto'
+import { z } from 'zod'
+import { checkRateLimit } from '@/lib/forms/spamProtection'
+import { createAdminClient } from '@/lib/supabase/admin'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const authResult = await verifyAdminAuth()
     if (!authResult.authenticated) {
@@ -27,58 +30,51 @@ export async function GET(request: NextRequest) {
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (dbError) {
-      console.warn('[PRO APPLICATIONS API] Supabase query notice:', dbError.message)
-      return NextResponse.json({ applications: [], warning: dbError.message }, { status: 200 })
-    }
+    if (dbError) throw dbError
 
     return NextResponse.json({ applications: applications || [] }, { status: 200 })
-  } catch (error: any) {
-    console.error('[PRO APPLICATIONS API GET ERROR]', error)
-    return NextResponse.json(
-      { error: error?.message || 'Failed to retrieve applications' },
-      { status: 500 }
-    )
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to retrieve applications' }, { status: 503 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const rate = checkRateLimit(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown', 5, 60)
+    if (!rate.allowed) return NextResponse.json({ error: 'Too many submissions. Please try again shortly.' }, { status: 429 })
+    const body: unknown = await request.json()
+    const schema = z.object({
+      name: z.string().trim().min(1).max(120), company: z.string().max(160).optional(),
+      phone: z.string().trim().min(7).max(30).regex(/^[+()\d.\-\s]+$/), email: z.string().trim().email().max(254),
+      trade: z.enum(['plumbing', 'hvac', 'both']), experience: z.string().max(100).optional(),
+      serviceAreas: z.array(z.string().trim().min(1).max(120)).max(30).optional(),
+      licenseInfo: z.string().max(500).optional(), insuranceInfo: z.string().max(500).optional(),
+      website: z.string().max(2000).optional(), message: z.string().max(5000).optional(), documentName: z.string().max(250).optional(),
+      website_url_hp: z.string().max(500).optional(), formOpenedAt: z.string().datetime().optional(),
+    })
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || 'Please check the application details.' }, { status: 400 })
+    const fields = parsed.data
 
     // 1. Anti-spam check
-    const spamCheck = checkSpam({
-      honeypotValue: body.website_url_hp,
-      submittedAt: body.formOpenedAt,
-    })
+    const spamCheck = checkSpam({ honeypotValue: fields.website_url_hp, submittedAt: fields.formOpenedAt })
 
     if (spamCheck.isSpam) {
       console.warn('[SPAM PRO APPLICATION REJECTED]', spamCheck.reason)
       return NextResponse.json({ success: true, message: 'Application received' }, { status: 200 })
     }
 
-    // 2. Validate essential fields
-    if (!body.name || !body.phone || !body.email || !body.trade) {
-      return NextResponse.json(
-        { error: 'Missing required applicant fields (Name, Phone, Email, Trade)' },
-        { status: 400 }
-      )
-    }
-
     const applicationRecord = {
       application_id: `PA-${randomUUID()}`,
-      name: sanitizeString(body.name),
-      company: sanitizeString(body.company) || null,
-      phone: sanitizeString(body.phone),
-      email: sanitizeString(body.email),
-      trade: body.trade, // 'plumbing' | 'hvac' | 'both' | 'other'
-      experience: sanitizeString(String(body.experience ?? body.years_experience ?? '')) || null,
-      license_info: sanitizeString(body.licenseInfo) || null,
-      insurance_info: sanitizeString(body.insuranceInfo) || null,
-      website: sanitizeString(body.website) || null,
-      service_areas: body.serviceAreas || [],
-      message: sanitizeString(body.message) || null,
-      document_name: sanitizeString(body.documentName) || null,
+      name: sanitizeString(fields.name), company: sanitizeString(fields.company) || null,
+      phone: sanitizeString(fields.phone), email: sanitizeString(fields.email), trade: fields.trade,
+      experience: sanitizeString(fields.experience) || null,
+      license_info: sanitizeString(fields.licenseInfo) || null,
+      insurance_info: sanitizeString(fields.insuranceInfo) || null,
+      website: sanitizeString(fields.website) || null,
+      service_areas: (fields.serviceAreas ?? []).map((area) => sanitizeString(area)),
+      message: sanitizeString(fields.message) || null,
+      document_name: sanitizeString(fields.documentName) || null,
       status: 'new',
     }
 
@@ -100,5 +96,28 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[PRO APPLICATION API ERROR]', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+const statusSchema = z.enum(['new', 'under_review', 'contacted', 'approved', 'rejected', 'onboarding'])
+
+export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdminAuth()
+  if (!auth.authenticated) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+  if (!auth.authorized) return NextResponse.json({ error: 'Admin authorization required.' }, { status: 403 })
+  const id = request.nextUrl.searchParams.get('id')
+  if (!id || !z.string().uuid().safeParse(id).success) return NextResponse.json({ error: 'A valid application record ID is required.' }, { status: 400 })
+  let body: unknown
+  try { body = await request.json() } catch { return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 }) }
+  const parsed = z.object({ status: statusSchema }).safeParse(body)
+  if (!parsed.success) return NextResponse.json({ error: 'Unsupported application status.' }, { status: 400 })
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin.from('pro_applications').update({ status: parsed.data.status, updated_at: new Date().toISOString() }).eq('id', id).select('id').maybeSingle()
+    if (error) throw error
+    if (!data) return NextResponse.json({ error: 'Application was not found.' }, { status: 404 })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to update application.' }, { status: 503 })
   }
 }

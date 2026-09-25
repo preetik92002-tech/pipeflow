@@ -4,6 +4,7 @@ import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import { FileText, Phone } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { PageHero } from '@/components/sections/PageHero'
+import { getServices, toSiteService } from '@/lib/cms/queries'
 
 export const metadata: Metadata = genMeta({
   title: 'Request a Free Quote — Denver Plumbing & HVAC | PipeFlow Co.',
@@ -22,6 +23,7 @@ interface GetAQuotePageProps {
 
 export default async function GetAQuotePage({ searchParams }: GetAQuotePageProps) {
   const { service, category, area } = await searchParams
+  const services = (await getServices()).map(toSiteService)
 
   return (
     <div className="bg-neutral-50 min-h-screen">
@@ -50,6 +52,7 @@ export default async function GetAQuotePage({ searchParams }: GetAQuotePageProps
             initialService={service}
             initialCategory={category}
             initialArea={area}
+            services={services}
           />
         </div>
       </div>

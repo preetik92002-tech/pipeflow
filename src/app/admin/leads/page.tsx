@@ -1,33 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Search,
-  Filter,
-  Users,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
   X,
-  ExternalLink,
-  ChevronRight,
-  Download,
 } from 'lucide-react'
 
 interface LeadItem {
   id: string
+  displayId: string
+  recordKind: 'lead' | 'booking'
   name: string
   phone: string
   email: string
   category: 'plumbing' | 'hvac'
   service: string
   zipCode: string
+  serviceArea: string
   leadType: 'Service Request' | 'Booking Request' | 'Quote Request' | 'Contact'
-  status: 'New' | 'Contacted' | 'Qualified' | 'Scheduled' | 'In Progress' | 'Closed Won' | 'Closed Lost' | 'Spam'
+  status: 'New' | 'Contacted' | 'Qualified' | 'Scheduled' | 'In Progress' | 'Closed Won' | 'Closed Lost' | 'Spam' | 'Requested' | 'Confirmed' | 'Completed' | 'Cancelled'
   isEmergency: boolean
   message?: string
   preferredDate?: string
@@ -43,60 +34,43 @@ interface LeadItem {
   notes: string[]
 }
 
-const initialLeads: LeadItem[] = [
-  {
-    id: 'LD-98214',
-    name: 'Sarah Miller',
-    phone: '(720) 555-0199',
-    email: 'sarah.miller@example.com',
-    category: 'plumbing',
-    service: 'Water Heater Replacement',
-    zipCode: '80202',
-    leadType: 'Booking Request',
-    status: 'New',
-    isEmergency: false,
-    message: 'Water heater is 12 years old, making popping sounds and leaking around bottom.',
-    preferredDate: '2025-02-28',
-    preferredTime: 'morning',
-    utmSource: 'google',
-    utmMedium: 'cpc',
-    utmCampaign: 'denver_water_heater_lead_gen',
-    gclid: 'CjwKCAiA_SAMPLE_GCLID_123',
-    landingPage: '/services/plumbing/water-heater',
-    referrer: 'https://google.com',
-    createdAt: '2025-02-25T14:30:00Z',
-    notes: ['Initial request logged from homepage guided booking funnel.'],
-  },
-  {
-    id: 'LD-98213',
-    name: 'Michael Davis',
-    phone: '(720) 555-0144',
-    email: 'm.davis@example.com',
-    category: 'hvac',
-    service: 'Furnace Emergency Heating Repair',
-    zipCode: '80014',
-    leadType: 'Service Request',
-    status: 'Contacted',
-    isEmergency: true,
-    message: 'Furnace blowing cold air during sub-zero freeze. House at 54 degrees.',
-    utmSource: 'meta',
-    utmMedium: 'paid_social',
-    utmCampaign: 'colorado_winter_freeze_alert',
-    fbclid: 'fb.1.123456789.SAMPLE',
-    landingPage: '/',
-    referrer: 'https://facebook.com',
-    createdAt: '2025-02-25T11:15:00Z',
-    notes: ['Technician Dave dispatched to Aurora address.'],
-  },
-]
-
 export default function AdminLeadsPage() {
-  const [leads, setLeads] = useState<LeadItem[]>(initialLeads)
+  const [leads, setLeads] = useState<LeadItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [mutationError, setMutationError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [selectedLead, setSelectedLead] = useState<LeadItem | null>(null)
   const [newNote, setNewNote] = useState('')
+
+  const loadLeads = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/leads', { cache: 'no-store' })
+      const result: { leads?: Array<Record<string, unknown> & { id: string; lead_id: string; record_kind: 'lead' | 'booking'; lead_notes?: Array<{ content: string }> }>; error?: string } = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to load leads.')
+      const title = (value: unknown) => String(value || 'new').replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+      setLeads((result.leads ?? []).map((row) => ({
+        id: row.id, displayId: row.lead_id, recordKind: row.record_kind, name: String(row.name || ''), phone: String(row.phone || ''), email: String(row.email || ''),
+        category: String(row.service_category || 'service') as LeadItem['category'], service: String(row.specific_service || row.service_category || 'General inquiry'),
+        zipCode: String(row.zip_code || ''), serviceArea: String(row.service_area || ''), leadType: title(row.lead_type) as LeadItem['leadType'], status: title(row.status) as LeadItem['status'],
+        isEmergency: Boolean(row.is_emergency), message: typeof row.message === 'string' ? row.message : undefined,
+        preferredDate: typeof row.preferred_date === 'string' ? row.preferred_date : undefined, preferredTime: typeof row.preferred_time === 'string' ? row.preferred_time : undefined,
+        utmSource: typeof row.utm_source === 'string' ? row.utm_source : undefined, utmMedium: typeof row.utm_medium === 'string' ? row.utm_medium : undefined,
+        utmCampaign: typeof row.utm_campaign === 'string' ? row.utm_campaign : undefined, gclid: typeof row.gclid === 'string' ? row.gclid : undefined,
+        fbclid: typeof row.fbclid === 'string' ? row.fbclid : undefined, landingPage: typeof row.landing_page === 'string' ? row.landing_page : undefined,
+        referrer: typeof row.referrer === 'string' ? row.referrer : undefined, createdAt: String(row.created_at || ''),
+        notes: (row.lead_notes ?? []).map((note) => note.content),
+      })))
+      setLoadError(null)
+    } catch (error) { setLoadError(error instanceof Error ? error.message : 'Unable to load leads.') }
+    finally { setLoading(false) }
+  }, [])
+
+  useEffect(() => { void loadLeads() }, [loadLeads])
 
   const filteredLeads = leads.filter((lead) => {
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter
@@ -110,23 +84,30 @@ export default function AdminLeadsPage() {
     return matchesStatus && matchesType && matchesSearch
   })
 
-  const handleUpdateStatus = (leadId: string, nextStatus: LeadItem['status']) => {
-    setLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, status: nextStatus } : l))
-    )
-    if (selectedLead && selectedLead.id === leadId) {
-      setSelectedLead((prev) => (prev ? { ...prev, status: nextStatus } : null))
-    }
+  const handleUpdateStatus = async (leadId: string, nextStatus: LeadItem['status']) => {
+    setSaving(true); setMutationError(null)
+    try {
+      const target = leads.find((lead) => lead.id === leadId)
+      const response = await fetch(`/api/admin/leads?id=${encodeURIComponent(leadId)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: nextStatus.toLowerCase().replaceAll(' ', '_'), recordKind: target?.recordKind }) })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to update lead status.')
+      await loadLeads()
+      setSelectedLead((current) => current ? { ...current, status: nextStatus } : current)
+    } catch (error) { setMutationError(error instanceof Error ? error.message : 'Unable to update lead status.') }
+    finally { setSaving(false) }
   }
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (!newNote.trim() || !selectedLead) return
-    const updatedNotes = [...selectedLead.notes, `[${new Date().toLocaleDateString()}] ${newNote.trim()}`]
-    setLeads((prev) =>
-      prev.map((l) => (l.id === selectedLead.id ? { ...l, notes: updatedNotes } : l))
-    )
-    setSelectedLead({ ...selectedLead, notes: updatedNotes })
-    setNewNote('')
+    setSaving(true); setMutationError(null)
+    try {
+      const response = await fetch(`/api/admin/leads?id=${encodeURIComponent(selectedLead.id)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: newNote.trim(), recordKind: selectedLead.recordKind }) })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'Unable to save internal note.')
+      setNewNote(''); await loadLeads()
+      setSelectedLead((current) => current ? { ...current, notes: [...current.notes, newNote.trim()] } : current)
+    } catch (error) { setMutationError(error instanceof Error ? error.message : 'Unable to save internal note.') }
+    finally { setSaving(false) }
   }
 
   return (
@@ -140,15 +121,11 @@ export default function AdminLeadsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => alert('Exporting leads to CSV...')}
-          className="btn-outline !py-2 !px-4 text-xs inline-flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Export Leads CSV
-        </button>
+        <button type="button" onClick={() => void loadLeads()} className="btn-outline !py-2 !px-4 text-xs self-start sm:self-auto">Refresh records</button>
       </div>
+
+      {loadError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{loadError}</p>}
+      {mutationError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{mutationError}</p>}
 
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-white rounded-2xl border border-neutral-200 shadow-xs">
@@ -178,6 +155,10 @@ export default function AdminLeadsPage() {
             <option value="Closed Won">Closed Won</option>
             <option value="Closed Lost">Closed Lost</option>
             <option value="Spam">Spam</option>
+            <option value="Requested">Requested</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
           </select>
 
           <select
@@ -206,6 +187,7 @@ export default function AdminLeadsPage() {
                 <th className="py-3 px-4">Location</th>
                 <th className="py-3 px-4">Source / Attribution</th>
                 <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Created</th>
                 <th className="py-3 px-4 text-right">Details</th>
               </tr>
             </thead>
@@ -217,7 +199,7 @@ export default function AdminLeadsPage() {
                   className="hover:bg-blue-50/40 cursor-pointer transition-colors"
                 >
                   <td className="py-3.5 px-4 font-mono text-2xs text-neutral-500">
-                    {lead.id}
+                    {lead.displayId}
                     {lead.isEmergency && (
                       <span className="block text-brand-red font-bold font-sans">🚨 Emergency</span>
                     )}
@@ -231,8 +213,9 @@ export default function AdminLeadsPage() {
                     <div className="text-2xs text-neutral-400 uppercase">{lead.category}</div>
                   </td>
                   <td className="py-3.5 px-4 text-neutral-600 font-mono text-2xs">
-                    ZIP: {lead.zipCode}
+                    {[lead.serviceArea, lead.zipCode].filter(Boolean).join(' · ') || 'Not provided'}
                   </td>
+                  <td className="py-3.5 px-4 text-neutral-500">{lead.createdAt ? new Date(lead.createdAt).toLocaleString() : '—'}</td>
                   <td className="py-3.5 px-4">
                     <span className="bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded text-2xs font-medium">
                       {lead.utmSource ? `${lead.utmSource} / ${lead.utmMedium || 'cpc'}` : 'Direct Website'}
@@ -258,6 +241,8 @@ export default function AdminLeadsPage() {
                   </td>
                 </tr>
               ))}
+              {!loading && !loadError && filteredLeads.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-sm text-neutral-500">No matching customer requests.</td></tr>}
+              {loading && <tr><td colSpan={8} className="p-8 text-center text-sm text-neutral-500">Loading customer requests…</td></tr>}
             </tbody>
           </table>
         </div>
@@ -273,7 +258,7 @@ export default function AdminLeadsPage() {
           <div className="bg-white w-full max-w-xl h-full shadow-2xl p-6 sm:p-8 overflow-y-auto space-y-6 animate-slide-up">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
               <div>
-                <span className="text-2xs font-mono text-neutral-400 uppercase">{selectedLead.id}</span>
+                <span className="text-2xs font-mono text-neutral-400 uppercase">{selectedLead.displayId} · {selectedLead.leadType}</span>
                 <h2 className="text-xl font-bold font-display text-navy-900">{selectedLead.name}</h2>
               </div>
               <button
@@ -291,16 +276,17 @@ export default function AdminLeadsPage() {
               <select
                 value={selectedLead.status}
                 onChange={(e) => handleUpdateStatus(selectedLead.id, e.target.value as LeadItem['status'])}
+                disabled={saving}
                 className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-semibold bg-white"
               >
-                <option value="New">New</option>
+                {selectedLead.recordKind === 'booking' ? <><option value="Requested">Requested</option><option value="Confirmed">Confirmed</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option></> : <><option value="New">New</option>
                 <option value="Contacted">Contacted</option>
                 <option value="Qualified">Qualified</option>
                 <option value="Scheduled">Scheduled</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Closed Won">Closed Won</option>
                 <option value="Closed Lost">Closed Lost</option>
-                <option value="Spam">Spam</option>
+                <option value="Spam">Spam</option></>}
               </select>
             </div>
 

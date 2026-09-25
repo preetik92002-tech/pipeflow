@@ -13,42 +13,52 @@ import {
   Plus,
   Wrench,
 } from 'lucide-react'
-import { blogService } from '@/lib/blog/blogService'
-import { siteConfig } from '@/lib/config/site'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdminAuth } from '@/lib/supabase/auth'
+import { redirect } from 'next/navigation'
 
-export default function AdminDashboard() {
-  const publishedBlogs = blogService.getPublishedPosts()
+export const dynamic = 'force-dynamic'
+
+export default async function AdminDashboard() {
+  const auth = await verifyAdminAuth()
+  if (!auth.authenticated) redirect('/admin/login')
+  if (!auth.authorized) redirect('/admin/unauthorized')
+  const supabase = createAdminClient()
+  const weekStart = new Date()
+  weekStart.setHours(0, 0, 0, 0)
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7))
+  const [leadsCount, newLeadsCount, weekLeadsCount, bookingCount, quoteCount, applicationsCount, newApplicationsCount, blogsCount, servicesCount, areasCount, recent] = await Promise.all([
+    supabase.from('leads').select('id', { count: 'exact', head: true }),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', weekStart.toISOString()),
+    supabase.from('bookings').select('id', { count: 'exact', head: true }),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('lead_type', 'quote_request'),
+    supabase.from('pro_applications').select('id', { count: 'exact', head: true }),
+    supabase.from('pro_applications').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    supabase.from('blogs').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+    supabase.from('services').select('id', { count: 'exact', head: true }).eq('active', true),
+    supabase.from('service_areas').select('id', { count: 'exact', head: true }).eq('active', true),
+    supabase.from('leads').select('id,name,phone,specific_service,service_area,zip_code,lead_type,status,created_at').order('created_at', { ascending: false }).limit(5),
+  ])
+  const databaseError = [leadsCount, newLeadsCount, weekLeadsCount, bookingCount, quoteCount, applicationsCount, newApplicationsCount, blogsCount, servicesCount, areasCount, recent].find((result) => result.error)?.error
+  if (databaseError) throw new Error(`Unable to load admin dashboard data: ${databaseError.message}`)
+  const recentLeads = (recent.data ?? []).map((lead) => ({
+    id: lead.id, name: lead.name, phone: lead.phone, service: lead.specific_service || 'General inquiry',
+    area: [lead.service_area, lead.zip_code].filter(Boolean).join(' '), type: lead.lead_type || 'Service request',
+    status: lead.status || 'new', time: new Date(lead.created_at).toLocaleDateString(),
+  }))
 
   const stats = [
-    { label: 'New Leads', value: '1', change: '+1 today', icon: Users, color: 'text-brand-blue bg-blue-50' },
-    { label: 'Booking Requests', value: '1', change: 'Active window', icon: Calendar, color: 'text-green-600 bg-green-50' },
-    { label: 'Quote Inquiries', value: '0', change: '0 pending', icon: FileText, color: 'text-amber-600 bg-amber-50' },
-    { label: 'Pro Applications', value: '1', change: 'Under review', icon: HardHat, color: 'text-purple-600 bg-purple-50' },
-    { label: 'Published Blogs', value: String(publishedBlogs.length), change: 'Active in SEO', icon: BookOpen, color: 'text-indigo-600 bg-indigo-50' },
-    { label: 'Service Areas', value: String(siteConfig.defaultServiceAreas.length), change: 'Colorado front range', icon: Wrench, color: 'text-navy-900 bg-neutral-100' },
-  ]
-
-  const recentLeads = [
-    {
-      id: 'LD-98214',
-      name: 'Sarah Miller',
-      phone: '(720) 555-0199',
-      service: 'Water Heater Replacement',
-      area: 'Denver (80202)',
-      type: 'Booking Request',
-      status: 'New',
-      time: '15 mins ago',
-    },
-    {
-      id: 'LD-98213',
-      name: 'Michael Davis',
-      phone: '(720) 555-0144',
-      service: 'Furnace No Heat',
-      area: 'Aurora (80014)',
-      type: 'Emergency Dispatch',
-      status: 'Contacted',
-      time: '2 hours ago',
-    },
+    { label: 'Total Leads', value: String(leadsCount.count ?? 0), change: 'Customer requests', icon: Users, color: 'text-brand-blue bg-blue-50' },
+    { label: 'New Leads', value: String(newLeadsCount.count ?? 0), change: 'Awaiting follow-up', icon: Users, color: 'text-sky-700 bg-sky-50' },
+    { label: 'Leads This Week', value: String(weekLeadsCount.count ?? 0), change: 'Since Monday', icon: TrendingUp, color: 'text-cyan-700 bg-cyan-50' },
+    { label: 'Booking Requests', value: String(bookingCount.count ?? 0), change: 'In Supabase', icon: Calendar, color: 'text-green-600 bg-green-50' },
+    { label: 'Quote Inquiries', value: String(quoteCount.count ?? 0), change: 'In Supabase', icon: FileText, color: 'text-amber-600 bg-amber-50' },
+    { label: 'Pro Applications', value: String(applicationsCount.count ?? 0), change: 'All applications', icon: HardHat, color: 'text-purple-600 bg-purple-50' },
+    { label: 'New Applications', value: String(newApplicationsCount.count ?? 0), change: 'Awaiting review', icon: HardHat, color: 'text-fuchsia-700 bg-fuchsia-50' },
+    { label: 'Published Blogs', value: String(blogsCount.count ?? 0), change: 'Active in SEO', icon: BookOpen, color: 'text-indigo-600 bg-indigo-50' },
+    { label: 'Active Services', value: String(servicesCount.count ?? 0), change: 'Public catalog', icon: Wrench, color: 'text-emerald-700 bg-emerald-50' },
+    { label: 'Service Areas', value: String(areasCount.count ?? 0), change: 'Active locations', icon: Wrench, color: 'text-navy-900 bg-neutral-100' },
   ]
 
   return (
@@ -145,7 +155,7 @@ export default function AdminDashboard() {
                     <td className="py-3 px-3">
                       <span
                         className={`px-2 py-0.5 rounded-full text-2xs font-bold uppercase ${
-                          lead.status === 'New'
+                          lead.status.toLowerCase() === 'new'
                             ? 'bg-blue-100 text-brand-blue'
                             : 'bg-green-100 text-green-800'
                         }`}
@@ -169,6 +179,7 @@ export default function AdminDashboard() {
             </h3>
             <div className="space-y-2">
               {[
+                { label: 'Homepage Content', href: '/admin/home', desc: 'Edit hero, services, reviews, FAQs & CTAs' },
                 { label: 'Leads & Marketing Attribution', href: '/admin/leads', desc: 'Track GCLID, UTMs & dispatch' },
                 { label: 'Trade Contractor Applications', href: '/admin/pro-applications', desc: 'Review pro plumbers & HVAC mechanics' },
                 { label: 'Blog & Editorial Engine', href: '/admin/blogs', desc: 'Manage articles, SEO & FAQs' },

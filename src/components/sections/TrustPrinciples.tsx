@@ -8,7 +8,6 @@ import {
   Home,
   CheckCircle2,
 } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -19,8 +18,9 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   home: Home,
 }
 
-export function TrustPrinciples() {
-  const principles = siteConfig.defaultTrustPrinciples
+export function TrustPrinciples({ content }: { content: { title: string; description: string; iconName: string; active: boolean; order: number }[] }) {
+  const principles = [...content].filter((item) => item.active).sort((a, b) => a.order - b.order).map((item, index) => ({ id: String(index), ...item }))
+  if (principles.length === 0) return null
 
   return (
     <section

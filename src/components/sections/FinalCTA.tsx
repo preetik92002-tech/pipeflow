@@ -5,7 +5,7 @@ import { Calendar, FileText, Phone, ShieldCheck, ArrowRight } from 'lucide-react
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
-export function FinalCTA() {
+export function FinalCTA({ content }: { content?: { heading: string; description: string; ctaText: string; ctaUrl: string } }) {
   return (
     <section
       className="relative section-padding bg-navy-950 text-white overflow-hidden"
@@ -35,23 +35,22 @@ export function FinalCTA() {
             id="final-cta-heading"
             className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white tracking-tight mb-5"
           >
-            Your Home Should Work Better.
+            {content?.heading || 'Your Home Should Work Better.'}
           </h2>
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg text-neutral-300 leading-relaxed mb-10 max-w-2xl mx-auto">
-            Don&apos;t wait for a small leak or HVAC glitch to become an expensive emergency. Schedule a
-            qualified PipeFlow technician today with fixed upfront quotes and guaranteed workmanship.
+            {content?.description || 'Don’t wait for a small leak or HVAC glitch to become an expensive emergency. Schedule a qualified PipeFlow technician today with fixed upfront quotes and guaranteed workmanship.'}
           </p>
 
           {/* CTA Group */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Link
-              href={siteConfig.ctas.bookService.href}
+              href={content?.ctaUrl || siteConfig.ctas.bookService.href}
               className="btn-primary w-full sm:w-auto !py-4 !px-8 !text-base !rounded-xl shadow-lg shadow-brand-red/30 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
             >
               <Calendar className="h-5 w-5" aria-hidden="true" />
-              <span>{siteConfig.ctas.bookService.label}</span>
+              <span>{content?.ctaText || siteConfig.ctas.bookService.label}</span>
               <ArrowRight className="h-4 w-4 opacity-70" />
             </Link>
 

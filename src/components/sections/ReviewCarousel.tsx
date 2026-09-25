@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import Image from 'next/image'
 import { Star, ChevronLeft, ChevronRight, Quote, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
@@ -126,6 +127,7 @@ export function ReviewCarousel({ testimonials }: ReviewCarouselProps) {
             <StarRating rating={t.rating} />
 
             <div className="mt-5">
+              {t.imageUrl && <Image src={t.imageUrl} alt={`${t.reviewerName}`} width={48} height={48} className="mx-auto mb-3 h-12 w-12 rounded-full object-cover" />}
               <p className="font-bold text-white text-base sm:text-lg">{t.reviewerName}</p>
               {t.reviewerCity && (
                 <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">{t.reviewerCity}, Colorado</p>

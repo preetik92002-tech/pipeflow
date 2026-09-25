@@ -14,8 +14,8 @@ import {
   CheckCircle2,
   X,
 } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
 import { cn } from '@/lib/cn'
+import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { AnimatedServiceCard } from './AnimatedServiceCard'
 import type { Service } from '@/types'
@@ -23,11 +23,17 @@ import type { Service } from '@/types'
 interface ServiceSelectorProps {
   activeCategory?: 'plumbing' | 'hvac'
   onCategoryChange?: (category: 'plumbing' | 'hvac') => void
+  services: Service[]
+  heading?: string
+  description?: string
 }
 
 export function ServiceSelector({
   activeCategory: controlledCategory,
   onCategoryChange,
+  services,
+  heading = 'What Do You Need Help With?',
+  description = 'Select plumbing or HVAC below to explore our licensed Colorado home services and book immediate assistance.',
 }: ServiceSelectorProps) {
   const [internalCategory, setInternalCategory] = useState<'plumbing' | 'hvac'>('plumbing')
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<Service | null>(null)
@@ -42,7 +48,7 @@ export function ServiceSelector({
     }
   }
 
-  const displayedServices = siteConfig.defaultServices.filter(
+  const displayedServices = services.filter(
     (s) => s.category === activeCategory
   )
 
@@ -62,10 +68,10 @@ export function ServiceSelector({
             id="help-heading"
             className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-navy-900 tracking-tight mb-4"
           >
-            What Do You Need Help With?
+            {heading}
           </h2>
           <p className="text-neutral-600 text-base sm:text-lg">
-            Select plumbing or HVAC below to explore our licensed Colorado home services and book immediate assistance.
+            {description}
           </p>
         </ScrollReveal>
 

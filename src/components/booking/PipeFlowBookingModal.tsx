@@ -60,38 +60,17 @@ interface BookingFormData {
 interface ServiceOption {
   id: string
   name: string
-  icon?: string
+  category: Category
+  description: string
 }
 
 interface Props {
   isOpen: boolean
   onClose: () => void
   initialCategory?: Category
+  services: ServiceOption[]
+  servicesError: string | null
 }
-
-// ─── Static service lists (fallback) ──────────────────────────────────────────
-
-const PLUMBING_SERVICES: ServiceOption[] = [
-  { id: 'drain-cleaning', name: 'Drain Cleaning & Unclogging' },
-  { id: 'leak-repair', name: 'Leak Detection & Repair' },
-  { id: 'water-heater', name: 'Water Heater Service / Replacement' },
-  { id: 'repiping', name: 'Pipe Repair & Repiping' },
-  { id: 'fixture-install', name: 'Fixture Installation' },
-  { id: 'sewer-line', name: 'Sewer Line Inspection' },
-  { id: 'emergency-plumbing', name: 'Emergency Plumbing' },
-  { id: 'other-plumbing', name: 'Other Plumbing Issue' },
-]
-
-const HVAC_SERVICES: ServiceOption[] = [
-  { id: 'ac-tune-up', name: 'AC Tune-Up & Maintenance' },
-  { id: 'ac-repair', name: 'AC Repair' },
-  { id: 'furnace-service', name: 'Furnace Service / Repair' },
-  { id: 'heat-pump', name: 'Heat Pump Installation / Repair' },
-  { id: 'hvac-install', name: 'New HVAC System Installation' },
-  { id: 'air-quality', name: 'Indoor Air Quality' },
-  { id: 'emergency-hvac', name: 'Emergency Heating / Cooling' },
-  { id: 'other-hvac', name: 'Other HVAC Issue' },
-]
 
 // ─── Progress steps config ────────────────────────────────────────────────────
 
@@ -124,7 +103,7 @@ function getAttribution() {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function PipeFlowBookingModal({ isOpen, onClose, initialCategory }: Props) {
+export function PipeFlowBookingModal({ isOpen, onClose, initialCategory, services: cmsServices, servicesError }: Props) {
   const [step, setStep] = useState(1)
   const [animDir, setAnimDir] = useState<'forward' | 'back'>('forward')
   const [isAnimating, setIsAnimating] = useState(false)
@@ -439,7 +418,7 @@ export function PipeFlowBookingModal({ isOpen, onClose, initialCategory }: Props
                 <SuccessScreen data={submittedData} onClose={onClose} />
               ) : (
                 <>
-                  {step === 1 && <Step1Service form={form} updateForm={updateForm} />}
+                  {step === 1 && <Step1Service form={form} updateForm={updateForm} services={cmsServices} servicesError={servicesError} />}
                   {step === 2 && (
                     <Step2Location
                       form={form}
@@ -537,11 +516,15 @@ export function PipeFlowBookingModal({ isOpen, onClose, initialCategory }: Props
 function Step1Service({
   form,
   updateForm,
+  services: cmsServices,
+  servicesError,
 }: {
   form: BookingFormData
   updateForm: (p: Partial<BookingFormData>) => void
+  services: ServiceOption[]
+  servicesError: string | null
 }) {
-  const services = form.category === 'hvac' ? HVAC_SERVICES : PLUMBING_SERVICES
+  const services = cmsServices.filter((service) => !form.category || service.category === form.category)
 
   const selectCategory = (cat: Category) => {
     updateForm({ category: cat, serviceId: '', serviceName: '' })
@@ -608,6 +591,7 @@ function Step1Service({
       {/* Service list */}
       {form.category && (
         <div className="space-y-2">
+          {servicesError && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{servicesError}</p>}
           <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
             Select a service
           </p>
@@ -628,6 +612,7 @@ function Step1Service({
                 {form.serviceId === s.id && <CheckCircle2 className="h-4 w-4 flex-shrink-0" />}
               </button>
             ))}
+            {!services.length && !servicesError && <p className="col-span-full rounded-xl bg-neutral-50 p-3 text-sm text-neutral-500">No active services are available for this category.</p>}
           </div>
         </div>
       )}

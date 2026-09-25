@@ -34,15 +34,15 @@ export default function AdminSettingsPage() {
   )
 
   // Analytics & Tracking IDs
-  const [gaMeasurementId, setGaMeasurementId] = useState('G-PIPEFLOW123')
-  const [googleAdsId, setGoogleAdsId] = useState('AW-1234567890')
-  const [googleAdsConversionLabel, setGoogleAdsConversionLabel] = useState('LEAD_CONV_LABEL_XYZ')
-  const [metaPixelId, setMetaPixelId] = useState('987654321098765')
+  const [gaMeasurementId, setGaMeasurementId] = useState('')
+  const [googleAdsId, setGoogleAdsId] = useState('')
+  const [googleAdsConversionLabel, setGoogleAdsConversionLabel] = useState('')
+  const [metaPixelId, setMetaPixelId] = useState('')
   const [trackingEnabled, setTrackingEnabled] = useState(true)
 
   // Operating Hours
-  const [weekdayHours, setWeekdayHours] = useState('7:00 AM – 8:00 PM')
-  const [weekendHours, setWeekendHours] = useState('8:00 AM – 6:00 PM')
+  const [weekdayHours, setWeekdayHours] = useState('')
+  const [weekendHours, setWeekendHours] = useState('')
   const [emergencyAvailable, setEmergencyAvailable] = useState(true)
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -54,15 +54,14 @@ export default function AdminSettingsPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    showToast('Platform settings saved successfully')
+    showToast('These settings are not connected to persistent storage. Changes were not saved.')
   }
 
   return (
     <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-navy-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 border border-brand-blue animate-fade-in">
-          <CheckCircle2 className="h-5 w-5 text-brand-blue-lighter" />
+        <div role="alert" className="fixed bottom-6 right-6 z-50 bg-red-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 border border-red-700 animate-fade-in">
           <span className="text-sm font-medium">{toastMessage}</span>
         </div>
       )}
@@ -96,12 +95,12 @@ export default function AdminSettingsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-navy-900">Supabase Connection State</h3>
-                <span className="text-2xs font-semibold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                  PostgreSQL 16 & Auth
+                <span className="text-2xs font-semibold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                  Not verified
                 </span>
               </div>
               <p className="text-xs text-neutral-500 mt-0.5">
-                Tables, RLS policies, and storage buckets generated in <code className="font-mono bg-neutral-100 px-1 py-0.5 rounded">supabase/migrations/20250101000000_initial_schema.sql</code>.
+                Configure Supabase and apply all project migrations before relying on this connection.
               </p>
             </div>
           </div>

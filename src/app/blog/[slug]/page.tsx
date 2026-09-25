@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from 'lucide-react'
-import { blogService } from '@/lib/blog/blogService'
+import { getPublishedBlogBySlug, getPublishedBlogs, toBlogPost, toBlogPosts } from '@/lib/cms/queries'
 import { siteConfig } from '@/lib/config/site'
 import { Accordion } from '@/components/ui/Accordion'
 import { BlogCard } from '@/components/blog/BlogCard'
@@ -24,16 +24,12 @@ interface ArticlePageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  const posts = blogService.getPublishedPosts()
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
-}
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params
-  const post = blogService.getPostBySlug(slug)
+  const row = await getPublishedBlogBySlug(slug)
+  const post = row ? toBlogPost(row) : null
 
   if (!post) {
     return { title: 'Article Not Found | PipeFlow Co.' }
@@ -50,13 +46,16 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params
-  const post = blogService.getPostBySlug(slug)
+  const row = await getPublishedBlogBySlug(slug)
+  const post = row ? toBlogPost(row) : null
 
-  if (!post || post.status !== 'published') {
+  if (!post) {
     notFound()
   }
 
-  const relatedPosts = blogService.getRelatedPosts(post.slug, post.categoryId, 3)
+  const relatedPosts = toBlogPosts(await getPublishedBlogs())
+    .filter((related) => related.slug !== post.slug && related.categoryId === post.categoryId)
+    .slice(0, 3)
 
   // JSON-LD Article Schema
   const articleSchema = {

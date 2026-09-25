@@ -19,17 +19,20 @@ import {
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
+import type { Service } from '@/types'
 
 interface GuidedBookingFunnelProps {
   initialService?: string
   initialCategory?: string
   initialArea?: string
+  services: Service[]
 }
 
 export function GuidedBookingFunnel({
   initialService,
   initialCategory = 'plumbing',
   initialArea,
+  services,
 }: GuidedBookingFunnelProps) {
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -62,8 +65,8 @@ export function GuidedBookingFunnel({
     })
   }, [category, serviceSlug])
 
-  const availableServices = siteConfig.defaultServices.filter((s) => s.category === category)
-  const selectedServiceObj = siteConfig.defaultServices.find((s) => s.slug === serviceSlug)
+  const availableServices = services.filter((s) => s.category === category)
+  const selectedServiceObj = services.find((s) => s.slug === serviceSlug)
 
   const handleNextStep = () => {
     setErrorMessage(null)

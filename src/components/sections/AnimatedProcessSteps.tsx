@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { ClipboardList, Calendar, Wrench, Smile, CheckCircle2, ArrowRight } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -12,8 +11,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   smile: Smile,
 }
 
-export function AnimatedProcessSteps() {
-  const steps = siteConfig.defaultHowItWorks
+export function AnimatedProcessSteps({ content }: { content?: { title: string; description: string; order: number }[] }) {
+  const steps = [...(content ?? [])].sort((a, b) => a.order - b.order).map((item, index) => ({ step: index + 1, title: item.title, description: item.description, iconName: 'wrench' }))
 
   return (
     <div className="relative">

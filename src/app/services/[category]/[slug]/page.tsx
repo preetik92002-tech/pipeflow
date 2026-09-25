@@ -18,9 +18,9 @@ import {
   MapPin,
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
+import { getService, getServices, getServiceAreas, toSiteService } from '@/lib/cms/queries'
 import { Accordion } from '@/components/ui/Accordion'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
-import type { Service } from '@/types'
 
 interface ServiceDetailPageProps {
   params: Promise<{
@@ -29,43 +29,34 @@ interface ServiceDetailPageProps {
   }>
 }
 
-export async function generateStaticParams() {
-  return siteConfig.defaultServices.map((service) => ({
-    category: service.category,
-    slug: service.slug,
-  }))
-}
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: ServiceDetailPageProps): Promise<Metadata> {
   const { category, slug } = await params
-  const service = siteConfig.defaultServices.find(
-    (s) => s.slug === slug && s.category === category
-  )
+  const service = await getService(category, slug)
 
   if (!service) {
     return { title: 'Service Not Found | PipeFlow Co.' }
   }
 
   return genMeta({
-    title: `${service.title} in Denver, CO | PipeFlow Co.`,
-    description: `${service.shortDescription} Licensed Colorado technicians, upfront fixed pricing, and 24/7 emergency dispatch.`,
+    title: service.seo_title || `${service.title} in Denver, CO | PipeFlow Co.`,
+    description: service.seo_description || service.short_description,
     path: `/services/${category}/${slug}`,
   })
 }
 
 export default async function ServiceDetailPage({ params }: ServiceDetailPageProps) {
   const { category, slug } = await params
-  const service = siteConfig.defaultServices.find(
-    (s) => s.slug === slug && s.category === category
-  )
+  const serviceRecord = await getService(category, slug)
 
-  if (!service) {
-    notFound()
-  }
+  if (!serviceRecord) notFound()
+  const service = toSiteService(serviceRecord)
 
   const isPlumbing = category === 'plumbing'
-  const relatedServices = siteConfig.defaultServices
-    .filter((s) => s.category === category && s.slug !== slug)
+  const [categoryServices, serviceAreas] = await Promise.all([getServices(category), getServiceAreas()])
+  const relatedServices = categoryServices.map(toSiteService)
+    .filter((s) => s.slug !== slug)
     .slice(0, 3)
 
   const serviceSchema = {
@@ -85,7 +76,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
         addressCountry: 'US',
       },
     },
-    areaServed: siteConfig.defaultServiceAreas.map((a) => a.name),
+    areaServed: serviceAreas.map((a) => a.name),
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: `${service.title} Services`,
@@ -320,7 +311,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
               We provide {service.title} throughout Denver and surrounding Front Range communities:
             </p>
             <div className="flex flex-wrap gap-2">
-              {siteConfig.defaultServiceAreas.map((area) => (
+              {serviceAreas.map((area) => (
                 <Link
                   key={area.id}
                   href={`/service-areas/${area.slug}`}

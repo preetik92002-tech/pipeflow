@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { siteConfig } from '@/lib/config/site'
+import type { Service } from '@/types'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
 const formSchema = z.object({
@@ -48,7 +49,7 @@ interface AttributionData {
   landingPage?: string
 }
 
-export function TellUsForm() {
+export function TellUsForm({ services }: { services: Service[] }) {
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -93,7 +94,7 @@ export function TellUsForm() {
   const isEmergency = watch('isEmergency')
 
   // Filter specific services matching category
-  const availableServices = siteConfig.defaultServices.filter(
+  const availableServices = services.filter(
     (s) => s.category === selectedCategory
   )
 
@@ -251,7 +252,7 @@ export function TellUsForm() {
                       {...register('serviceCategory', {
                         onChange: (e) => {
                           const cat = e.target.value
-                          const firstMatching = siteConfig.defaultServices.find((s) => s.category === cat)
+                          const firstMatching = services.find((s) => s.category === cat)
                           if (firstMatching) {
                             setValue('specificService', firstMatching.slug)
                           }

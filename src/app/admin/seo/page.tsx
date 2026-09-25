@@ -57,14 +57,14 @@ export default function AdminSEOPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    showToast('SEO & Metadata settings saved to database')
+    showToast('SEO settings are not connected to persistent storage. Changes were not saved.')
   }
 
   return (
     <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-navy-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 border border-brand-blue animate-fade-in">
+        <div role="alert" className="fixed bottom-6 right-6 z-50 bg-red-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 border border-red-700 animate-fade-in">
           <CheckCircle2 className="h-5 w-5 text-brand-blue-lighter" />
           <span className="text-sm font-medium">{toastMessage}</span>
         </div>
