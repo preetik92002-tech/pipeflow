@@ -31,8 +31,18 @@ interface ReviewCarouselProps {
 export function ReviewCarousel({ testimonials }: ReviewCarouselProps) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const touchStartX = useRef<number | null>(null)
   const touchEndX = useRef<number | null>(null)
+
+  // Respect reduced-motion preference: no auto-rotating content.
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const prev = useCallback(() => {
     setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length)
@@ -42,12 +52,12 @@ export function ReviewCarousel({ testimonials }: ReviewCarouselProps) {
     setCurrent((c) => (c + 1) % testimonials.length)
   }, [testimonials.length])
 
-  // Autoplay timer
+  // Autoplay timer (disabled when the user prefers reduced motion)
   useEffect(() => {
-    if (paused || testimonials.length <= 1) return
+    if (paused || prefersReducedMotion || testimonials.length <= 1) return
     const timer = setInterval(next, 7000)
     return () => clearInterval(timer)
-  }, [paused, next, testimonials.length])
+  }, [paused, prefersReducedMotion, next, testimonials.length])
 
   // Keyboard navigation
   useEffect(() => {
