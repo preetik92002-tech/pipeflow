@@ -6,18 +6,10 @@ import Link from 'next/link'
 import {
   Save,
   ArrowLeft,
-  Eye,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle,
   Plus,
   Trash2,
   ExternalLink,
-  Sparkles,
   Globe,
-  Tag,
-  Calendar,
-  Image as ImageIcon,
 } from 'lucide-react'
 import type { BlogPost, BlogStatus, BlogFAQ } from '@/lib/blog/types'
 import { MediaSelect } from '@/components/admin/MediaSelect'

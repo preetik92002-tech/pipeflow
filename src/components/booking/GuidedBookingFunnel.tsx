@@ -5,17 +5,12 @@ import Link from 'next/link'
 import {
   Droplets,
   Wind,
-  Wrench,
-  Calendar,
   Clock,
-  MapPin,
-  User,
   Phone,
   CheckCircle2,
   AlertTriangle,
   ArrowRight,
   ArrowLeft,
-  ShieldCheck,
 } from 'lucide-react'
 import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'

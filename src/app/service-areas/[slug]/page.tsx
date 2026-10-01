@@ -5,14 +5,10 @@ import {
   MapPin,
   Phone,
   Calendar,
-  ShieldCheck,
-  Clock,
-  CheckCircle2,
   ChevronRight,
   ArrowRight,
   Droplets,
   Wind,
-  AlertTriangle,
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { getServiceArea, getServices, toSiteService, toSiteServiceArea } from '@/lib/cms/queries'

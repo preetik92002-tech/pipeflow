@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check, ArrowRight, ShieldCheck, HeartHandshake, Compass } from 'lucide-react'
+import { ArrowRight, ShieldCheck, HeartHandshake, Compass } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 

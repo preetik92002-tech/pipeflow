@@ -8,10 +8,8 @@ import {
   Send,
   AlertCircle,
   CheckCircle2,
-  Phone,
   Upload,
   X,
-  FileImage,
   ShieldCheck,
   Clock,
 } from 'lucide-react'

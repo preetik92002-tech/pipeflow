@@ -2,16 +2,11 @@
 
 import { useState } from 'react'
 import {
-  HardHat,
   Send,
   CheckCircle2,
   AlertTriangle,
   Upload,
   X,
-  ShieldCheck,
-  Award,
-  DollarSign,
-  Calendar,
 } from 'lucide-react'
 import { trackEvent } from '@/lib/analytics/tracker'
 

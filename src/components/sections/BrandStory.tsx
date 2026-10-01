@@ -4,9 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   Calendar,
-  FileText,
   ShieldCheck,
-  Award,
   CheckCircle2,
   ArrowRight,
   Droplets,

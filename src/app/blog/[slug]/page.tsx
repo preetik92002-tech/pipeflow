@@ -6,12 +6,10 @@ import {
   Calendar,
   Clock,
   User,
-  Share2,
   ChevronRight,
   Phone,
   CalendarDays,
   FileText,
-  CheckCircle2,
   AlertTriangle,
 } from 'lucide-react'
 import { getPublishedBlogBySlug, getPublishedBlogs, toBlogPost, toBlogPosts } from '@/lib/cms/queries'

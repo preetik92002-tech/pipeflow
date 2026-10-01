@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Droplets, Home, Phone, Calendar, ArrowRight } from 'lucide-react'
+import { Droplets, Home, Phone, ArrowRight } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 
 export default function NotFound() {

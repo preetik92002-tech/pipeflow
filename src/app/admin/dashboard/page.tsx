@@ -7,9 +7,6 @@ import {
   BookOpen,
   ArrowRight,
   TrendingUp,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
   Plus,
   Wrench,
 } from 'lucide-react'

@@ -1,15 +1,12 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import {
   HardHat,
   DollarSign,
   Calendar,
   ShieldCheck,
   Award,
-  Clock,
   CheckCircle2,
-  Users,
   Briefcase,
   Phone,
 } from 'lucide-react'

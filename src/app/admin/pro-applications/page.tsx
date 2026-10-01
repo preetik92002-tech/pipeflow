@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 type ApplicationStatus = 'new' | 'under_review' | 'contacted' | 'approved' | 'rejected' | 'onboarding'
 interface ProApplication {

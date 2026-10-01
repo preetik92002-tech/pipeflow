@@ -2,15 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   Droplets,
-  Wind,
   Flame,
   Calendar,
   ArrowRight,
   ShieldCheck,
-  Phone,
   CheckCircle2,
   X,
 } from 'lucide-react'

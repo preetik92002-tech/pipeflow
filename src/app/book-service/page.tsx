@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { GuidedBookingFunnel } from '@/components/booking/GuidedBookingFunnel'
 import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
-import { ShieldCheck, Phone, Calendar } from 'lucide-react'
+import { ShieldCheck, Phone } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { PageHero } from '@/components/sections/PageHero'
 import { getServices, toSiteService } from '@/lib/cms/queries'

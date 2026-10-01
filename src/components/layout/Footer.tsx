@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Phone,
-  Mail,
   MapPin,
   Calendar,
   FileText,
@@ -15,7 +14,6 @@ import {
   Star,
   ArrowRight,
   Droplets,
-  Flame,
 } from 'lucide-react'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'

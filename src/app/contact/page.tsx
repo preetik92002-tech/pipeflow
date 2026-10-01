@@ -10,9 +10,6 @@ import {
   Send,
   CheckCircle2,
   AlertTriangle,
-  ShieldCheck,
-  Flame,
-  Droplets,
   ExternalLink,
   Calendar,
 } from 'lucide-react'

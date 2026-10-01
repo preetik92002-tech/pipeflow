@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ClipboardList, Calendar, Wrench, Smile, CheckCircle2, ArrowRight } from 'lucide-react'
+import { ClipboardList, Calendar, Wrench, Smile, CheckCircle2 } from 'lucide-react'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {

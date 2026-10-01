@@ -6,16 +6,10 @@ import {
   Award,
   HeartHandshake,
   Compass,
-  Droplets,
-  Wind,
-  CheckCircle2,
   Calendar,
-  Phone,
-  Clock,
   Sparkles,
   FileText,
 } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import { PageHero } from '@/components/sections/PageHero'
 

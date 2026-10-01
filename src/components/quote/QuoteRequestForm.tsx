@@ -3,7 +3,6 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import {
-  FileText,
   Send,
   CheckCircle2,
   AlertTriangle,
@@ -11,8 +10,6 @@ import {
   X,
   Phone,
   ShieldCheck,
-  Building,
-  Home,
 } from 'lucide-react'
 import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
