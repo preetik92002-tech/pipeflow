@@ -236,10 +236,11 @@ export function QuoteRequestForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Category */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">
+              <label htmlFor="quote-category" className="form-label font-bold text-navy-900 text-xs">
                 Trade Category <span className="text-brand-red">*</span>
               </label>
               <select
+                id="quote-category"
                 value={category}
                 onChange={(e) => {
                   const cat = e.target.value as 'plumbing' | 'hvac'
@@ -256,10 +257,11 @@ export function QuoteRequestForm({
 
             {/* Specific Service */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">
+              <label htmlFor="quote-specific-service" className="form-label font-bold text-navy-900 text-xs">
                 Specific Service <span className="text-brand-red">*</span>
               </label>
               <select
+                id="quote-specific-service"
                 value={specificService}
                 onChange={(e) => setSpecificService(e.target.value)}
                 className="form-input text-xs"
@@ -275,8 +277,9 @@ export function QuoteRequestForm({
 
             {/* Project Type */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">Project Scope</label>
+              <label htmlFor="quote-project-type" className="form-label font-bold text-navy-900 text-xs">Project Scope</label>
               <select
+                id="quote-project-type"
                 value={projectType}
                 onChange={(e) => setProjectType(e.target.value)}
                 className="form-input text-xs"
@@ -290,8 +293,9 @@ export function QuoteRequestForm({
 
             {/* Property Type */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">Property Type</label>
+              <label htmlFor="quote-property-type" className="form-label font-bold text-navy-900 text-xs">Property Type</label>
               <select
+                id="quote-property-type"
                 value={propertyType}
                 onChange={(e) => setPropertyType(e.target.value)}
                 className="form-input text-xs"
@@ -305,10 +309,11 @@ export function QuoteRequestForm({
 
             {/* Name */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">
+              <label htmlFor="quote-name" className="form-label font-bold text-navy-900 text-xs">
                 Full Name <span className="text-brand-red">*</span>
               </label>
               <input
+                id="quote-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -319,10 +324,11 @@ export function QuoteRequestForm({
 
             {/* Phone */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">
+              <label htmlFor="quote-phone" className="form-label font-bold text-navy-900 text-xs">
                 Phone Number <span className="text-brand-red">*</span>
               </label>
               <input
+                id="quote-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -333,8 +339,9 @@ export function QuoteRequestForm({
 
             {/* Email */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">Email Address</label>
+              <label htmlFor="quote-email" className="form-label font-bold text-navy-900 text-xs">Email Address</label>
               <input
+                id="quote-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -345,10 +352,11 @@ export function QuoteRequestForm({
 
             {/* ZIP Code */}
             <div>
-              <label className="form-label font-bold text-navy-900 text-xs">
+              <label htmlFor="quote-zip" className="form-label font-bold text-navy-900 text-xs">
                 Colorado ZIP Code <span className="text-brand-red">*</span>
               </label>
               <input
+                id="quote-zip"
                 type="text"
                 maxLength={5}
                 value={zipCode}
@@ -403,10 +411,11 @@ export function QuoteRequestForm({
 
           {/* Message */}
           <div>
-            <label className="form-label font-bold text-navy-900 text-xs">
+            <label htmlFor="quote-message" className="form-label font-bold text-navy-900 text-xs">
               Project Details &amp; Equipment Information
             </label>
             <textarea
+              id="quote-message"
               rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -417,9 +426,9 @@ export function QuoteRequestForm({
 
           {/* Photo Upload */}
           <div>
-            <span className="form-label font-bold text-navy-900 text-xs block mb-1">
+            <label htmlFor="quote-photo" className="form-label font-bold text-navy-900 text-xs block mb-1">
               Attach Equipment or Issue Photo (Optional, max 5MB)
-            </span>
+            </label>
             {photoPreview ? (
               <div className="flex items-center gap-3 p-3 rounded-xl border border-neutral-200 bg-neutral-50 inline-flex">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -445,6 +454,7 @@ export function QuoteRequestForm({
                 className="border-2 border-dashed border-neutral-300 hover:border-brand-blue rounded-xl p-4 text-center cursor-pointer transition-colors bg-neutral-50/50 text-xs"
               >
                 <input
+                  id="quote-photo"
                   ref={fileInputRef}
                   type="file"
                   accept="image/png, image/jpeg, image/webp"

@@ -150,10 +150,11 @@ export function ProApplicationForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-name" className="form-label font-bold text-navy-900 text-xs">
             Full Name <span className="text-brand-red">*</span>
           </label>
           <input
+            id="pro-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -163,10 +164,11 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-company" className="form-label font-bold text-navy-900 text-xs">
             Company / Business Name <span className="text-neutral-400 font-normal">(if independent LLC)</span>
           </label>
           <input
+            id="pro-company"
             type="text"
             value={company}
             onChange={(e) => setCompany(e.target.value)}
@@ -176,10 +178,11 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-phone" className="form-label font-bold text-navy-900 text-xs">
             Phone Number <span className="text-brand-red">*</span>
           </label>
           <input
+            id="pro-phone"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -189,10 +192,11 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-email" className="form-label font-bold text-navy-900 text-xs">
             Email Address <span className="text-brand-red">*</span>
           </label>
           <input
+            id="pro-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -202,10 +206,11 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-trade" className="form-label font-bold text-navy-900 text-xs">
             Primary Trade <span className="text-brand-red">*</span>
           </label>
           <select
+            id="pro-trade"
             value={trade}
             onChange={(e) => setTrade(e.target.value as 'plumbing' | 'hvac' | 'both')}
             className="form-input text-xs"
@@ -217,8 +222,9 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">Years of Field Experience</label>
+          <label htmlFor="pro-experience" className="form-label font-bold text-navy-900 text-xs">Years of Field Experience</label>
           <select
+            id="pro-experience"
             value={experience}
             onChange={(e) => setExperience(e.target.value)}
             className="form-input text-xs"
@@ -231,10 +237,11 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-license" className="form-label font-bold text-navy-900 text-xs">
             Colorado License # <span className="text-neutral-400 font-normal">(Master / Journeyman)</span>
           </label>
           <input
+            id="pro-license"
             type="text"
             value={licenseInfo}
             onChange={(e) => setLicenseInfo(e.target.value)}
@@ -244,10 +251,11 @@ export function ProApplicationForm() {
         </div>
 
         <div>
-          <label className="form-label font-bold text-navy-900 text-xs">
+          <label htmlFor="pro-insurance" className="form-label font-bold text-navy-900 text-xs">
             Insurance Information <span className="text-neutral-400 font-normal">(General Liability / GL)</span>
           </label>
           <input
+            id="pro-insurance"
             type="text"
             value={insuranceInfo}
             onChange={(e) => setInsuranceInfo(e.target.value)}
@@ -284,10 +292,11 @@ export function ProApplicationForm() {
 
       {/* Message */}
       <div>
-        <label className="form-label font-bold text-navy-900 text-xs">
+        <label htmlFor="pro-message" className="form-label font-bold text-navy-900 text-xs">
           About Your Experience &amp; Equipment
         </label>
         <textarea
+          id="pro-message"
           rows={3}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
