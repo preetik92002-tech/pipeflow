@@ -7,7 +7,7 @@ import { FloatingCallButton } from '@/components/layout/FloatingCallButton'
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import { BookingModalProvider } from '@/components/booking/BookingModalProvider'
 import { SiteSettingsProvider } from '@/components/layout/SiteSettingsProvider'
-import { generateMetadata as genMeta, generateLocalBusinessSchema } from '@/lib/seo/metadata'
+import { generateMetadata as genMeta, generateLocalBusinessSchema, getPublicSiteSettingsBundle } from '@/lib/seo/metadata'
 import './globals.css'
 
 const inter = Inter({
@@ -28,7 +28,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const ldJson = await generateLocalBusinessSchema()
+  const [ldJson, siteSettings] = await Promise.all([
+    generateLocalBusinessSchema(),
+    getPublicSiteSettingsBundle(),
+  ])
 
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>
@@ -41,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-screen flex flex-col">
         <BookingModalProvider>
-          <SiteSettingsProvider>
+          <SiteSettingsProvider initialSettings={siteSettings}>
             <AnalyticsProvider />
             <Header />
             <main id="main-content" className="flex-1 pb-16 lg:pb-0" tabIndex={-1}>

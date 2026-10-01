@@ -25,7 +25,7 @@ interface ServiceDetailPageProps {
   }>
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // ISR safety-net TTL; admin edits invalidate instantly via revalidatePath
 
 export async function generateMetadata({ params }: ServiceDetailPageProps): Promise<Metadata> {
   const { category, slug } = await params

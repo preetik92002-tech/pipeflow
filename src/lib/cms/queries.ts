@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/public'
 import type { BlogPost } from '@/lib/blog/types'
 import type { CmsBlog, CmsService, CmsServiceArea, HomepageContent } from './types'
 import type { Testimonial, Service, FAQ } from '@/types'
@@ -19,7 +19,7 @@ export function toBlogPost(row: CmsBlog): BlogPost {
 export function toBlogPosts(rows: CmsBlog[]): BlogPost[] { return rows.map(toBlogPost) }
 
 export async function getPublishedBlogs(): Promise<CmsBlog[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
@@ -31,7 +31,7 @@ export async function getPublishedBlogs(): Promise<CmsBlog[]> {
 }
 
 export async function getPublishedBlogBySlug(slug: string): Promise<CmsBlog | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
@@ -44,7 +44,7 @@ export async function getPublishedBlogBySlug(slug: string): Promise<CmsBlog | nu
 }
 
 export async function getServices(category?: string, ids?: string[]): Promise<CmsService[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   let query = supabase.from('services').select('*').eq('active', true).order('display_order')
   if (category) query = query.eq('category', category)
   if (ids?.length) query = query.in('id', ids)
@@ -55,14 +55,14 @@ export async function getServices(category?: string, ids?: string[]): Promise<Cm
 }
 
 export async function getService(category: string, slug: string): Promise<CmsService | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('services').select('*').eq('category', category).eq('slug', slug).eq('active', true).maybeSingle()
   if (error) throw new Error(`Unable to load service: ${error.message}`)
   return (data as CmsService | null) ?? null
 }
 
 export async function getServiceAreas(slugs?: string[]): Promise<CmsServiceArea[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('service_areas').select('*').eq('active', true).order('sort_order')
   if (error) throw new Error(`Unable to load service areas: ${error.message}`)
   const rows = (data ?? []) as CmsServiceArea[]
@@ -71,7 +71,7 @@ export async function getServiceAreas(slugs?: string[]): Promise<CmsServiceArea[
 }
 
 export async function getServiceArea(slug: string): Promise<CmsServiceArea | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('service_areas').select('*').eq('slug', slug).eq('active', true).maybeSingle()
   if (error) throw new Error(`Unable to load service area: ${error.message}`)
   if (!data) return null
@@ -79,14 +79,14 @@ export async function getServiceArea(slug: string): Promise<CmsServiceArea | nul
 }
 
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('homepage_content').select('content').eq('id', 'home').single()
   if (error) throw new Error(`Unable to load homepage CMS content: ${error.message}`)
   return data.content as HomepageContent
 }
 
 export async function getServiceAreaZipCodes(areaId: string): Promise<string[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('service_area_zips').select('zip_code').eq('service_area_id', areaId)
   if (error) throw new Error(`Unable to load service area ZIP codes: ${error.message}`)
   return (data ?? []).map((row) => row.zip_code)
@@ -94,7 +94,7 @@ export async function getServiceAreaZipCodes(areaId: string): Promise<string[]> 
 
 export async function getHomepageTestimonials(ids: string[]): Promise<Testimonial[]> {
   if (!ids.length) return []
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('testimonials').select('*').in('id', ids).eq('active', true)
   if (error) throw new Error(`Unable to load testimonials: ${error.message}`)
   const rows = data ?? []
@@ -108,7 +108,7 @@ export async function getHomepageTestimonials(ids: string[]): Promise<Testimonia
 
 export async function getHomepageFaqs(ids: string[]): Promise<FAQ[]> {
   if (!ids.length) return []
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.from('faqs').select('*').in('id', ids).eq('active', true)
   if (error) throw new Error(`Unable to load FAQs: ${error.message}`)
   const rows = data ?? []

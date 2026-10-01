@@ -18,7 +18,7 @@ interface LocationPageProps {
   params: Promise<{ slug: string }>
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // ISR safety-net TTL; admin edits invalidate instantly via revalidatePath
 
 export async function generateMetadata({ params }: LocationPageProps): Promise<Metadata> {
   const { slug } = await params

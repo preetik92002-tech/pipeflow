@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // ISR safety-net TTL; admin edits invalidate instantly via revalidatePath
 
 export default async function BlogPage() {
   const posts = toBlogPosts(await getPublishedBlogs())

@@ -3,7 +3,7 @@ import { HomePageClient } from '@/components/home/HomePageClient'
 import { generateMetadata as genMeta, getPublicSeoSettings } from '@/lib/seo/metadata'
 import { getHomepageContent, getHomepageFaqs, getHomepageTestimonials, getPublishedBlogs, getServiceAreas, getServices, toBlogPosts, toSiteService, toSiteServiceArea } from '@/lib/cms/queries'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // ISR safety-net TTL; admin edits invalidate instantly via revalidatePath
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSeoSettings()

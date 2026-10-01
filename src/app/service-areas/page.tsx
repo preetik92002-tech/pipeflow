@@ -7,7 +7,7 @@ import { PageHero } from '@/components/sections/PageHero'
 import { getServiceAreas, toSiteServiceArea } from '@/lib/cms/queries'
 import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // ISR safety-net TTL; admin edits invalidate instantly via revalidatePath
 export async function generateMetadata(): Promise<Metadata> { return genMeta({ title: 'Colorado Service Areas — Denver Metro | PipeFlow Co.', description: 'Find PipeFlow plumbing and HVAC service areas across the Colorado Front Range.', path: '/service-areas' }) }
 
 export default async function ServiceAreasDirectoryPage() {
