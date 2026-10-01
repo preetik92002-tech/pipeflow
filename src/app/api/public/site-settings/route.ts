@@ -19,6 +19,7 @@ export async function GET() {
     }
     return NextResponse.json({ ...settings, analytics: analyticsResult.data }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to load public settings.' }, { status: 503 })
+    console.error('[GET /api/public/site-settings]', error)
+    return NextResponse.json({ error: 'Unable to load public settings.' }, { status: 503 })
   }
 }

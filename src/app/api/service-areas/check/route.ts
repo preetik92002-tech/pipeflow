@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const city = matches?.[0] ? areas?.find((area) => area.id === matches[0].service_area_id)?.name || null : null
     return NextResponse.json({ covered: Boolean(city), zip, city })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Service availability is temporarily unavailable.'
-    return NextResponse.json({ error: `Unable to check service coverage: ${message}` }, { status: 503 })
+    console.error('[GET /api/service-areas/check]', error)
+    return NextResponse.json({ error: 'Unable to check service coverage. Please try again shortly.' }, { status: 503 })
   }
 }

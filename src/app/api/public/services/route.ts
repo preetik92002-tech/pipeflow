@@ -8,6 +8,7 @@ export async function GET() {
     if (error) throw error
     return NextResponse.json({ services: data ?? [] }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to load services.' }, { status: 503 })
+    console.error('[GET /api/public/services]', error)
+    return NextResponse.json({ error: 'Unable to load services.' }, { status: 503 })
   }
 }
