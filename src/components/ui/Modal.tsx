@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/cn'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface ModalProps {
   isOpen: boolean
@@ -22,6 +23,8 @@ const sizeClasses = {
 
 export function Modal({ isOpen, onClose, title, children, size = 'md', className }: ModalProps) {
   const firstFocusRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(panelRef, isOpen)
 
   useEffect(() => {
     if (isOpen) {
@@ -60,6 +63,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
       />
       {/* Panel */}
       <div
+        ref={panelRef}
         className={cn(
           'relative z-10 w-full rounded-2xl bg-white shadow-xl animate-slide-up',
           sizeClasses[size],

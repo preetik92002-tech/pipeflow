@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { X, Volume2, VolumeX } from 'lucide-react'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface VideoModalProps {
   isOpen: boolean
@@ -15,8 +16,12 @@ export function VideoModal({
   videoSrc = '/assets/add.mp4',
 }: VideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   const [isMuted, setIsMuted] = useState(true)
   const [muteBlocked, setMuteBlocked] = useState(false)
+
+  useFocusTrap(panelRef, isOpen)
 
   // ── Keyboard dismiss ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -26,6 +31,11 @@ export function VideoModal({
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [isOpen, onClose])
+
+  // ── Initial focus on open ────────────────────────────────────────────────
+  useEffect(() => {
+    if (isOpen) closeButtonRef.current?.focus()
+  }, [isOpen])
 
   // ── Play/pause based on open state ──────────────────────────────────────
   useEffect(() => {
@@ -104,10 +114,11 @@ export function VideoModal({
       />
 
       {/* Modal card */}
-      <div className="relative w-full max-w-3xl bg-white rounded-2xl overflow-hidden shadow-2xl z-10">
+      <div ref={panelRef} className="relative w-full max-w-3xl bg-white rounded-2xl overflow-hidden shadow-2xl z-10">
 
         {/* ── Close button ──────────────────────────────────────────────── */}
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           aria-label="Close video"
