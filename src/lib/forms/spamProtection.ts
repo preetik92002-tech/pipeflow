@@ -2,14 +2,14 @@
  * Form security and anti-spam utility
  */
 
+import 'server-only'
+import { createAdminClient } from '@/lib/supabase/admin'
+
 interface SpamCheckOptions {
   honeypotValue?: string | null
   submittedAt?: string | null
   minimumSeconds?: number
 }
-
-// In-memory rate limiting store (IP -> timestamps array)
-const rateLimitStore = new Map<string, number[]>()
 
 export function checkSpam(options: SpamCheckOptions): { isSpam: boolean; reason?: string } {
   const { honeypotValue, submittedAt, minimumSeconds = 2.0 } = options
@@ -37,27 +37,36 @@ export function checkSpam(options: SpamCheckOptions): { isSpam: boolean; reason?
   return { isSpam: false }
 }
 
-export function checkRateLimit(
+/**
+ * Durable, cross-instance rate limiting backed by the `rate_limit_events`
+ * table and `check_rate_limit` function (see
+ * supabase/migrations/20261001000000_rate_limit_events.sql). Replaces the
+ * previous in-memory Map, which lost state on every cold start/redeploy and
+ * wasn't shared across concurrent serverless instances.
+ *
+ * Fails closed: if Supabase is unreachable, the request is rejected rather
+ * than silently bypassing the limit.
+ */
+export async function checkRateLimit(
   clientIdentifier: string,
   maxRequests = 10,
   windowSeconds = 60
-): { allowed: boolean; retryAfter?: number } {
-  const now = Date.now()
-  const windowMs = windowSeconds * 1000
-  const timestamps = rateLimitStore.get(clientIdentifier) || []
-
-  // Clean old timestamps outside the window
-  const validTimestamps = timestamps.filter((t) => now - t < windowMs)
-
-  if (validTimestamps.length >= maxRequests) {
-    const oldest = validTimestamps[0]
-    const retryAfter = Math.ceil((oldest + windowMs - now) / 1000)
-    return { allowed: false, retryAfter }
+): Promise<{ allowed: boolean; retryAfter?: number }> {
+  try {
+    const db = createAdminClient()
+    const { data, error } = await db.rpc('check_rate_limit', {
+      p_client_key: clientIdentifier,
+      p_max_requests: maxRequests,
+      p_window_seconds: windowSeconds,
+    })
+    if (error) throw error
+    const result = data?.[0]
+    if (!result) throw new Error('check_rate_limit returned no result')
+    return { allowed: result.allowed, retryAfter: result.allowed ? undefined : result.retry_after }
+  } catch (error) {
+    console.error('[RATE LIMIT CHECK FAILED]', error instanceof Error ? error.message : error)
+    return { allowed: false, retryAfter: windowSeconds }
   }
-
-  validTimestamps.push(now)
-  rateLimitStore.set(clientIdentifier, validTimestamps)
-  return { allowed: true }
 }
 
 export function sanitizeString(input: string | null | undefined): string {

@@ -44,7 +44,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const rate = checkRateLimit(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown', 8, 60)
+  const rate = await checkRateLimit(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown', 8, 60)
   if (!rate.allowed) return NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 })
   let body: unknown
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Request body must be valid JSON.' }, { status: 400 }) }

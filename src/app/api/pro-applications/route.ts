@@ -40,7 +40,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const rate = checkRateLimit(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown', 5, 60)
+    const rate = await checkRateLimit(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown', 5, 60)
     if (!rate.allowed) return NextResponse.json({ error: 'Too many submissions. Please try again shortly.' }, { status: 429 })
     const body: unknown = await request.json()
     const schema = z.object({
