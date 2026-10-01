@@ -2,13 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Settings,
   Phone,
-  Mail,
-  MapPin,
-  Shield,
   Save,
-  CheckCircle2,
   Bell,
   BarChart3,
   Clock,
@@ -153,12 +148,26 @@ export default function AdminSettingsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-navy-900">Supabase Connection State</h3>
-                <span className="text-2xs font-semibold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
-                  Not verified
-                </span>
+                {loading ? (
+                  <span className="text-2xs font-semibold uppercase bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
+                    Checking…
+                  </span>
+                ) : loadError ? (
+                  <span className="text-2xs font-semibold uppercase bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+                    Connection error
+                  </span>
+                ) : (
+                  <span className="text-2xs font-semibold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                    Connected
+                  </span>
+                )}
               </div>
               <p className="text-xs text-neutral-500 mt-0.5">
-                Configure Supabase and apply all project migrations before relying on this connection.
+                {loading
+                  ? 'Verifying the Supabase connection…'
+                  : loadError
+                    ? 'Settings could not be loaded from Supabase. Check configuration and migrations.'
+                    : 'Settings loaded successfully from Supabase.'}
               </p>
             </div>
           </div>

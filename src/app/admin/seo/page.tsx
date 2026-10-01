@@ -5,11 +5,10 @@ import {
   Globe,
   Search,
   CheckCircle2,
+  XCircle,
   Save,
   Share2,
   FileCode,
-  Sparkles,
-  ExternalLink,
   Tag,
   Plus,
   X,
@@ -37,14 +36,16 @@ export default function AdminSEOPage() {
     `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://pipeflowco.com/sitemap.xml`
   )
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastType, setToastType] = useState<'success' | 'error'>('success')
   const [homepageTitle, setHomepageTitle] = useState('')
   const [homepageDescription, setHomepageDescription] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToastMessage(msg)
+    setToastType(type)
     setTimeout(() => setToastMessage(null), 3500)
   }
 
@@ -96,9 +97,9 @@ export default function AdminSEOPage() {
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Unable to save SEO settings.')
-      showToast('SEO settings saved.')
+      showToast('SEO settings saved.', 'success')
     } catch (reason) {
-      showToast(reason instanceof Error ? reason.message : 'Unable to save SEO settings.')
+      showToast(reason instanceof Error ? reason.message : 'Unable to save SEO settings.', 'error')
     } finally { setSaving(false) }
   }
 
@@ -106,8 +107,19 @@ export default function AdminSEOPage() {
     <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
-        <div role="alert" className="fixed bottom-6 right-6 z-50 bg-red-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 border border-red-700 animate-fade-in">
-          <CheckCircle2 className="h-5 w-5 text-brand-blue-lighter" />
+        <div
+          role="alert"
+          className={`fixed bottom-6 right-6 z-50 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 border animate-fade-in ${
+            toastType === 'success'
+              ? 'bg-emerald-900 border-emerald-700'
+              : 'bg-red-900 border-red-700'
+          }`}
+        >
+          {toastType === 'success' ? (
+            <CheckCircle2 className="h-5 w-5 text-emerald-300" />
+          ) : (
+            <XCircle className="h-5 w-5 text-red-300" />
+          )}
           <span className="text-sm font-medium">{toastMessage}</span>
         </div>
       )}
