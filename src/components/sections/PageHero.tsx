@@ -56,6 +56,7 @@ export function PageHero({
           alt={imageAlt}
           fill
           priority={priority}
+          quality={85}
           sizes="100vw"
           className="w-full h-full object-cover"
           style={{ objectPosition: imagePosition }}

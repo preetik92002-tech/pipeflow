@@ -190,6 +190,7 @@ export default function AdminLoginPage() {
             alt="PipeFlow plumbing team at work"
             fill
             sizes="(min-width: 1024px) 60vw"
+            quality={85}
             className="object-cover object-center"
             priority
           />
@@ -244,14 +245,16 @@ export default function AdminLoginPage() {
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-8 lg:px-12">
         <div className="mb-8 flex flex-col items-center lg:hidden">
           <Link href="/">
-            <Image
-              src="/assets/logo.png"
-              alt="PipeFlow Co."
-              width={140}
-              height={42}
-              className="h-9 w-auto object-contain brightness-0 invert"
-              priority
-            />
+            <div className="bg-white rounded-xl px-4 py-2 inline-block">
+              <Image
+                src="/assets/logo.png"
+                alt="PipeFlow Co."
+                width={140}
+                height={42}
+                className="h-9 w-auto object-contain"
+                priority
+              />
+            </div>
           </Link>
           <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-brand-blue/40 bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue-lighter">
             <Shield className="h-3.5 w-3.5" />
