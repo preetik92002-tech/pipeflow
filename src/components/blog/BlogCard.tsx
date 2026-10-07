@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, Clock, ArrowRight, User } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog/types'
+import { formatShortDate } from '@/lib/date'
 
 interface BlogCardProps {
   post: BlogPost
@@ -9,11 +10,7 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ post, priority = false }: BlogCardProps) {
-  const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  const formattedDate = formatShortDate(post.publishedAt)
 
   return (
     <article className="group flex flex-col rounded-2xl bg-white border border-neutral-200/80 overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
