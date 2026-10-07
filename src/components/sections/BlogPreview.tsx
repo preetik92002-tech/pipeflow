@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, BookOpen, Calendar } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog/types'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
+import { formatShortDate } from '@/lib/date'
 
 export function BlogPreview({ posts }: { posts: BlogPost[] }) {
   const visiblePosts = posts.slice(0, 3)
@@ -80,7 +81,7 @@ export function BlogPreview({ posts }: { posts: BlogPost[] }) {
                   <div>
                     <div className="flex items-center gap-1.5 text-2xs text-neutral-400 mb-2.5">
                       <Calendar className="h-3 w-3" aria-hidden="true" />
-                      <time>{new Date(post.publishedAt).toLocaleDateString()}</time>
+                      <time>{formatShortDate(post.publishedAt)}</time>
                     </div>
 
                     <h3 className="text-lg font-bold font-heading text-navy-900 mb-2 group-hover:text-brand-blue transition-colors line-clamp-2">
