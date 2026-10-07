@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Plus, Search, ExternalLink, Edit, Archive, CheckCircle2 } from 'lucide-react'
 import type { CmsBlog } from '@/lib/cms/types'
+import { formatShortDate } from '@/lib/date'
 
 export default function AdminBlogsPage() {
   const [posts, setPosts] = useState<CmsBlog[]>([])
@@ -61,7 +62,7 @@ export default function AdminBlogsPage() {
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left text-xs">
       <thead className="bg-neutral-50 text-neutral-500 uppercase"><tr><th className="p-4">Article</th><th className="p-4">Author</th><th className="p-4">Status</th><th className="p-4">Published</th><th className="p-4 text-right">Actions</th></tr></thead>
       <tbody className="divide-y divide-neutral-100">{loading ? <tr><td colSpan={5} className="p-8 text-center text-neutral-500">Loading articles…</td></tr> : visiblePosts.length ? visiblePosts.map((post) => <tr key={post.id}>
-        <td className="p-4"><p className="font-semibold text-navy-900">{post.title}</p><p className="font-mono text-neutral-400 mt-1">/blog/{post.slug}</p></td><td className="p-4">{post.author}</td><td className="p-4"><span className="capitalize">{post.status}</span></td><td className="p-4">{post.published_at ? new Date(post.published_at).toLocaleDateString() : '—'}</td>
+        <td className="p-4"><p className="font-semibold text-navy-900">{post.title}</p><p className="font-mono text-neutral-400 mt-1">/blog/{post.slug}</p></td><td className="p-4">{post.author}</td><td className="p-4"><span className="capitalize">{post.status}</span></td><td className="p-4">{post.published_at ? formatShortDate(post.published_at) : '—'}</td>
         <td className="p-4 text-right whitespace-nowrap space-x-2">{post.status === 'published' && <Link href={`/blog/${post.slug}`} target="_blank" aria-label="View article" className="inline-flex p-1.5 text-neutral-500"><ExternalLink className="h-4 w-4" /></Link>}<Link href={`/admin/blogs/${post.id}/edit`} aria-label="Edit article" className="inline-flex p-1.5 text-brand-blue"><Edit className="h-4 w-4" /></Link><button onClick={() => void setPostStatus(post, post.status === 'published' ? 'draft' : 'published')} aria-label={post.status === 'published' ? 'Unpublish article' : 'Publish article'} className="inline-flex p-1.5 text-emerald-700"><CheckCircle2 className="h-4 w-4" /></button><button onClick={() => void archivePost(post.id)} aria-label="Archive article" className="inline-flex p-1.5 text-brand-red"><Archive className="h-4 w-4" /></button></td>
       </tr>) : <tr><td colSpan={5} className="p-8 text-center text-neutral-500">No articles found.</td></tr>}</tbody>
     </table></div></div>

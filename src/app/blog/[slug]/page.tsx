@@ -17,6 +17,7 @@ import { siteConfig } from '@/lib/config/site'
 import { Accordion } from '@/components/ui/Accordion'
 import { BlogCard } from '@/components/blog/BlogCard'
 import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
+import { formatLongDate } from '@/lib/date'
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>
@@ -86,19 +87,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     },
   }
 
-  const formattedPublished = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  const formattedPublished = formatLongDate(post.publishedAt)
 
-  const formattedUpdated = post.updatedAt
-    ? new Date(post.updatedAt).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : null
+  const formattedUpdated = post.updatedAt ? formatLongDate(post.updatedAt) : null
 
   return (
     <article className="min-h-screen bg-white" aria-labelledby="article-title">

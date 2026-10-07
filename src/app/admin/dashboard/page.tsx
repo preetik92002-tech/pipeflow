@@ -13,6 +13,7 @@ import {
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
 import { redirect } from 'next/navigation'
+import { formatShortDate } from '@/lib/date'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +43,7 @@ export default async function AdminDashboard() {
   const recentLeads = (recent.data ?? []).map((lead) => ({
     id: lead.id, name: lead.name, phone: lead.phone, service: lead.specific_service || 'General inquiry',
     area: [lead.service_area, lead.zip_code].filter(Boolean).join(' '), type: lead.lead_type || 'Service request',
-    status: lead.status || 'new', time: new Date(lead.created_at).toLocaleDateString(),
+    status: lead.status || 'new', time: formatShortDate(lead.created_at),
   }))
 
   const stats = [

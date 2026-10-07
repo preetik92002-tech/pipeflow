@@ -5,6 +5,7 @@ import {
   Search,
   X,
 } from 'lucide-react'
+import { formatDateTime } from '@/lib/date'
 
 interface LeadItem {
   id: string
@@ -215,7 +216,7 @@ export default function AdminLeadsPage() {
                   <td className="py-3.5 px-4 text-neutral-600 font-mono text-2xs">
                     {[lead.serviceArea, lead.zipCode].filter(Boolean).join(' · ') || 'Not provided'}
                   </td>
-                  <td className="py-3.5 px-4 text-neutral-500">{lead.createdAt ? new Date(lead.createdAt).toLocaleString() : '—'}</td>
+                  <td className="py-3.5 px-4 text-neutral-500">{lead.createdAt ? formatDateTime(lead.createdAt) : '—'}</td>
                   <td className="py-3.5 px-4">
                     <span className="bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded text-2xs font-medium">
                       {lead.utmSource ? `${lead.utmSource} / ${lead.utmMedium || 'cpc'}` : 'Direct Website'}
