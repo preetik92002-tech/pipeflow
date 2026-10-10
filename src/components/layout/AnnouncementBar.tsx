@@ -29,26 +29,15 @@ export function AnnouncementBar({ messages, className }: AnnouncementBarProps) {
   if (dismissed || messages.length === 0) return null
 
   return (
-    <div
-      role="region"
-      aria-label="Announcements"
-      className={cn('bg-ink text-[0.8rem] tracking-wide text-white/85', className)}
-    >
+    <div role="region" aria-label="Announcements" className={cn('bg-ink text-[0.8rem] tracking-wide text-white/85', className)}>
       <div className="container-wide flex min-h-[36px] items-center justify-between gap-4 py-2">
         <div className="flex-1 text-center">
-          <span
-            className={cn(
-              'inline-block transition-all duration-300',
-              animating ? 'opacity-0 -translate-y-1' : 'opacity-100 translate-y-0'
-            )}
-          >
-            {messages[currentIndex]}
-          </span>
+          <span className={cn('inline-block transition-all duration-300', animating ? 'opacity-0 -translate-y-1' : 'opacity-100 translate-y-0')}>{messages[currentIndex]}</span>
         </div>
         <button
           onClick={() => setDismissed(true)}
           aria-label="Dismiss announcement"
-          className="flex-shrink-0 rounded p-1 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white"
+          className="flex-shrink-0 p-1 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white"
         >
           <X className="h-3.5 w-3.5" aria-hidden="true" />
         </button>

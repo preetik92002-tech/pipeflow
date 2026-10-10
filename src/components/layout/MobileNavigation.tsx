@@ -41,8 +41,13 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
       const focusable = panel.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
       const first = focusable[0]
       const last = focusable[focusable.length - 1]
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
@@ -58,14 +63,11 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
     <>
       <div
         aria-hidden="true"
-        className={cn(
-          'fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
-          isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-        )}
+        className={cn('fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden', isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')}
         onClick={() => onClose(true)}
       />
 
-      {/* Band hone par `inert`: drawer screen se bahar hai, to uske links Tab se bhi na mile. */}
+      {/* Band hone par`inert`: drawer screen se bahar hai, to uske links Tab se bhi na mile. */}
       <div
         ref={panel}
         id="mobile-menu"
@@ -85,7 +87,7 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
             ref={closeButton}
             onClick={() => onClose(true)}
             aria-label="Close navigation menu"
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+            className="flex h-11 w-11 items-center justify-center border border-line text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -98,13 +100,16 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
               return (
                 <li
                   key={item.href}
-                  className={cn('border-b border-line transition-[opacity,transform] duration-500 ease-out-expo motion-reduce:transition-none', isOpen ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0')}
+                  className={cn(
+                    'border-b border-line transition-[opacity,transform] duration-500 ease-out-expo motion-reduce:transition-none',
+                    isOpen ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'
+                  )}
                   style={{ transitionDelay: isOpen ? `${80 + i * 35}ms` : '0ms' }}
                 >
                   <Link
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
-                    className={cn('flex items-center justify-between py-4 font-display text-xl font-medium', isActive ? 'text-brand-red' : 'text-ink')}
+                    className={cn('flex items-center justify-between py-4 font-display text-xl font-medium', isActive ? 'text-terra' : 'text-ink')}
                   >
                     {item.label}
                     <ArrowRight className="h-4 w-4 opacity-40" aria-hidden="true" />

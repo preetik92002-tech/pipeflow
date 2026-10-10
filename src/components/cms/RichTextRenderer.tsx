@@ -15,15 +15,11 @@ function renderMarks(node: RichTextNode, key: string): ReactNode {
     else if (mark.type === 'link' && mark.attrs?.href) {
       const href = mark.attrs.href
       out = href.startsWith('/') ? (
-        <Link href={href} className="font-medium text-brand-blue underline underline-offset-2 hover:text-brand-blue-light">
+        <Link href={href} className="font-medium text-terra underline underline-offset-2 hover:text-terra-dark">
           {out}
         </Link>
       ) : (
-        <a
-          href={href}
-          className="font-medium text-brand-blue underline underline-offset-2 hover:text-brand-blue-light"
-          {...(isExternalHref(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        >
+        <a href={href} className="font-medium text-terra underline underline-offset-2 hover:text-terra-dark" {...(isExternalHref(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
           {out}
         </a>
       )

@@ -33,25 +33,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [ldJson, siteSettings, navigation] = await Promise.all([
-    generateLocalBusinessSchema(),
-    getPublicSiteSettingsBundle(),
-    getNavigation(),
-  ])
+  const [ldJson, siteSettings, navigation] = await Promise.all([generateLocalBusinessSchema(), getPublicSiteSettingsBundle(), getNavigation()])
 
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`site ${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
-        {/* Reveal animations ke liye "js" class; script fail ho to 3s mein hat jaati hai (content kabhi chhupa nahi rehta). */}
+        {/* Reveal animations ke liye"js" class; script fail ho to 3s mein hat jaati hai (content kabhi chhupa nahi rehta). */}
         <script dangerouslySetInnerHTML={{ __html: REVEAL_BOOT_SCRIPT }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }} />
       </head>
       <body className="min-h-screen flex flex-col">
-          <SiteSettingsProvider initialSettings={siteSettings}>
+        <SiteSettingsProvider initialSettings={siteSettings}>
           <NavigationProvider navigation={navigation}>
             <AnalyticsProvider />
             <RevealObserver />
@@ -64,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <StickyMobileCTA />
             <FloatingCallButton />
           </NavigationProvider>
-          </SiteSettingsProvider>
+        </SiteSettingsProvider>
       </body>
     </html>
   )

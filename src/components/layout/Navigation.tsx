@@ -27,12 +27,11 @@ export function Navigation({ items, className }: NavigationProps) {
             key={item.href}
             href={item.href}
             aria-current={isActive ? 'page' : undefined}
-            className={cn(
-              'whitespace-nowrap rounded-md px-2.5 py-2 text-[0.92rem] font-medium transition-colors duration-200 xl:px-3',
-              isActive ? 'text-ink' : 'text-neutral-600 hover:text-ink'
-            )}
+            className={cn('whitespace-nowrap  px-2.5 py-2 text-[0.92rem] font-medium transition-colors duration-200 xl:px-3', isActive ? 'text-ink' : 'text-neutral-600 hover:text-ink')}
           >
-            <span className="link-grow after:!bg-brand-red" data-active={isActive ? '' : undefined}>{item.label}</span>
+            <span className="link-grow after:!bg-terra" data-active={isActive ? '' : undefined}>
+              {item.label}
+            </span>
           </Link>
         )
       })}

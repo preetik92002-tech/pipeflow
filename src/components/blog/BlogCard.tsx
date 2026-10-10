@@ -13,14 +13,9 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
   const formattedDate = formatShortDate(post.publishedAt)
 
   return (
-    <article className="group flex flex-col rounded-2xl bg-white border border-neutral-200/80 overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
+    <article className="group flex flex-col bg-white border border-line/80 overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
       {/* Featured Image */}
-      <Link
-        href={`/blog/${post.slug}`}
-        className="relative aspect-[16/10] overflow-hidden bg-neutral-100 block"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
+      <Link href={`/blog/${post.slug}`} className="relative aspect-[16/10] overflow-hidden bg-mist block" tabIndex={-1} aria-hidden="true">
         <Image
           src={post.featuredImage || '/art/hero-plumbing.svg'}
           alt={post.featuredImageAlt || post.title}
@@ -30,9 +25,7 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4">
-          <span className="rounded-full bg-navy-900/90 text-white px-3 py-1 text-2xs font-bold uppercase tracking-wider backdrop-blur-xs">
-            {post.categoryName}
-          </span>
+          <span className="bg-ink/90 text-white px-3 py-1 text-2xs font-bold uppercase tracking-wider backdrop-blur-xs">{post.categoryName}</span>
         </div>
       </Link>
 
@@ -52,19 +45,17 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-navy-900 mb-2 group-hover:text-brand-blue transition-colors line-clamp-2 leading-snug">
-          <Link href={`/blog/${post.slug}`} className="focus-visible:outline-2 focus-visible:outline-brand-blue">
+        <h3 className="text-xl font-bold text-ink mb-2 group-hover:text-terra transition-colors line-clamp-2 leading-snug">
+          <Link href={`/blog/${post.slug}`} className="focus-visible:outline-2 focus-visible:outline-terra">
             {post.title}
           </Link>
         </h3>
 
         {/* Excerpt */}
-        <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed mb-6 line-clamp-3 flex-1">
-          {post.excerpt}
-        </p>
+        <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed mb-6 line-clamp-3 flex-1">{post.excerpt}</p>
 
         {/* Author & CTA Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-neutral-100 mt-auto">
+        <div className="flex items-center justify-between pt-4 border-t border-line mt-auto">
           <span className="text-2xs text-neutral-500 flex items-center gap-1.5 font-medium truncate max-w-[160px]">
             <User className="h-3 w-3 text-neutral-400 flex-shrink-0" />
             <span className="truncate">{post.author}</span>
@@ -72,7 +63,7 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
 
           <Link
             href={`/blog/${post.slug}`}
-            className="inline-flex items-center gap-1 text-xs font-bold text-brand-blue group-hover:text-brand-blue-light transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-bold text-terra group-hover:text-terra-dark transition-colors"
             aria-label={`Read article: ${post.title}`}
           >
             <span>Read Article</span>

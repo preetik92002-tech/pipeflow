@@ -16,7 +16,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     <nav aria-label="Breadcrumb" className={className}>
       <ol className="flex flex-wrap items-center gap-1.5 text-sm text-neutral-500">
         <li>
-          <Link href="/" className="flex items-center hover:text-navy-800 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue rounded">
+          <Link href="/" className="flex items-center hover:text-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra">
             <Home className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="sr-only">Home</span>
           </Link>
@@ -25,14 +25,11 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
           <li key={index} className="flex items-center gap-1.5">
             <ChevronRight className="h-3 w-3 text-neutral-300 flex-shrink-0" aria-hidden="true" />
             {item.href && index < items.length - 1 ? (
-              <Link
-                href={item.href}
-                className="hover:text-navy-800 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue rounded"
-              >
+              <Link href={item.href} className="hover:text-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra">
                 {item.label}
               </Link>
             ) : (
-              <span aria-current="page" className="text-navy-800 font-medium">
+              <span aria-current="page" className="text-ink font-medium">
                 {item.label}
               </span>
             )}

@@ -22,10 +22,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
 
   const filteredPosts = useMemo(() => {
     return initialPosts.filter((post) => {
-      const matchesCategory =
-        selectedCategory === 'all' ||
-        post.categoryId === selectedCategory ||
-        post.categorySlug === selectedCategory
+      const matchesCategory = selectedCategory === 'all' || post.categoryId === selectedCategory || post.categorySlug === selectedCategory
 
       const matchesSearch =
         !searchQuery.trim() ||
@@ -69,17 +66,13 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
       {/* Main Content Area */}
       <div className="section-padding container-site">
         {/* Search & Category Filter Bar */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-8 mb-12 border-b border-neutral-200">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-8 mb-12 border-b border-line">
           {/* Category Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             <button
               type="button"
               onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                selectedCategory === 'all'
-                  ? 'bg-navy-900 text-white shadow-sm'
-                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-              }`}
+              className={`px-4 py-2 text-xs font-bold transition-all shrink-0 ${selectedCategory === 'all' ? 'bg-ink text-white shadow-sm' : 'bg-mist text-neutral-600 hover:bg-neutral-200'}`}
             >
               All Articles ({initialPosts.length})
             </button>
@@ -88,11 +81,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                  selectedCategory === cat.id
-                    ? 'bg-navy-900 text-white shadow-sm'
-                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                }`}
+                className={`px-4 py-2 text-xs font-bold transition-all shrink-0 ${selectedCategory === cat.id ? 'bg-ink text-white shadow-sm' : 'bg-mist text-neutral-600 hover:bg-neutral-200'}`}
               >
                 {cat.name}
               </button>
@@ -107,7 +96,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search guides & solutions..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-neutral-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-blue"
+              className="w-full pl-9 pr-4 py-2 border border-line text-xs focus:outline-none focus:ring-2 focus:ring-terra"
             />
           </div>
         </div>
@@ -115,28 +104,18 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
         {/* Featured Post Card (if available and not filtered out) */}
         {featuredPost && selectedCategory === 'all' && !searchQuery && (
           <div className="mb-16">
-            <div className="bg-navy-900 text-white rounded-3xl overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12 border border-navy-800">
+            <div className="bg-ink text-white overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12 border border-ink">
               <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[420px]">
-                <Image
-                  src={featuredPost.featuredImage}
-                  alt={featuredPost.featuredImageAlt || featuredPost.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  className="object-cover"
-                />
+                <Image src={featuredPost.featuredImage} alt={featuredPost.featuredImageAlt || featuredPost.title} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" />
                 <div className="absolute top-4 left-4">
-                  <span className="bg-brand-red text-white px-3 py-1 rounded-full text-2xs font-bold uppercase tracking-wider shadow-md">
-                    Featured Insight
-                  </span>
+                  <span className="bg-terra text-white px-3 py-1 text-2xs font-bold uppercase tracking-wider shadow-md">Featured Insight</span>
                 </div>
               </div>
 
               <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-3 text-2xs text-neutral-400 mb-3">
-                    <span className="bg-navy-800 text-brand-blue-lighter px-2.5 py-0.5 rounded-md font-semibold">
-                      {featuredPost.categoryName}
-                    </span>
+                    <span className="bg-ink text-terra-light px-2.5 py-0.5 font-semibold">{featuredPost.categoryName}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -144,24 +123,19 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
                     </span>
                   </div>
 
-                  <h2 className="text-xl sm:text-2xl font-bold font-display text-white mb-3 hover:text-brand-blue-lighter transition-colors">
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-white mb-3 hover:text-terra-light transition-colors">
                     <Link href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
                   </h2>
 
-                  <p className="text-xs sm:text-sm text-neutral-300 line-clamp-3 mb-6 leading-relaxed">
-                    {featuredPost.excerpt}
-                  </p>
+                  <p className="text-xs sm:text-sm text-neutral-300 line-clamp-3 mb-6 leading-relaxed">{featuredPost.excerpt}</p>
                 </div>
 
-                <div className="pt-6 border-t border-navy-800 flex items-center justify-between">
+                <div className="pt-6 border-t border-ink flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs text-neutral-300">
                     <User className="h-3.5 w-3.5 text-neutral-400" />
                     <span>{featuredPost.author}</span>
                   </div>
-                  <Link
-                    href={`/blog/${featuredPost.slug}`}
-                    className="text-xs font-bold text-brand-blue-lighter hover:text-white flex items-center gap-1.5"
-                  >
+                  <Link href={`/blog/${featuredPost.slug}`} className="text-xs font-bold text-terra-light hover:text-white flex items-center gap-1.5">
                     <span>Read Full Guide</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
@@ -175,20 +149,16 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
         {filteredPosts.length > 0 ? (
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {(selectedCategory === 'all' && !searchQuery ? remainingPosts : filteredPosts).map(
-                (post) => (
-                  <BlogCard key={post.id} post={post} />
-                )
-              )}
+              {(selectedCategory === 'all' && !searchQuery ? remainingPosts : filteredPosts).map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
             </div>
           </div>
         ) : (
-          <div className="py-20 text-center bg-neutral-50 rounded-3xl border border-neutral-200">
+          <div className="py-20 text-center bg-paper border border-line">
             <BookOpen className="h-10 w-10 text-neutral-300 mx-auto mb-3" />
-            <h3 className="text-lg font-bold font-display text-navy-900">No Guides Match Your Search</h3>
-            <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto mb-6">
-              Try adjusting your query or clear the filter to browse all Colorado home insights.
-            </p>
+            <h3 className="text-lg font-bold font-display text-ink">No Guides Match Your Search</h3>
+            <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto mb-6">Try adjusting your query or clear the filter to browse all Colorado home insights.</p>
             <button
               type="button"
               onClick={() => {
@@ -204,26 +174,22 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
       </div>
 
       {/* Newsletter / Direct Inquiry Bar */}
-      <section className="bg-navy-900 text-white py-14 border-t border-navy-800">
+      <section className="bg-ink text-white py-14 border-t border-ink">
         <div className="container-site flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
-              Have a Plumbing or HVAC Problem?
-            </h3>
-            <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-              Tell us what you need and we will help you find a local professional serving Denver or Boulder.
-            </p>
+            <h3 className="text-xl sm:text-2xl font-bold font-display text-white">Have a Plumbing or HVAC Problem?</h3>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">Tell us what you need and we will help you find a local professional serving Denver or Boulder.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/book-service" className="btn-primary !py-3 !px-6 text-xs bg-brand-red hover:bg-brand-red-dark">
+            <Link href="/book-service" className="btn-primary !py-3 !px-6 text-xs bg-terra hover:bg-terra-dark">
               <Calendar className="h-3.5 w-3.5" />
               <span>Request Service</span>
             </Link>
             {hasRealPhone(company.phone) && (
-            <a href={`tel:${company.phone}`} className="btn-outline !py-3 !px-5 text-xs text-white border-white/30">
-              <Phone className="h-3.5 w-3.5" />
-              <span>{company.phone}</span>
-            </a>
+              <a href={`tel:${company.phone}`} className="btn-outline !py-3 !px-5 text-xs text-white border-white/30">
+                <Phone className="h-3.5 w-3.5" />
+                <span>{company.phone}</span>
+              </a>
             )}
           </div>
         </div>

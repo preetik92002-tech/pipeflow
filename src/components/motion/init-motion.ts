@@ -19,6 +19,10 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
  * bhi create nahi hota aur content jaisa HTML mein hai waisa dikhta hai. Return function sab revert karta hai.
  */
 export function initMotion(): () => void {
+  // ROOT CAUSE FIX (navigation bug): ScrollTrigger refresh pichhli scroll position yaad rakhta hai aur layout naapne ke baad usi par
+  // wapas scroll kar deta hai. Route badalne par wahi purani position Next ke scroll-to-top ko ulat deti thi. Naye page par
+  // shuru karne se pehle (aur cleanup ke baad) yaad ki hui positions saaf karte hain. Browser ka apna Back/Forward restore alag hai, usse chhedte nahi.
+  ScrollTrigger.clearScrollMemory()
   const mm = gsap.matchMedia()
 
   mm.add(
@@ -71,9 +75,9 @@ export function initMotion(): () => void {
       for (const el of all('[data-clip]')) {
         gsap.fromTo(
           el,
-          { clipPath: 'inset(12% 9% 12% 9% round 2rem)' },
+          { clipPath: 'inset(12% 9% 12% 9%)' },
           {
-            clipPath: 'inset(0% 0% 0% 0% round 2rem)',
+            clipPath: 'inset(0% 0% 0% 0%)',
             ease: 'none',
             scrollTrigger: { trigger: el, start: 'top 96%', end: 'top 38%', scrub: true },
           }
@@ -185,6 +189,7 @@ export function initMotion(): () => void {
 
   return () => {
     if (refreshTimer) clearTimeout(refreshTimer)
-    mm.revert() // saare tweens, ScrollTriggers, pins aur SplitText yahin saaf
+    mm.revert()
+    ScrollTrigger.clearScrollMemory() // saare tweens, ScrollTriggers, pins aur SplitText yahin saaf
   }
 }

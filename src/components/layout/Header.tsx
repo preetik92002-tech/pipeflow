@@ -45,14 +45,14 @@ export function Header() {
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
         >
           Skip to main content
         </a>
 
         <div className="container-wide">
           <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-16' : 'h-[72px] lg:h-20')}>
-            <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="group flex-shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue">
+            <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="group flex-shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terra">
               <Image
                 src="/assets/logo.png"
                 alt=""
@@ -72,7 +72,7 @@ export function Header() {
             <div className="hidden flex-shrink-0 items-center gap-3 lg:flex">
               {hasRealPhone(company.phone) && (
                 <a href={`tel:${company.phone}`} className="group inline-flex items-center gap-2 px-2 text-sm font-semibold text-ink" aria-label={`Call ${company.phone}`}>
-                  <Phone className="h-4 w-4 text-brand-red" aria-hidden="true" />
+                  <Phone className="h-4 w-4 text-terra" aria-hidden="true" />
                   <span className="link-grow hidden xl:inline">{company.phone}</span>
                   <span className="xl:hidden">Call</span>
                 </a>
@@ -90,7 +90,7 @@ export function Header() {
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMobileMenuOpen(true)}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:hidden"
+              className="flex h-11 w-11 items-center justify-center border border-line text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra lg:hidden"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -98,13 +98,7 @@ export function Header() {
         </div>
       </header>
 
-      <MobileNavigation
-        isOpen={mobileMenuOpen}
-        onClose={closeMenu}
-        items={nav.header}
-        config={{ ...siteConfig.ctas, bookService: nav.cta }}
-        phone={company.phone}
-      />
+      <MobileNavigation isOpen={mobileMenuOpen} onClose={closeMenu} items={nav.header} config={{ ...siteConfig.ctas, bookService: nav.cta }} phone={company.phone} />
     </>
   )
 }

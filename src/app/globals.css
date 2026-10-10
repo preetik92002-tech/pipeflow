@@ -10,7 +10,13 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    /*
+     * "scroll-behavior: smooth" yahan jaan-bujhkar nahi hai. Poore page par smooth scroll hone se route badalne par
+     * Next ka scroll-to-top aur browser ka Back/Forward restore dono animate hote the, aur beech mein GSAP ScrollTrigger
+     * refresh unhe adhoore position par rok deta tha (page bottom ke paas khulta tha). Anchor links ab seedhe pahunchte hain.
+     */
+    /* Anchor links (#section) sticky header ke neeche na chhupein. */
+    scroll-padding-top: 6rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -149,7 +155,7 @@
     @apply font-display text-lg font-medium text-ink mt-6;
   }
   .cms-prose a {
-    @apply font-semibold text-brand-blue underline decoration-brand-blue/30 underline-offset-4 transition-colors hover:decoration-brand-blue;
+    @apply font-semibold text-terra underline decoration-terra/30 underline-offset-4 transition-colors hover:decoration-terra;
   }
   /* Lists: custom markers in the brand red instead of browser bullets. */
   .cms-prose ul {
@@ -160,13 +166,13 @@
   }
   .cms-prose ul > li::before {
     content: '';
-    @apply absolute left-0 top-[0.72em] h-[3px] w-3.5 rounded-full bg-brand-red;
+    @apply absolute left-0 top-[0.72em] h-[3px] w-3.5 bg-terra;
   }
   .cms-prose ol {
-    @apply list-decimal space-y-2 pl-6 marker:font-semibold marker:text-brand-red;
+    @apply list-decimal space-y-2 pl-6 marker:font-semibold marker:text-terra;
   }
   .cms-prose blockquote {
-    @apply border-l-[3px] border-brand-red pl-5 font-display text-xl leading-snug text-ink;
+    @apply border-l-[3px] border-terra pl-5 font-display text-xl leading-snug text-ink;
   }
   .cms-prose-invert {
     @apply text-white/80;
@@ -188,7 +194,7 @@
 
   /* Chhota uppercase label har section heading ke upar, laal line ke saath. */
   .eyebrow {
-    @apply inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-red;
+    @apply inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-terra;
   }
   .eyebrow::before {
     content: '';
@@ -207,10 +213,10 @@
 
   /* Public buttons. Admin purane .btn-* classes use karta hai, isliye ye alag naam hain. */
   .cta {
-    @apply relative inline-flex min-h-[3rem] items-center justify-center gap-2.5 rounded-full px-6 py-3 text-[0.95rem] font-semibold transition-[background-color,color,box-shadow,transform,border-color] duration-300 ease-out-expo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+    @apply relative inline-flex min-h-[3rem] items-center justify-center gap-2.5 px-6 py-3 text-[0.95rem] font-semibold transition-[background-color,color,box-shadow,transform,border-color] duration-300 ease-out-expo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
   }
   .cta-solid {
-    @apply bg-brand-red text-white shadow-[0_10px_30px_-12px_rgba(220,38,38,0.7)] hover:bg-brand-red-dark hover:shadow-[0_14px_34px_-12px_rgba(220,38,38,0.8)] focus-visible:ring-brand-red;
+    @apply bg-terra text-white hover:bg-terra-dark focus-visible:ring-terra;
   }
   .cta-line {
     @apply border border-ink/20 bg-white/0 text-ink hover:border-ink hover:bg-ink hover:text-white focus-visible:ring-ink;
@@ -239,13 +245,13 @@
     @apply scale-x-100;
   }
 
-  /* Photo frame: rounded crop with a soft inner edge. */
+  /* Photo frame: sharp-cornered crop with a fine inner edge. */
   .photo-frame {
-    @apply relative overflow-hidden rounded-4xl bg-mist;
+    @apply relative overflow-hidden bg-mist;
   }
   .photo-frame::after {
     content: '';
-    @apply pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-black/5;
+    @apply pointer-events-none absolute inset-0 ring-1 ring-inset ring-ink/10;
   }
 }
 
@@ -332,8 +338,8 @@
 /* Cinematic layer (GSAP ScrollTrigger drives the scroll-linked parts)  */
 /* ------------------------------------------------------------------ */
 @keyframes clipIn {
-  from { clip-path: inset(7% 4% 7% 4% round 1.5rem); }
-  to { clip-path: inset(0% 0% 0% 0% round 0rem); }
+  from { clip-path: inset(7% 4% 7% 4%); }
+  to { clip-path: inset(0% 0% 0% 0%); }
 }
 @keyframes wordUp {
   from { transform: translateY(108%); }
@@ -395,3 +401,21 @@
 .svc-index:has(li:nth-child(8):is(:hover, :focus-within)) .svc-photo:nth-child(8) { opacity: 1; }
 .svc-index:has(li:nth-child(9):is(:hover, :focus-within)) .svc-photo:nth-child(9) { opacity: 1; }
 .svc-index:has(li:nth-child(10):is(:hover, :focus-within)) .svc-photo:nth-child(10) { opacity: 1; }
+
+/* ------------------------------------------------------------------ */
+/* Public site: focus ring that is visible on both light and dark       */
+/* ------------------------------------------------------------------ */
+html.site *:focus-visible {
+  outline: 2px solid #B54A3A;
+  outline-offset: 3px;
+  border-radius: 0;
+}
+html.site .bg-ink :focus-visible,
+html.site [data-dark] :focus-visible {
+  outline-color: #EBA897;
+}
+
+/* Admin login: chhota CSS-only entrance; reduced-motion mein koi animation nahi. */
+@media (prefers-reduced-motion: no-preference) {
+  .login-in { animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+}

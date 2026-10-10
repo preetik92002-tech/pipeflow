@@ -23,9 +23,9 @@ export function FloatingCallButton() {
     <aside aria-label="Call us" className="fixed bottom-6 left-6 z-40 hidden animate-rise lg:block">
       <a
         href={`tel:${company.phone}`}
-        className="group flex items-center gap-3 rounded-full bg-ink py-2 pl-2 pr-5 text-white shadow-[0_18px_40px_-16px_rgba(11,23,40,0.7)] transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+        className="group flex items-center gap-3 bg-ink py-2 pl-2 pr-5 text-white shadow-[0_18px_40px_-16px_rgba(11,23,40,0.7)] transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-terra focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra"
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-red transition-colors group-hover:bg-white group-hover:text-brand-red">
+        <span className="flex h-10 w-10 items-center justify-center bg-terra transition-colors group-hover:bg-white group-hover:text-terra">
           <Phone className="h-4 w-4" aria-hidden="true" />
         </span>
         <span className="text-sm font-semibold">{company.phone}</span>

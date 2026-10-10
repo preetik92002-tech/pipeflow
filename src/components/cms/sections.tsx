@@ -11,13 +11,20 @@ import { RichTextRenderer } from './RichTextRenderer'
  * Public page sections. Har CMS page inhi se banta hai, isliye design yahan badalne se
  * poori site ek jaisi dikhti hai. Content (data) bilkul wahi rehta hai jo admin ne save kiya.
  *
- * - `tone`: light sections white/paper mein alternate hote hain (SectionRenderer decide karta hai).
- * - `kind`: page ka type (home, location, service) — hero aur kuch layouts isse badalte hain.
+ * -`tone`: light sections white/paper mein alternate hote hain (SectionRenderer decide karta hai).
+ * -`kind`: page ka type (home, location, service) — hero aur kuch layouts isse badalte hain.
  */
 export type Tone = 'white' | 'paper'
 export type PageKind = 'home' | 'location' | 'service' | 'page'
-export interface Crumb { label: string; href?: string }
-export interface PageContext { kind: PageKind; crumbs: Crumb[]; cityPhoto?: Photo }
+export interface Crumb {
+  label: string
+  href?: string
+}
+export interface PageContext {
+  kind: PageKind
+  crumbs: Crumb[]
+  cityPhoto?: Photo
+}
 
 const toneBg: Record<Tone, string> = { white: 'bg-white', paper: 'bg-paper' }
 const pad = 'py-20 sm:py-24 lg:py-28'
@@ -30,19 +37,52 @@ function Band({ tone, children, className = '', labelledBy }: { tone: Tone; chil
   )
 }
 
-function SectionHeader({ eyebrow, heading, intro, light = false, center = false, id, compact = false }: { eyebrow?: string; heading?: string; intro?: string; light?: boolean; center?: boolean; id?: string; compact?: boolean }) {
+function SectionHeader({
+  eyebrow,
+  heading,
+  intro,
+  light = false,
+  center = false,
+  id,
+  compact = false,
+}: {
+  eyebrow?: string
+  heading?: string
+  intro?: string
+  light?: boolean
+  center?: boolean
+  id?: string
+  compact?: boolean
+}) {
   if (!heading && !intro) return null
   return (
     <div className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`}>
-      {eyebrow && <p data-reveal="fade" className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{eyebrow}</p>}
-      {heading && <h2 id={id} data-lines className={`font-display ${compact ? 'text-display-md' : 'text-display-lg'} font-normal ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-4' : ''}`}>{heading}</h2>}
-      {intro && <p data-reveal style={{ '--reveal-delay': '160ms' } as React.CSSProperties} className={`mt-5 text-lead ${light ? 'text-white/75' : 'text-neutral-600'}`}>{intro}</p>}
+      {eyebrow && (
+        <p data-reveal="fade" className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>
+          {eyebrow}
+        </p>
+      )}
+      {heading && (
+        <h2 id={id} data-lines className={`font-display ${compact ? 'text-display-md' : 'text-display-lg'} font-normal ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-4' : ''}`}>
+          {heading}
+        </h2>
+      )}
+      {intro && (
+        <p data-reveal style={{ '--reveal-delay': '160ms' } as React.CSSProperties} className={`mt-5 text-lead ${light ? 'text-white/75' : 'text-neutral-600'}`}>
+          {intro}
+        </p>
+      )}
     </div>
   )
 }
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60)
 
 // ------------------------------------------------------------------ hero
 
@@ -50,14 +90,22 @@ function Breadcrumbs({ crumbs, light }: { crumbs: Crumb[]; light: boolean }) {
   if (crumbs.length < 2) return null
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-sm ${light ? 'text-white/70' : 'text-neutral-500'}`}>
+      <ol className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-sm ${light ? 'text-white/70' : 'text-neutral-600'}`}>
         {crumbs.map((c, i) => (
           <li key={i} className="flex items-center gap-2">
-            {i > 0 && <span aria-hidden="true" className="opacity-50">/</span>}
+            {i > 0 && (
+              <span aria-hidden="true" className="opacity-50">
+                /
+              </span>
+            )}
             {c.href && i < crumbs.length - 1 ? (
-              <SmartLink href={c.href} className={`link-grow ${light ? 'hover:text-white' : 'hover:text-ink'}`}>{c.label}</SmartLink>
+              <SmartLink href={c.href} className={`link-grow ${light ? 'hover:text-white' : 'hover:text-ink'}`}>
+                {c.label}
+              </SmartLink>
             ) : (
-              <span aria-current={i === crumbs.length - 1 ? 'page' : undefined} className={light ? 'text-white' : 'text-ink'}>{c.label}</span>
+              <span aria-current={i === crumbs.length - 1 ? 'page' : undefined} className={light ? 'text-white' : 'text-ink'}>
+                {c.label}
+              </span>
             )}
           </li>
         ))}
@@ -76,7 +124,9 @@ function HeroCopy({ data, first, light, center }: { data: SectionData<'hero'>; f
       {data.subtitle && <p className={`mt-6 max-w-2xl text-lead ${center ? 'mx-auto' : ''} ${light ? 'text-white/85' : 'text-neutral-700'}`}>{data.subtitle}</p>}
       {data.intro && (
         <div className={`mt-5 max-w-2xl space-y-3 leading-relaxed ${center ? 'mx-auto' : ''} ${light ? 'text-white/70' : 'text-neutral-600'}`}>
-          {data.intro.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
+          {data.intro.split(/\n{2,}/).map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
         </div>
       )}
       <CmsButtons buttons={data.buttons} onDark={light} center={center} />
@@ -138,7 +188,7 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
 
   return (
     <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
-      <div className="pointer-events-none absolute -right-32 -top-32 -z-10 h-[28rem] w-[28rem] rounded-full bg-brand-blue/25 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-32 -top-32 -z-10 h-[28rem] w-[28rem] bg-terra/25 blur-3xl" aria-hidden="true" />
       <div className={`container-wide py-20 sm:py-24 lg:py-28 ${center ? 'text-center' : ''}`}>
         <Breadcrumbs crumbs={ctx.crumbs} light />
         <div className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
@@ -178,8 +228,10 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
             </div>
           </div>
           <div data-reveal>
-            {number ? <p className="font-display text-sm font-medium tracking-[0.2em] text-brand-red">{number}</p> : data.label && <p className="eyebrow">{data.label}</p>}
-            <h2 id={id} data-lines className="mt-4 font-display text-display-lg font-normal text-ink">{data.heading}</h2>
+            {number ? <p className="font-display text-sm font-medium tracking-[0.2em] text-terra">{number}</p> : data.label && <p className="eyebrow">{data.label}</p>}
+            <h2 id={id} data-lines className="mt-4 font-display text-display-lg font-normal text-ink">
+              {data.heading}
+            </h2>
             <RichTextRenderer doc={data.content} className="cms-prose mt-6" />
             {data.button && <CmsButtons buttons={[data.button]} />}
           </div>
@@ -195,7 +247,12 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
         <div className="lg:col-span-5" data-reveal>
           <div className="lg:sticky lg:top-32">
             {number ? (
-              <p className="font-display text-[clamp(3.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-transparent [-webkit-text-stroke:1.5px_theme(colors.brand.red)]" aria-hidden="true">{number}</p>
+              <p
+                className="font-display text-[clamp(3.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-transparent [-webkit-text-stroke:1.5px_theme(colors.terra.DEFAULT)]"
+                aria-hidden="true"
+              >
+                {number}
+              </p>
             ) : (
               data.label && <p className="eyebrow">{data.label}</p>
             )}
@@ -219,7 +276,7 @@ export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'conte
     <section className={`${toneBg[tone]} py-16 sm:py-20`}>
       <div className="container-wide">
         {/* Dividers ek hairline ke roop mein: grid ka background line colour, cells apna tone. */}
-        <div className={`grid gap-px overflow-hidden rounded-4xl border border-line bg-line ${blocks.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+        <div className={`grid gap-px overflow-hidden border border-line bg-line ${blocks.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
           {blocks.map((b, i) => (
             <div key={i} className={`${tone === 'paper' ? 'bg-paper' : 'bg-white'} flex flex-col p-8 sm:p-10`} data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
               {b.label && <p className="eyebrow">{b.label}</p>}
@@ -239,7 +296,13 @@ export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'conte
 type Card = SectionData<'featureCards'>['cards'][number]
 
 function CardShell({ card, className, children }: { card: Card; className: string; children: React.ReactNode }) {
-  return card.href ? <SmartLink href={card.href} className={`group ${className}`}>{children}</SmartLink> : <div className={className}>{children}</div>
+  return card.href ? (
+    <SmartLink href={card.href} className={`group ${className}`}>
+      {children}
+    </SmartLink>
+  ) : (
+    <div className={className}>{children}</div>
+  )
 }
 
 export function FeatureCardsSection({ data, tone }: { data: SectionData<'featureCards'>; tone: Tone }) {
@@ -256,7 +319,7 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
           <ul className="mt-12 grid gap-5 md:grid-cols-2">
             {data.cards.map((card, i) => (
               <li key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties}>
-                <CardShell card={card} className="relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-4xl bg-ink p-7 text-white sm:aspect-[5/4] sm:p-10">
+                <CardShell card={card} className="relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden bg-ink p-7 text-white sm:aspect-[5/4] sm:p-10">
                   {card.image && (
                     <div className="absolute inset-0 -z-20 transition-transform duration-700 ease-out-expo group-hover:scale-105">
                       <div data-parallax="5" className="absolute inset-0">
@@ -268,7 +331,10 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
                   <h3 className="font-display text-display-md font-normal">{card.title}</h3>
                   {card.text && <p className="mt-3 max-w-md text-white/80">{card.text}</p>}
                   {card.href && (
-                    <span className="mt-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-ink transition-all duration-300 ease-out-expo group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
+                    <span
+                      className="mt-6 inline-flex h-12 w-12 items-center justify-center bg-white text-ink transition-all duration-300 ease-out-expo group-hover:bg-terra group-hover:text-white"
+                      aria-hidden="true"
+                    >
                       <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:rotate-45" />
                     </span>
                   )}
@@ -281,7 +347,7 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
     )
   }
 
-  // Photo cards (3+): pehla card bada, baaki chhote — ek "bento" layout.
+  // Photo cards (3+): pehla card bada, baaki chhote — ek"bento" layout.
   if (withImages) {
     const bento = data.cards.length === 5 || data.cards.length === 3
     return (
@@ -293,7 +359,10 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
               const big = bento && i === 0
               return (
                 <li key={i} className={big ? 'sm:col-span-2 lg:col-span-1 lg:row-span-2' : ''} data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-                  <CardShell card={card} className="flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-white transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_24px_60px_-28px_rgba(11,23,40,0.35)]">
+                  <CardShell
+                    card={card}
+                    className="flex h-full flex-col overflow-hidden border border-line bg-white transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_24px_60px_-28px_rgba(11,23,40,0.35)]"
+                  >
                     {card.image && (
                       <div className={`relative overflow-hidden bg-mist ${big ? 'aspect-[4/3] lg:aspect-auto lg:flex-1' : 'aspect-[16/10]'}`}>
                         <div className="absolute inset-0 transition-transform duration-700 ease-out-expo group-hover:scale-105">
@@ -306,7 +375,7 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
                         <h3 className={`font-display font-normal text-ink ${big ? 'text-display-md' : 'text-xl'}`}>{card.title}</h3>
                         {card.text && <p className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{card.text}</p>}
                       </div>
-                      {card.href && <ArrowUpRight className="mt-1 h-5 w-5 flex-shrink-0 text-brand-red transition-transform duration-300 group-hover:rotate-45" aria-hidden="true" />}
+                      {card.href && <ArrowUpRight className="mt-1 h-5 w-5 flex-shrink-0 text-terra transition-transform duration-300 group-hover:rotate-45" aria-hidden="true" />}
                     </div>
                   </CardShell>
                 </li>
@@ -323,17 +392,19 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
     return (
       <Band tone={tone} labelledBy={id}>
         <div className="container-wide grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-4"><SectionHeader heading={data.heading} intro={data.intro} id={id} /></div>
+          <div className="lg:col-span-4">
+            <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+          </div>
           <ul className="border-t border-line lg:col-span-8">
             {data.cards.map((card, i) => (
               <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
                 <SmartLink href={card.href} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-5 py-6 sm:gap-8">
-                  <span className="font-display text-sm font-medium text-neutral-400">{pad2(i + 1)}</span>
+                  <span className="font-display text-sm font-medium text-neutral-600">{pad2(i + 1)}</span>
                   <span>
-                    <span className="block font-display text-xl font-normal text-ink transition-colors group-hover:text-brand-red sm:text-2xl">{card.title}</span>
+                    <span className="block font-display text-xl font-normal text-ink transition-colors group-hover:text-terra sm:text-2xl">{card.title}</span>
                     {card.text && <span className="mt-2 block text-neutral-600">{card.text}</span>}
                   </span>
-                  <ArrowRight className="h-5 w-5 text-ink transition-transform duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-brand-red" aria-hidden="true" />
+                  <ArrowRight className="h-5 w-5 text-ink transition-transform duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-terra" aria-hidden="true" />
                 </SmartLink>
               </li>
             ))}
@@ -352,7 +423,7 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
           {data.cards.map((card, i) => (
             <li key={i} className="border-t border-ink/15 pt-6" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
               <CardShell card={card} className="block">
-                <span className="font-display text-sm font-medium tracking-[0.2em] text-brand-red">{pad2(i + 1)}</span>
+                <span className="font-display text-sm font-medium tracking-[0.2em] text-terra">{pad2(i + 1)}</span>
                 <h3 className="mt-3 font-display text-xl font-normal text-ink">{card.title}</h3>
                 {card.text && <p className="mt-3 leading-relaxed text-neutral-600">{card.text}</p>}
               </CardShell>
@@ -376,13 +447,13 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
           {data.columns.map((col, i) => {
             const dark = i % 2 === 1
             return (
-              <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`rounded-4xl p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'border border-line bg-white'}`}>
+              <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'border border-line bg-white'}`}>
                 <h3 className={`font-display text-display-md font-normal ${dark ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
                 <ul className="mt-7 space-y-4">
                   {col.items.map((item, j) => (
                     <li key={j} className={`flex gap-3 ${dark ? 'text-white/80' : 'text-neutral-700'}`}>
-                      <span className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${dark ? 'bg-white/10' : 'bg-mist'}`}>
-                        <Check className={`h-3.5 w-3.5 ${dark ? 'text-white' : 'text-brand-blue'}`} aria-hidden="true" />
+                      <span className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center ${dark ? 'bg-white/10' : 'bg-mist'}`}>
+                        <Check className={`h-3.5 w-3.5 ${dark ? 'text-white' : 'text-terra'}`} aria-hidden="true" />
                       </span>
                       <span>{item}</span>
                     </li>
@@ -392,7 +463,11 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
             )
           })}
         </div>
-        {data.outro && <p className="mt-10 max-w-3xl text-lead text-neutral-600" data-reveal>{data.outro}</p>}
+        {data.outro && (
+          <p className="mt-10 max-w-3xl text-lead text-neutral-600" data-reveal>
+            {data.outro}
+          </p>
+        )}
         <CmsButtons buttons={data.buttons} />
       </div>
     </Band>
@@ -413,7 +488,7 @@ export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: P
               <ol className="mt-9 space-y-6">
                 {data.steps.map((step, i) => (
                   <li key={i} data-story-step className="grid grid-cols-[auto_1fr] gap-x-5">
-                    <span className="pt-1 font-display text-sm font-medium tracking-[0.2em] text-brand-red-light">{pad2(i + 1)}</span>
+                    <span className="pt-1 font-display text-sm font-medium tracking-[0.2em] text-terra-light">{pad2(i + 1)}</span>
                     <div>
                       <h3 className="font-display text-[clamp(1.35rem,1.1rem+0.9vw,1.85rem)] font-normal leading-tight text-white">{step.title}</h3>
                       {step.text && <p className="mt-2 max-w-md leading-relaxed text-white/70">{step.text}</p>}
@@ -422,8 +497,12 @@ export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: P
                 ))}
               </ol>
               <div className="mt-10 flex items-center gap-5" aria-hidden="true">
-                <div className="h-px flex-1 bg-white/15"><div data-story-progress className="h-px origin-left bg-brand-red" /></div>
-                <span data-story-count className="font-display text-sm tabular-nums text-white/60">01 / {pad2(n)}</span>
+                <div className="h-px flex-1 bg-white/15">
+                  <div data-story-progress className="h-px origin-left bg-terra-light" />
+                </div>
+                <span data-story-count className="font-display text-sm tabular-nums text-white/60">
+                  01 / {pad2(n)}
+                </span>
               </div>
             </div>
             <div className="hidden lg:col-span-6 lg:block xl:col-span-7" aria-hidden="true">
@@ -453,8 +532,8 @@ export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: P
         <ol className={`mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 ${cols}`}>
           {data.steps.map((step, i) => (
             <li key={i} className="relative border-t border-white/15 pt-7" data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
-              <span data-step-line className="absolute -top-px left-0 h-px w-full origin-left bg-brand-red" style={{ transform: 'scaleX(0.16)' }} aria-hidden="true" />
-              <span className="font-display text-sm font-medium tracking-[0.2em] text-brand-red-light">Step {pad2(i + 1)}</span>
+              <span data-step-line className="absolute -top-px left-0 h-px w-full origin-left bg-terra-light" style={{ transform: 'scaleX(0.16)' }} aria-hidden="true" />
+              <span className="font-display text-sm font-medium tracking-[0.2em] text-terra-light">Step {pad2(i + 1)}</span>
               <h3 className="mt-3 font-display text-xl font-medium text-white">{step.title}</h3>
               {step.text && <p className="mt-3 leading-relaxed text-white/70">{step.text}</p>}
             </li>
@@ -473,19 +552,26 @@ export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Ton
     <Band tone={tone} labelledBy={id}>
       <div className="container-wide grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <div className="lg:sticky lg:top-32"><SectionHeader eyebrow="FAQ" heading={data.heading} id={id} /></div>
+          <div className="lg:sticky lg:top-32">
+            <SectionHeader eyebrow="FAQ" heading={data.heading} id={id} />
+          </div>
         </div>
         <div className="border-t border-line lg:col-span-8" data-reveal>
           {data.items.map((item, i) => (
             <details key={i} className="faq-item group border-b border-line">
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left font-display text-lg font-medium text-ink transition-colors hover:text-brand-red sm:text-xl [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left font-display text-lg font-medium text-ink transition-colors hover:text-terra sm:text-xl [&::-webkit-details-marker]:hidden">
                 {item.question}
-                <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-line transition-all duration-300 ease-out-expo group-open:rotate-45 group-open:border-brand-red group-open:bg-brand-red group-open:text-white" aria-hidden="true">
+                <span
+                  className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center border border-line transition-all duration-300 ease-out-expo group-open:rotate-45 group-open:border-terra group-open:bg-terra group-open:text-white"
+                  aria-hidden="true"
+                >
                   <Plus className="h-4 w-4" />
                 </span>
               </summary>
               <div className="max-w-3xl space-y-3 pb-7 pr-14 leading-relaxed text-neutral-700">
-                {item.answer.split(/\n{2,}/).map((p, j) => <p key={j}>{p}</p>)}
+                {item.answer.split(/\n{2,}/).map((p, j) => (
+                  <p key={j}>{p}</p>
+                ))}
               </div>
             </details>
           ))}
@@ -506,18 +592,23 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
     const photo = CTA_PHOTOS[[...data.heading].reduce((a, c) => a + c.charCodeAt(0), 0) % CTA_PHOTOS.length]
     return (
       <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={id}>
-        <div className="absolute inset-0 -z-20 opacity-40">
+        <div className="absolute inset-0 -z-20">
           <div data-parallax="7" className="absolute inset-0">
             <CmsImage src={photo.src} decorative sizes="100vw" className="object-cover" />
           </div>
         </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/80 via-ink/70 to-ink" aria-hidden="true" />
-        <div className="container-wide py-24 text-center sm:py-28 lg:py-36">
+        {/* Photo poori dikhe: halka ek-rang scrim, bas text ke peeche contrast ke liye */}
+        <div className="absolute inset-0 -z-10 bg-ink/60" aria-hidden="true" />
+        <div className="container-wide py-16 text-center sm:py-24 lg:py-32">
           <div className="mx-auto max-w-3xl" data-reveal>
-            <h2 id={id} data-lines className="font-display text-display-xl font-normal">{data.heading}</h2>
+            <h2 id={id} data-lines className="font-display text-display-xl font-normal">
+              {data.heading}
+            </h2>
             {data.text && (
               <div className="mx-auto mt-6 max-w-2xl space-y-3 text-lead text-white/75">
-                {data.text.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
+                {data.text.split(/\n{2,}/).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
               </div>
             )}
             <CmsButtons buttons={data.buttons} onDark center className="mt-10" />
@@ -529,12 +620,16 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
   return (
     <section className={`${toneBg[tone]} py-16 sm:py-20`} aria-labelledby={id}>
       <div className="container-wide">
-        <div className="flex flex-col gap-8 rounded-4xl border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
+        <div className="flex flex-col gap-8 border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
           <div className="max-w-2xl">
-            <h2 id={id} className="font-display text-display-lg font-normal text-ink">{data.heading}</h2>
+            <h2 id={id} className="font-display text-display-lg font-normal text-ink">
+              {data.heading}
+            </h2>
             {data.text && (
               <div className="mt-4 space-y-2 text-lead text-neutral-600">
-                {data.text.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
+                {data.text.split(/\n{2,}/).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
               </div>
             )}
           </div>
@@ -552,9 +647,12 @@ function LinkRows({ links }: { links: { label: string; href: string }[] }) {
     <ul className="border-t border-line">
       {links.map((l, i) => (
         <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
-          <SmartLink href={l.href} className="group flex items-center justify-between gap-6 py-5">
-            <span className="font-display text-lg font-medium text-ink transition-colors group-hover:text-brand-red sm:text-xl">{l.label}</span>
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-line transition-all duration-300 ease-out-expo group-hover:border-brand-red group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
+          <SmartLink href={l.href} className="group flex min-h-[3.5rem] items-center justify-between gap-4 py-4 sm:gap-6 sm:py-5">
+            <span className="font-display text-lg font-medium leading-snug text-ink transition-colors group-hover:text-terra sm:text-xl">{l.label}</span>
+            <span
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center border border-line transition-all duration-300 ease-out-expo group-hover:border-terra group-hover:bg-terra group-hover:text-white"
+              aria-hidden="true"
+            >
               <ArrowRight className="h-4 w-4" />
             </span>
           </SmartLink>
@@ -574,7 +672,9 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
         <div className="container-wide grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-6">
             <SectionHeader heading={data.heading} id={id} />
-            <div className="mt-10"><LinkRows links={data.links} /></div>
+            <div className="mt-10">
+              <LinkRows links={data.links} />
+            </div>
           </div>
           <div className="lg:col-span-6">
             <div data-clip className="photo-frame aspect-[4/3] lg:aspect-[4/5]">
@@ -595,7 +695,9 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
         <div className="svc-index container-wide grid gap-10 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
             <SectionHeader heading={data.heading} id={id} />
-            <div className="mt-8"><LinkRows links={data.links} /></div>
+            <div className="mt-8">
+              <LinkRows links={data.links} />
+            </div>
           </div>
           <div className="hidden lg:col-span-5 lg:block" aria-hidden="true">
             <div className="photo-frame sticky top-32 aspect-[4/5] w-full">
@@ -613,8 +715,12 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
   return (
     <Band tone={tone} labelledBy={id} className="!py-16 sm:!py-20">
       <div className="container-wide grid gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-4"><SectionHeader heading={data.heading} id={id} /></div>
-        <div className="lg:col-span-8"><LinkRows links={data.links} /></div>
+        <div className="lg:col-span-4">
+          <SectionHeader heading={data.heading} id={id} />
+        </div>
+        <div className="lg:col-span-8">
+          <LinkRows links={data.links} />
+        </div>
       </div>
     </Band>
   )
@@ -631,7 +737,7 @@ export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; t
           {data.images.map((img, i) => (
             <li key={i} data-reveal style={{ '--reveal-delay': `${(i % 4) * 70}ms` } as React.CSSProperties}>
               <figure>
-                <div className="photo-frame aspect-[4/3] !rounded-3xl">
+                <div className="photo-frame aspect-[4/3]">
                   <CmsImage src={img.src} alt={img.alt} sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
                 </div>
                 {img.caption && <figcaption className="mt-3 text-sm text-neutral-600">{img.caption}</figcaption>}
@@ -653,12 +759,17 @@ export function TestimonialsSection({ data, tone }: { data: SectionData<'testimo
         <SectionHeader heading={data.heading} />
         <ul className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {data.items.map((t, i) => (
-            <li key={i} className="flex flex-col rounded-4xl border border-line bg-white p-8" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-              {t.rating && <p className="text-sm tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</p>}
+            <li key={i} className="flex flex-col border border-line bg-white p-8" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+              {t.rating && (
+                <p className="text-sm tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>
+                  {'★'.repeat(t.rating)}
+                  {'☆'.repeat(5 - t.rating)}
+                </p>
+              )}
               <blockquote className="mt-4 flex-1 font-display text-lg leading-snug text-ink">“{t.quote}”</blockquote>
               <p className="mt-6 text-sm font-semibold text-ink">
                 {t.name}
-                {t.location && <span className="font-normal text-neutral-500"> · {t.location}</span>}
+                {t.location && <span className="font-normal text-neutral-600"> · {t.location}</span>}
               </p>
             </li>
           ))}
@@ -682,11 +793,21 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
         <SectionHeader heading={data.heading} />
         <dl className="mt-10 grid gap-5 sm:grid-cols-2">
           {rows.map((r) => (
-            <div key={r.label} className="flex gap-4 rounded-3xl border border-line bg-white p-6" data-reveal>
-              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-mist"><r.icon className="h-5 w-5 text-brand-blue" aria-hidden="true" /></span>
+            <div key={r.label} className="flex gap-4 border border-line bg-white p-6" data-reveal>
+              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center bg-mist">
+                <r.icon className="h-5 w-5 text-terra" aria-hidden="true" />
+              </span>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{r.label}</dt>
-                <dd className="mt-1 text-lg text-ink">{r.href ? <a href={r.href} className="link-grow">{r.value}</a> : r.value}</dd>
+                <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">{r.label}</dt>
+                <dd className="mt-1 text-lg text-ink">
+                  {r.href ? (
+                    <a href={r.href} className="link-grow">
+                      {r.value}
+                    </a>
+                  ) : (
+                    r.value
+                  )}
+                </dd>
               </div>
             </div>
           ))}
@@ -705,7 +826,7 @@ export function PhotoMarquee({ photos = MARQUEE_PHOTOS, direction = 'left' }: { 
     <section className="overflow-hidden bg-white py-10 sm:py-14" aria-hidden="true">
       <div data-marquee={direction} className="flex w-max gap-4 will-change-transform sm:gap-6">
         {photos.map((p, i) => (
-          <div key={i} className={`photo-frame !rounded-3xl aspect-[4/5] w-[58vw] flex-none sm:w-[34vw] lg:w-[22vw] ${i % 2 ? 'translate-y-6 sm:translate-y-10' : ''}`}>
+          <div key={i} className={`photo-frame aspect-[4/5] w-[58vw] flex-none sm:w-[34vw] lg:w-[22vw] ${i % 2 ? 'translate-y-6 sm:translate-y-10' : ''}`}>
             <CmsImage src={p.src} decorative sizes="(min-width: 1024px) 22vw, 58vw" className="object-cover" />
           </div>
         ))}

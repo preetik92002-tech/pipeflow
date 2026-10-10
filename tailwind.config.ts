@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import { palette } from './src/lib/design/tokens'
 
 const config: Config = {
   content: [
@@ -25,11 +26,14 @@ const config: Config = {
           'red-dark': '#C41E1E',
           'red-light': '#EF4444',
         },
-        // Public site neutrals: warm "paper" bands and cool "mist" bands between white sections.
-        paper: '#F6F3EE',
-        mist: '#EDF2F7',
-        line: '#E3DED5',
-        ink: '#0B1728',
+        // Public site palette: src/lib/design/tokens.ts se (tests bhi wahin se padhte hain).
+        paper: palette.ivory,
+        line: palette.stone,
+        mist: palette.mist,
+        ink: palette.ink,
+        terra: { DEFAULT: palette.terra, dark: palette.terraDark, light: palette.terraLight },
+        field: palette.field,
+        error: { bg: palette.error.bg, border: palette.error.border, text: palette.error.text },
       },
       fontSize: {
         // Fluid display scale: badi screens par bade, mobile par bina tootey headings.
@@ -41,9 +45,6 @@ const config: Config = {
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
-      },
-      borderRadius: {
-        '4xl': '2rem',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],

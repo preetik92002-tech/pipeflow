@@ -34,7 +34,15 @@ function HeroLink({ cta, primary }: { cta: PageHeroCTA; primary: boolean }) {
       {primary && <ArrowRight className="cta-arrow" aria-hidden="true" />}
     </>
   )
-  return cta.isExternal || cta.href.startsWith('tel:') ? <a href={cta.href} className={cls}>{inner}</a> : <Link href={cta.href} className={cls}>{inner}</Link>
+  return cta.isExternal || cta.href.startsWith('tel:') ? (
+    <a href={cta.href} className={cls}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={cta.href} className={cls}>
+      {inner}
+    </Link>
+  )
 }
 
 /** Listing pages (blog) ka hero: poori chaudai ki photo, bayein taraf text, neeche gehra overlay. */

@@ -3,16 +3,7 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { hasRealPhone } from '@/lib/config/contact'
 import Link from 'next/link'
-import {
-  Calendar,
-  Clock,
-  User,
-  ChevronRight,
-  Phone,
-  CalendarDays,
-  FileText,
-  AlertTriangle,
-} from 'lucide-react'
+import { Calendar, Clock, User, ChevronRight, Phone, CalendarDays, FileText, AlertTriangle } from 'lucide-react'
 import { getPublishedBlogBySlug, getPublishedBlogs, toBlogPost, toBlogPosts } from '@/lib/cms/queries'
 import { siteConfig } from '@/lib/config/site'
 import { Accordion } from '@/components/ui/Accordion'
@@ -65,9 +56,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
-    image: post.featuredImage
-      ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'}${post.featuredImage}`
-      : undefined,
+    image: post.featuredImage ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'}${post.featuredImage}` : undefined,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt || post.publishedAt,
     author: {
@@ -95,18 +84,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   return (
     <article className="min-h-screen bg-white" aria-labelledby="article-title">
       {/* Schema Injection */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
 
       {/* Breadcrumbs Header */}
-      <div className="bg-neutral-50 border-b border-neutral-200/80 py-3.5">
+      <div className="bg-paper border-b border-line/80 py-3.5">
         <div className="container-site">
           <nav aria-label="Breadcrumb" className="text-xs text-neutral-500">
             <ol className="flex items-center gap-1.5 flex-wrap">
               <li>
-                <Link href="/" className="hover:text-navy-900 transition-colors">
+                <Link href="/" className="hover:text-ink transition-colors">
                   Home
                 </Link>
               </li>
@@ -114,7 +100,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <ChevronRight className="h-3 w-3 text-neutral-400" />
               </li>
               <li>
-                <Link href="/blog" className="hover:text-navy-900 transition-colors">
+                <Link href="/blog" className="hover:text-ink transition-colors">
                   Journal
                 </Link>
               </li>
@@ -122,9 +108,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <ChevronRight className="h-3 w-3 text-neutral-400" />
               </li>
               <li>
-                <span className="text-navy-900 font-semibold truncate max-w-[200px] sm:max-w-xs">
-                  {post.categoryName}
-                </span>
+                <span className="text-ink font-semibold truncate max-w-[200px] sm:max-w-xs">{post.categoryName}</span>
               </li>
             </ol>
           </nav>
@@ -135,11 +119,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <header className="container-site pt-10 pb-8 max-w-4xl mx-auto">
         {/* Category & Trade Pill */}
         <div className="flex items-center gap-2.5 mb-4">
-          <span className="rounded-full bg-blue-50 text-brand-blue border border-blue-200 px-3.5 py-1 text-xs font-bold uppercase tracking-wider">
-            {post.categoryName}
-          </span>
+          <span className="bg-paper text-terra border border-line px-3.5 py-1 text-xs font-bold uppercase tracking-wider">{post.categoryName}</span>
           {post.ctaType === 'emergency' && (
-            <span className="rounded-full bg-red-50 text-brand-red border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+            <span className="bg-red-50 text-terra border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" />
               Urgent Guide
             </span>
@@ -147,26 +129,21 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </div>
 
         {/* Headline */}
-        <h1
-          id="article-title"
-          className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-navy-900 tracking-tight leading-[1.15] mb-5"
-        >
+        <h1 id="article-title" className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-ink tracking-tight leading-[1.15] mb-5">
           {post.title}
         </h1>
 
         {/* Lead Excerpt */}
-        <p className="text-lg sm:text-xl text-neutral-600 leading-relaxed font-normal mb-8 border-l-4 border-brand-blue pl-4">
-          {post.excerpt}
-        </p>
+        <p className="text-lg sm:text-xl text-neutral-600 leading-relaxed font-normal mb-8 border-l-4 border-terra pl-4">{post.excerpt}</p>
 
         {/* Author & Publication Meta Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-y border-neutral-200/80 text-xs text-neutral-600">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-y border-line/80 text-xs text-neutral-600">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-navy-900 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-              <User className="h-5 w-5 text-brand-blue-lighter" />
+            <div className="w-10 h-10 bg-ink text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              <User className="h-5 w-5 text-terra-light" />
             </div>
             <div>
-              <p className="font-bold text-navy-900 text-sm">{post.author}</p>
+              <p className="font-bold text-ink text-sm">{post.author}</p>
               {post.authorRole && <p className="text-2xs text-neutral-500">{post.authorRole}</p>}
             </div>
           </div>
@@ -193,7 +170,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Featured Photograph */}
       <div className="container-site max-w-4xl mx-auto mb-12">
-        <div className="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-xl bg-neutral-100 border border-neutral-200/60">
+        <div className="relative aspect-[16/9] overflow-hidden shadow-xl bg-mist border border-line/60">
           <Image
             src={post.featuredImage || '/art/hero-plumbing.svg'}
             alt={post.featuredImageAlt || post.title}
@@ -203,11 +180,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             sizes="(max-width: 1024px) 100vw, 896px"
           />
         </div>
-        {post.featuredImageAlt && (
-          <p className="text-2xs text-neutral-500 text-center mt-2 italic">
-            {post.featuredImageAlt}
-          </p>
-        )}
+        {post.featuredImageAlt && <p className="text-2xs text-neutral-500 text-center mt-2 italic">{post.featuredImageAlt}</p>}
       </div>
 
       {/* Article Content Body */}
@@ -216,16 +189,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {post.body.split('\n\n').map((block, index) => {
             if (block.startsWith('### ')) {
               return (
-                <h2
-                  key={index}
-                  className="text-2xl font-display font-bold text-navy-900 mt-8 mb-4 border-b border-neutral-100 pb-2"
-                >
+                <h2 key={index} className="text-2xl font-display font-bold text-ink mt-8 mb-4 border-b border-line pb-2">
                   {block.replace('### ', '')}
                 </h2>
               )
             }
             if (block.startsWith('---')) {
-              return <hr key={index} className="my-8 border-neutral-200" />
+              return <hr key={index} className="my-8 border-line" />
             }
             if (block.startsWith('- ')) {
               const items = block.split('\n').map((item) => item.replace(/^- /, ''))
@@ -257,8 +227,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {/* FAQs Section if configured */}
         {post.faqs && post.faqs.length > 0 && (
-          <div className="mt-12 pt-8 border-t border-neutral-200">
-            <h3 className="text-xl font-bold text-navy-900 mb-4">Frequently Asked Questions</h3>
+          <div className="mt-12 pt-8 border-t border-line">
+            <h3 className="text-xl font-bold text-ink mb-4">Frequently Asked Questions</h3>
             <Accordion
               items={post.faqs.map((faq, i) => ({
                 id: `faq-${i}`,
@@ -270,17 +240,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         )}
 
         {/* In-Article Conversion Callout Box */}
-        <div className="mt-12 rounded-3xl bg-neutral-900 text-white p-8 shadow-xl relative overflow-hidden">
+        <div className="mt-12 bg-neutral-900 text-white p-8 shadow-xl relative overflow-hidden">
           <div className="relative z-10">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-blue-lighter">
-              Denver &amp; Boulder
-            </span>
-            <h3 className="text-2xl font-display font-bold text-white mt-1 mb-2">
-              Need Professional Assistance With This Issue?
-            </h3>
-            <p className="text-sm text-neutral-300 leading-relaxed mb-6 max-w-xl">
-              Tell us what you need, add photos and we will help you find a local professional serving Denver or Boulder.
-            </p>
+            <span className="text-xs font-bold uppercase tracking-wider text-terra-light">Denver &amp; Boulder</span>
+            <h3 className="text-2xl font-display font-bold text-white mt-1 mb-2">Need Professional Assistance With This Issue?</h3>
+            <p className="text-sm text-neutral-300 leading-relaxed mb-6 max-w-xl">Tell us what you need, add photos and we will help you find a local professional serving Denver or Boulder.</p>
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/book-service" className="btn-primary !py-3 !px-6 text-xs">
                 <CalendarDays className="h-4 w-4" />
@@ -291,13 +255,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 Find a Local Pro
               </Link>
               {hasRealPhone(company.phone || siteConfig.company.phone) && (
-              <a
-                href={`tel:${company.phone || siteConfig.company.phone}`}
-                className="inline-flex items-center gap-2 text-xs font-bold text-white/90 hover:text-white px-3 py-3"
-              >
-                <Phone className="h-4 w-4 text-brand-red" />
-                Call: {company.phone || siteConfig.company.phone}
-              </a>
+                <a href={`tel:${company.phone || siteConfig.company.phone}`} className="inline-flex items-center gap-2 text-xs font-bold text-white/90 hover:text-white px-3 py-3">
+                  <Phone className="h-4 w-4 text-terra" />
+                  Call: {company.phone || siteConfig.company.phone}
+                </a>
               )}
             </div>
           </div>
@@ -306,10 +267,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
-        <section className="section-padding bg-neutral-50 border-t border-neutral-200/80">
+        <section className="section-padding bg-paper border-t border-line/80">
           <div className="container-site">
-            <h2 className="text-2xl font-bold text-navy-900 mb-8 flex items-center gap-2">
-              <span className="h-1 w-6 rounded-full bg-brand-blue inline-block" />
+            <h2 className="text-2xl font-bold text-ink mb-8 flex items-center gap-2">
+              <span className="h-1 w-6 bg-terra inline-block" />
               Related Articles
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

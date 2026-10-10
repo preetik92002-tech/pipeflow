@@ -4,128 +4,94 @@ import { useState, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  Lock,
-  Mail,
-  ArrowRight,
-  AlertCircle,
-  Loader2,
-  Shield,
-  Eye,
-  EyeOff,
-  CheckCircle,
-  Wrench,
-  Users,
-  BarChart3,
-} from 'lucide-react'
+import { Lock, Mail, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-
-const FEATURES = [
-  { icon: BarChart3,    label: 'Live bookings & leads dashboard' },
-  { icon: Users,        label: 'Customer & pro management' },
-  { icon: Wrench,       label: 'Service area configuration' },
-  { icon: CheckCircle,  label: 'Quote & application approvals' },
-]
+import { safeRedirect } from '@/lib/auth/redirect'
 
 function friendlyError(raw: string): string {
   const msg = raw?.toLowerCase() ?? ''
-  if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('wrong password'))
-    return 'Invalid email or password. Please try again.'
-  if (msg.includes('email not confirmed'))
-    return 'Please confirm your email address before signing in.'
-  if (msg.includes('too many requests') || msg.includes('rate limit'))
-    return 'Too many sign-in attempts. Please wait a moment and try again.'
-  if (msg.includes('user not found') || msg.includes('no user'))
-    return 'No account found with that email address.'
+  if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('wrong password')) return 'Invalid email or password. Please try again.'
+  if (msg.includes('email not confirmed')) return 'Please confirm your email address before signing in.'
+  if (msg.includes('too many requests') || msg.includes('rate limit')) return 'Too many sign-in attempts. Please wait a moment and try again.'
+  if (msg.includes('user not found') || msg.includes('no user')) return 'No account found with that email address.'
   return 'An unexpected error occurred. Please try again.'
 }
 
-function LoginFormContent() {
-  const router       = useRouter()
-  const searchParams = useSearchParams()
-  const redirectTo   = searchParams.get('redirectTo') || '/admin/dashboard'
+const inputCls =
+  'block w-full rounded-none border border-field bg-white py-3 pl-11 text-base text-ink placeholder:text-neutral-600 focus:border-ink focus:outline-none focus:ring-2 focus:ring-terra sm:text-sm'
 
-  const [email,    setEmail]    = useState('')
+function LoginFormContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = safeRedirect(searchParams.get('redirectTo'))
+
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
-  const [loading,  setLoading]  = useState(false)
-  const [error,    setError]    = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-
     try {
       const supabase = createClient()
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-
       if (authError) {
         setError(friendlyError(authError.message))
         setLoading(false)
         return
       }
-
       if (data?.user) {
         router.push(redirectTo)
         router.refresh()
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.'
-      setError(friendlyError(msg))
+      setError(friendlyError(err instanceof Error ? err.message : ''))
       setLoading(false)
     }
-  }
-
-  const inputStyle: React.CSSProperties = {
-    color: '#ffffff',
-    backgroundColor: '#0a1628',
-    WebkitTextFillColor: '#ffffff',
-    caretColor: '#ffffff',
   }
 
   return (
     <form onSubmit={handleLogin} className="space-y-5" noValidate>
       {error && (
-        <div
-          role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-red-700/60 bg-red-950/50 px-4 py-3 text-sm text-red-200"
-        >
-          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+        <div role="alert" className="flex items-start gap-2.5 border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text">
+          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-semibold text-neutral-300">
+        <label htmlFor="email" className="block text-sm font-semibold text-ink">
           Email address
         </label>
         <div className="relative mt-1.5">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-500">
-            <Mail className="h-4 w-4" />
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-600">
+            <Mail className="h-4 w-4" aria-hidden="true" />
           </span>
           <input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
+            inputMode="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@pipeflowco.com"
-            style={inputStyle}
-            className="block w-full rounded-xl border border-navy-700 py-2.5 pl-10 pr-4 text-sm placeholder:text-neutral-600 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-colors"
+            placeholder="name@company.com"
+            className={`${inputCls} pr-4`}
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-semibold text-neutral-300">
+        <label htmlFor="password" className="block text-sm font-semibold text-ink">
           Password
         </label>
         <div className="relative mt-1.5">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-500">
-            <Lock className="h-4 w-4" />
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-600">
+            <Lock className="h-4 w-4" aria-hidden="true" />
           </span>
           <input
             id="password"
@@ -135,43 +101,41 @@ function LoginFormContent() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••••"
-            style={inputStyle}
-            className="block w-full rounded-xl border border-navy-700 py-2.5 pl-10 pr-11 text-sm placeholder:text-neutral-600 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-colors"
+            placeholder="Enter your password"
+            className={`${inputCls} pr-12`}
           />
           <button
             type="button"
             onClick={() => setShowPass((v) => !v)}
             aria-label={showPass ? 'Hide password' : 'Show password'}
-            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-neutral-500 hover:text-neutral-300 transition-colors"
+            aria-pressed={showPass}
+            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-neutral-700 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terra"
           >
-            {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPass ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
           </button>
         </div>
       </div>
 
-      <div className="pt-1">
-        <button
-          type="submit"
-          disabled={loading || !email || !password}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-blue px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-blue/30 hover:bg-brand-blue-light focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 focus:ring-offset-navy-950 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Signing in…</span>
-            </>
-          ) : (
-            <>
-              <span>Sign In</span>
-              <ArrowRight className="h-4 w-4" />
-            </>
-          )}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={loading || !email || !password}
+        className="flex min-h-[3rem] w-full items-center justify-center gap-2 rounded-none bg-terra px-4 py-3 text-sm font-bold text-white hover:bg-terra-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <span>Signing in…</span>
+          </>
+        ) : (
+          <>
+            <span>Sign In</span>
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </>
+        )}
+      </button>
 
-      <p className="pt-2 text-center text-xs text-neutral-500">
-        <Link href="/" className="hover:text-neutral-300 transition-colors">
+      <p className="text-center text-sm">
+        <Link href="/" className="text-neutral-700 underline underline-offset-4 hover:text-ink">
           ← Return to public website
         </Link>
       </p>
@@ -181,115 +145,29 @@ function LoginFormContent() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-navy-950">
-      {/* LEFT PANEL */}
-      <div className="relative hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="/art/home-pro.svg"
-            alt="PipeFlow plumbing team at work"
-            fill
-            sizes="(min-width: 1024px) 60vw"
-            quality={85}
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950/95 via-navy-950/75 to-navy-950/30" />
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-paper px-4 py-10 text-ink sm:px-8">
+      <div className="login-in w-full max-w-md">
+        <Link href="/" className="mx-auto mb-8 block w-fit">
+          <Image src="/assets/logo.png" alt="PipeFlow Co." width={160} height={48} className="h-10 w-auto object-contain" priority />
+        </Link>
+
+        <div className="border border-line bg-white p-6 sm:p-9">
+          <h1 className="font-display text-3xl font-normal leading-tight text-ink">Admin sign in</h1>
+          <p className="mb-7 mt-2 text-sm text-neutral-700">Sign in with your staff credentials to continue.</p>
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-10 text-sm text-neutral-700">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                Loading…
+              </div>
+            }
+          >
+            <LoginFormContent />
+          </Suspense>
         </div>
 
-        <div className="relative z-10 flex flex-col h-full px-10 py-12 xl:px-16">
-          <Link href="/" className="inline-block w-fit">
-            <div className="bg-white rounded-xl px-4 py-2 inline-block">
-              <Image
-                src="/assets/logo.png"
-                alt="PipeFlow Co."
-                width={160}
-                height={48}
-                className="h-10 w-auto object-contain"
-                priority
-              />
-            </div>
-          </Link>
-
-          <div className="mt-auto mb-auto pt-16">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/40 bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue-lighter mb-4">
-              <Shield className="h-3.5 w-3.5" />
-              Staff &amp; Operator Portal
-            </div>
-            <h1 className="text-4xl xl:text-5xl font-bold font-display text-white tracking-tight leading-tight">
-              PipeFlow<br />Control Center
-            </h1>
-            <p className="mt-4 text-base text-neutral-400 max-w-sm">
-              Manage bookings, leads, service areas, and your team — all in one secure dashboard.
-            </p>
-
-            <ul className="mt-8 space-y-3">
-              {FEATURES.map(({ icon: Icon, label }) => (
-                <li key={label} className="flex items-center gap-3 text-sm text-neutral-300">
-                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-blue/15 text-brand-blue-lighter">
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  {label}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <p className="text-xs text-neutral-600 mt-auto">
-            © {new Date().getFullYear()} PipeFlow Plumbing &amp; HVAC. All rights reserved.
-          </p>
-        </div>
+        <p className="mt-5 text-center text-xs text-neutral-700">Protected by Supabase Row-Level Security</p>
       </div>
-
-      {/* RIGHT PANEL */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-8 lg:px-12">
-        <div className="mb-8 flex flex-col items-center lg:hidden">
-          <Link href="/">
-            <div className="bg-white rounded-xl px-4 py-2 inline-block">
-              <Image
-                src="/assets/logo.png"
-                alt="PipeFlow Co."
-                width={140}
-                height={42}
-                className="h-9 w-auto object-contain"
-                priority
-              />
-            </div>
-          </Link>
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-brand-blue/40 bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue-lighter">
-            <Shield className="h-3.5 w-3.5" />
-            Staff &amp; Operator Portal
-          </div>
-        </div>
-
-        <div className="w-full max-w-sm">
-          <div className="mb-6 hidden lg:block">
-            <h2 className="text-2xl font-bold text-white">Welcome back</h2>
-            <p className="mt-1 text-sm text-neutral-400">Sign in with your admin credentials to continue.</p>
-          </div>
-          <div className="mb-6 lg:hidden text-center">
-            <h2 className="text-2xl font-bold text-white">PipeFlow Control Center</h2>
-            <p className="mt-1 text-sm text-neutral-400">Sign in to access the admin dashboard.</p>
-          </div>
-
-          <div className="rounded-2xl border border-navy-800 bg-navy-900/80 p-6 shadow-2xl backdrop-blur-sm sm:p-8">
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center py-10 text-neutral-400 text-sm">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading…
-                </div>
-              }
-            >
-              <LoginFormContent />
-            </Suspense>
-          </div>
-
-          <p className="mt-4 text-center text-xs text-neutral-600">
-            Protected by Supabase Row-Level Security
-          </p>
-        </div>
-      </div>
-    </div>
+    </main>
   )
 }
