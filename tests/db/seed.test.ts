@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
@@ -63,8 +64,30 @@ describe('seed content', () => {
     expect(hrefs('plumbing/water-heater-repair')).toContain('/book-service?category=plumbing&service=water-heater-repair')
     expect(hrefs('hvac/ac-repair')).toContain('/book-service?category=hvac&service=ac-repair')
     expect(hrefs('commercial')).toContain('/book-service?type=business')
-    expect(hrefs('water/water-heater-repair/boulder')).toContain('/book-service?city=boulder&category=plumbing&service=water-heater-repair')
+    expect(hrefs('plumbing/water-heater-repair/boulder')).toContain('/book-service?city=boulder&category=plumbing&service=water-heater-repair')
+    expect(hrefs('hvac/ac-installation/denver')).toContain('/book-service?city=denver&category=hvac&service=ac-installation')
     expect(hrefs('')).toContain('/book-service?urgency=emergency')
+  })
+
+  it('puts every city page under its service page, as a hidden draft', () => {
+    const cityPages = seedPages.filter((p) => /\/(denver|boulder)$/.test(p.path) && p.path.split('/').length === 3)
+    for (const p of cityPages) {
+      expect(p.path, p.path).toMatch(/^(plumbing|hvac)\/[a-z0-9-]+\/(denver|boulder)$/)
+      expect(seedPages.some((s) => s.path === p.path.replace(/\/(denver|boulder)$/, '') && !s.draft), `${p.path} has a live parent`).toBe(true)
+      expect(p.draft && p.noindex, p.path).toBe(true)
+    }
+    const paths = new Set(cityPages.map((p) => p.path))
+    for (const s of ['plumbing/plumbing-repair', 'plumbing/water-heater-repair', 'plumbing/frozen-pipe-repair', 'hvac/ac-repair', 'hvac/ac-installation']) {
+      for (const c of ['denver', 'boulder']) expect(paths.has(`${s}/${c}`), `${s}/${c}`).toBe(true)
+    }
+    expect(seedPages.some((p) => /^(water|frozen|ac)\//.test(p.path))).toBe(false)
+  })
+
+  it('links each city page up to its service page and its city page', () => {
+    const page = seedPages.find((p) => p.path === 'hvac/ac-repair/boulder')!
+    const links = allHrefs(page.sections)
+    expect(links).toContain('/hvac/ac-repair')
+    expect(links).toContain('/boulder')
   })
 
   it('never claims verification, reviews or specific prices', () => {
@@ -95,6 +118,23 @@ describe('seed content', () => {
 
   it('the committed migration matches the seed (run npm run seed:sql if this fails)', () => {
     expect(readFileSync(path.join(__dirname, '../..', OUTPUT), 'utf8')).toBe(buildSeedSql())
+  })
+
+  it('npm run seed:sql works on this Node version with the flags in package.json', () => {
+    const root = path.join(__dirname, '../..')
+    const script: string = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8')).scripts['seed:sql']
+    const [cmd, ...args] = script.split(' ')
+    expect(cmd).toBe('node')
+    expect(args.at(-1)).toBe('scripts/generate-seed-sql.ts')
+    const flags = args.slice(0, -1)
+    // Same flags, but import the generator instead of running it, so nothing is written.
+    const out = execFileSync(process.execPath, [...flags, '--input-type=module', '-e',
+      "import { buildSeedSql } from './scripts/generate-seed-sql.ts'; process.stdout.write(buildSeedSql())"], { cwd: root, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 })
+    expect(out).toBe(buildSeedSql())
+  })
+
+  it('keeps SQL files LF on every OS', () => {
+    expect(readFileSync(path.join(__dirname, '../../.gitattributes'), 'utf8')).toMatch(/^\*\.sql text eol=lf$/m)
   })
 })
 
@@ -138,5 +178,15 @@ describe('seed migration', () => {
     expect(count.rows[0].n).toBe(seedPages.length)
     const t = await db.query<{ title: string }>(`select title from cms_pages where path = 'denver'`)
     expect(t.rows[0].title).toBe('Edited by the client')
+  })
+
+  it('does not create a city page again while its old address still exists', async () => {
+    const fresh = new PGlite()
+    await fresh.exec(read('20261009000000_cms_pages.sql'))
+    // A database seeded before the URL change still has the page at its old address.
+    await fresh.query(`select cms_create_page('Old','water/water-heater-repair/denver',null,'[]'::jsonb,null,null,null,null,true,false,null)`)
+    await fresh.exec(read('20261009000100_seed_cms_pages.sql'))
+    const r = await fresh.query<{ path: string }>(`select path from cms_pages where path like '%water-heater-repair/denver'`)
+    expect(r.rows).toEqual([{ path: 'water/water-heater-repair/denver' }])
   })
 })
