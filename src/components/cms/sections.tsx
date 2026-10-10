@@ -156,8 +156,8 @@ export function ComparisonSection({ data }: { data: SectionData<'comparison'> })
         {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
         <div className={`mt-8 grid gap-5 ${data.columns.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
           {data.columns.map((col, i) => (
-            <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-6">
-              <h3 className="font-display text-lg font-semibold text-navy-800">{col.title}</h3>
+            <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+              <h3 className="border-b-2 border-brand-red/70 pb-2 font-display text-lg font-semibold text-navy-800">{col.title}</h3>
               <ul className="mt-4 space-y-2.5">
                 {col.items.map((item, j) => (
                   <li key={j} className="flex gap-2.5 text-sm text-neutral-700">
@@ -184,8 +184,8 @@ export function StepsSection({ data }: { data: SectionData<'steps'> }) {
         {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
         <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {data.steps.map((step, i) => (
-            <li key={i} className="rounded-2xl border border-neutral-200 bg-white p-6">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue font-display text-sm font-bold text-white" aria-hidden="true">
+            <li key={i} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-600 font-display text-sm font-bold text-white shadow" aria-hidden="true">
                 {i + 1}
               </span>
               <h3 className="mt-4 font-display text-lg font-semibold text-navy-800">{step.title}</h3>
@@ -230,7 +230,8 @@ export function CtaSection({ data }: { data: SectionData<'cta'> }) {
   return (
     <section className="py-10 sm:py-14">
       <div className={wrap}>
-        <div className={`rounded-3xl px-6 py-12 text-center sm:px-12 ${dark ? 'bg-navy-900 text-white' : 'border border-neutral-200 bg-neutral-50 text-navy-800'}`}>
+        <div className={`relative isolate overflow-hidden rounded-3xl px-6 py-12 text-center sm:px-12 ${dark ? 'bg-gradient-to-br from-navy-900 via-navy-800 to-navy-600 text-white' : 'border border-neutral-200 bg-neutral-50 text-navy-800'}`}>
+          {dark && <div className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 rounded-full bg-brand-red/20 blur-3xl" aria-hidden="true" />}
           <h2 className="mx-auto max-w-2xl font-display text-2xl font-bold tracking-tight sm:text-3xl">{data.heading}</h2>
           {data.text && (
             <div className={`mx-auto mt-4 max-w-2xl space-y-2 leading-relaxed ${dark ? 'text-neutral-300' : 'text-neutral-600'}`}>
@@ -277,7 +278,7 @@ export function LinkListSection({ data }: { data: SectionData<'linkList'> }) {
         <h2 className={h2}>{data.heading}</h2>
         <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {data.links.map((l, i) => {
-            const cls = 'flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-5 py-4 font-medium text-navy-800 transition hover:border-brand-blue hover:text-brand-blue'
+            const cls = 'group flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-5 py-4 font-medium text-navy-800 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue hover:shadow-md'
             return (
               <li key={i}>
                 {l.href.startsWith('/') ? (
