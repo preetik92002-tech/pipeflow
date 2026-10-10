@@ -136,15 +136,6 @@ export interface SiteConfig {
   nav: NavItem[]
   ctas: CTAConfig
   announcement: AnnouncementBarConfig
-  defaultServiceAreas: ServiceArea[]
-  defaultServices: Service[]
-  defaultTestimonials: Testimonial[]
-  defaultTrustPrinciples: TrustPrinciple[]
-  defaultHowItWorks: HowItWorksStep[]
-  defaultSpecialOffer: SpecialOffer
-  defaultBlogPosts: BlogPost[]
-  defaultFAQs: FAQ[]
-  defaultTrustBadges: TrustBadge[]
   social: {
     facebook?: string
     instagram?: string

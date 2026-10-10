@@ -33,6 +33,25 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '*.supabase.co' },
     ],
   },
+  // The old /services and /service-areas pages are replaced by CMS pages at the
+  // URLs in the client's structure document. Keep old links and bookmarks working.
+  async redirects() {
+    return [
+      { source: '/get-a-quote', destination: '/book-service', permanent: true },
+      { source: '/services', destination: '/', permanent: true },
+      { source: '/services/plumbing', destination: '/plumbing', permanent: true },
+      { source: '/services/hvac', destination: '/hvac', permanent: true },
+      { source: '/services/plumbing/water-heater', destination: '/plumbing/water-heater-repair', permanent: true },
+      { source: '/services/hvac/ac-repair', destination: '/hvac/ac-repair', permanent: true },
+      { source: '/services/hvac/ac-installation', destination: '/hvac/ac-installation', permanent: true },
+      { source: '/services/plumbing/:slug', destination: '/plumbing', permanent: true },
+      { source: '/services/hvac/:slug', destination: '/hvac', permanent: true },
+      { source: '/services/:path*', destination: '/', permanent: true },
+      { source: '/service-areas/boulder', destination: '/boulder', permanent: true },
+      { source: '/service-areas/:path*', destination: '/denver', permanent: true },
+      { source: '/service-areas', destination: '/denver', permanent: true },
+    ]
+  },
   async headers() {
     return [
       {

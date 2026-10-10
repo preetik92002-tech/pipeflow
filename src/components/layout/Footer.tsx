@@ -15,49 +15,19 @@ import {
   ArrowRight,
   Droplets,
 } from 'lucide-react'
+import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { useSiteSettings } from './SiteSettingsProvider'
-
-const serviceLinks = [
-  { label: 'Leak Repair & Detection', href: '/services/plumbing/leak-repair' },
-  { label: 'Drain Cleaning & Jetting', href: '/services/plumbing/drain-cleaning' },
-  { label: 'Water Heater Repair & Install', href: '/services/plumbing/water-heater' },
-  { label: 'Pipe Repair & Repiping', href: '/services/plumbing/pipe-repair' },
-  { label: 'Furnace & Heating Repair', href: '/services/hvac/furnace-heating' },
-  { label: 'Heat Pumps & Dual Fuel', href: '/services/hvac/heat-pumps' },
-  { label: 'Air Conditioning Service', href: '/services/hvac/ac-installation' },
-]
-
-const serviceAreaLinks = [
-  { label: 'Denver (Primary Hub)', href: '/service-areas/denver' },
-  { label: 'Aurora', href: '/service-areas/aurora' },
-  { label: 'Lakewood', href: '/service-areas/lakewood' },
-  { label: 'Englewood & Littleton', href: '/service-areas/englewood' },
-  { label: 'Arvada & Westminster', href: '/service-areas/arvada' },
-  { label: 'Thornton & Centennial', href: '/service-areas/centennial' },
-  { label: 'All 12 Service Territories →', href: '/service-areas' },
-]
-
-const companyLinks = [
-  { label: 'About PipeFlow', href: '/about' },
-  { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'The PipeFlow Standard', href: '/#trust-heading' },
-  { label: 'Join as a Pro Contractor', href: '/join-us' },
-  { label: 'Careers & Recruitment', href: '/join-us' },
-  { label: 'Customer Reviews', href: '/#reviews' },
-]
-
-const resourceLinks = [
-  { label: 'PipeFlow Journal & Blog', href: '/blog' },
-  { label: 'Winter Frozen Pipe Guide', href: '/blog/prevent-frozen-pipes-colorado-winter' },
-  { label: 'Heat Pumps vs Furnaces', href: '/blog/heat-pumps-vs-furnaces-colorado-climate' },
-  { label: 'Water Heater Failure Signs', href: '/blog/warning-signs-water-heater-failure' },
-  { label: '24/7 Emergency Dispatch', href: '/contact' },
-]
+import { useNavigation } from './NavigationProvider'
 
 export function Footer() {
   const year = new Date().getFullYear()
+  const nav = useNavigation()
+  const serviceLinks = nav.footerServices
+  const serviceAreaLinks = nav.footerAreas
+  const companyLinks = nav.footerCompany
+  const resourceLinks = nav.footerResources
   const { company: staticCompany, social } = siteConfig
   const { company: liveCompany, emergencyAvailable } = useSiteSettings()
   const company = { ...staticCompany, ...liveCompany }
@@ -102,34 +72,28 @@ export function Footer() {
             {/* Brand Statement */}
             <div>
               <p className="text-xs sm:text-sm font-mono font-bold uppercase tracking-widest text-brand-blue-lighter">
-                PLUMBING &bull; HVAC &bull; COLORADO
+                PLUMBING &bull; HVAC &bull; DENVER &amp; BOULDER
               </p>
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-white mt-2">
-                Reliable service for homes that work better.
+                Flowing Comfort. Built to Last.
               </h3>
               <p className="text-sm sm:text-base text-neutral-400 mt-2 max-w-xl mx-auto">
-                Denver Front Range licensed residential plumbing, heating, and cooling specialists.
+                Plumbing and HVAC help for homes in Denver and Boulder.
               </p>
             </div>
 
             {/* Prominent Footer CTAs */}
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <Link
-                href={siteConfig.ctas.bookService.href}
+                href={nav.cta.href}
                 className="btn-primary w-full sm:w-auto !py-4 !px-8 !text-base shadow-xl shadow-brand-red/30 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
                 <Calendar className="h-5 w-5" />
-                <span>{siteConfig.ctas.bookService.label}</span>
+                <span>{nav.cta.label}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
 
-              <Link
-                href={siteConfig.ctas.getQuote.href}
-                className="btn-outline w-full sm:w-auto !text-white !border-white/20 hover:!border-white hover:!bg-white/10 !py-4 !px-8 !text-base backdrop-blur-sm hover:-translate-y-0.5 transition-all text-center"
-              >
-                <span>{siteConfig.ctas.getQuote.label}</span>
-              </Link>
-
+              {hasRealPhone(company.phone) && (
               <a
                 href={`tel:${company.phone}`}
                 className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-bold text-white hover:text-brand-blue-lighter transition-colors"
@@ -138,6 +102,7 @@ export function Footer() {
                 <Phone className="h-5 w-5 text-brand-red flex-shrink-0" />
                 <span>Call: {company.phone}</span>
               </a>
+              )}
             </div>
           </ScrollReveal>
         </div>
@@ -173,7 +138,7 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4 border-b border-navy-800 pb-2 flex items-center gap-2">
               <MapPin className="h-3.5 w-3.5 text-brand-blue" />
-              <span>Service Areas</span>
+              <span>Locations &amp; Commercial</span>
             </h4>
             <ul className="space-y-2.5">
               {serviceAreaLinks.map((link) => (
@@ -193,7 +158,7 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4 border-b border-navy-800 pb-2 flex items-center gap-2">
               <ShieldCheck className="h-3.5 w-3.5 text-brand-blue" />
-              <span>Company</span>
+              <span>Find a Pro &amp; Company</span>
             </h4>
             <ul className="space-y-2.5">
               {companyLinks.map((link) => (
@@ -229,13 +194,14 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 5: Contact & Dispatch Headquarters */}
+          {/* Column 5: Contact & Dispatch Service Area */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4 border-b border-navy-800 pb-2 flex items-center gap-2">
               <Clock className="h-3.5 w-3.5 text-brand-blue" />
               <span>Contact &amp; Dispatch</span>
             </h4>
             <div className="space-y-3 text-neutral-300">
+              {hasRealPhone(company.phone) && (
               <div>
                 <span className="text-2xs uppercase tracking-wider text-neutral-500 block">{emergencyAvailable ? '24/7 Phone Line' : 'Phone Line'}</span>
                 <a
@@ -245,6 +211,7 @@ export function Footer() {
                   {company.phone}
                 </a>
               </div>
+              )}
 
               <div>
                 <span className="text-2xs uppercase tracking-wider text-neutral-500 block">Email Inquiries</span>
@@ -257,11 +224,10 @@ export function Footer() {
               </div>
 
               <div>
-                <span className="text-2xs uppercase tracking-wider text-neutral-500 block">Headquarters</span>
+                <span className="text-2xs uppercase tracking-wider text-neutral-500 block">Service Area</span>
                 <p className="text-neutral-400">
-                  {company.city}, {company.state} {company.zip}
+                  Denver &amp; Boulder, {company.state}
                 </p>
-                <p className="text-2xs text-neutral-500 font-mono mt-0.5">{company.license}</p>
               </div>
 
               {/* Social Channels */}
@@ -312,22 +278,9 @@ export function Footer() {
       <div className="border-t border-navy-900 bg-[#050A12] py-6">
         <div className="container-site flex flex-col sm:flex-row items-center justify-between gap-4 text-2xs text-neutral-500">
           <p>
-            &copy; {year} PipeFlow Co. All Rights Reserved. Licensed Denver Master Plumbing &amp; HVAC Mechanical Services.
+            &copy; {year} PipeFlow Co. All Rights Reserved. 
           </p>
 
-          <div className="flex items-center gap-4">
-            <Link href="/contact" className="hover:text-neutral-300 transition-colors">
-              Privacy Policy
-            </Link>
-            <span>&bull;</span>
-            <Link href="/contact" className="hover:text-neutral-300 transition-colors">
-              Terms of Service
-            </Link>
-            <span>&bull;</span>
-            <Link href="/contact" className="hover:text-neutral-300 transition-colors">
-              Accessibility
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

@@ -8,7 +8,7 @@ export function toBlogPost(row: CmsBlog): BlogPost {
   return {
     id: row.id, title: row.title, slug: row.slug, seoTitle: row.seo_title || undefined,
     seoDescription: row.seo_description || undefined, excerpt: row.excerpt || '', author: row.author,
-    featuredImage: row.featured_image || '/assets/service-plumbing.jpg', featuredImageAlt: row.featured_image_alt || row.title,
+    featuredImage: row.featured_image || '/art/hero-plumbing.svg', featuredImageAlt: row.featured_image_alt || row.title,
     categoryId: row.category_slug || 'general', categoryName, categorySlug: row.category_slug || 'general',
     tags: [], publishedAt: row.published_at || row.created_at, updatedAt: row.updated_at, status: row.status,
     body: row.body, readingTimeMinutes: Math.max(1, Math.ceil(row.body.split(/\s+/).length / 200)),

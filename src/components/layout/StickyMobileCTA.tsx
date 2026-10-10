@@ -1,14 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { Phone, Calendar, FileText } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
-import { useBookingModal } from '@/components/booking/BookingModalProvider'
+import { Phone, Calendar } from 'lucide-react'
 import { useSiteSettings } from './SiteSettingsProvider'
+import { useNavigation } from './NavigationProvider'
+import { hasRealPhone } from '@/lib/config/contact'
 
 export function StickyMobileCTA() {
   const { company } = useSiteSettings()
-  const { openModal } = useBookingModal()
+  const nav = useNavigation()
 
   return (
     <div
@@ -16,31 +16,23 @@ export function StickyMobileCTA() {
       role="navigation"
       aria-label="Quick actions"
     >
-      <div className="grid grid-cols-3 divide-x divide-neutral-200" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className={`grid divide-x divide-neutral-200 ${hasRealPhone(company.phone) ? 'grid-cols-2' : 'grid-cols-1'}`} style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        {hasRealPhone(company.phone) && (
+          <Link
+            href={`tel:${company.phone}`}
+            className="flex items-center justify-center gap-2 py-3.5 text-navy-800 hover:bg-neutral-50 transition-colors active:bg-neutral-100"
+            aria-label={`Call ${company.phone}`}
+          >
+            <Phone className="h-5 w-5 text-brand-blue" aria-hidden="true" />
+            <span className="text-sm font-semibold">Call</span>
+          </Link>
+        )}
         <Link
-          href={`tel:${company.phone}`}
-          className="flex flex-col items-center justify-center gap-1 py-3 text-navy-800 hover:bg-neutral-50 transition-colors active:bg-neutral-100"
-          aria-label={`Call ${company.phone}`}
-        >
-          <Phone className="h-5 w-5 text-brand-blue" aria-hidden="true" />
-          <span className="text-xs font-semibold">Call</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => openModal()}
-          className="flex flex-col items-center justify-center gap-1 py-3 bg-brand-red text-white hover:bg-brand-red-dark transition-colors active:bg-brand-red-dark w-full"
-          aria-label="Book a service"
+          href={nav.cta.href}
+          className="flex w-full items-center justify-center gap-2 bg-brand-red py-3.5 text-white transition-colors hover:bg-brand-red-dark active:bg-brand-red-dark"
         >
           <Calendar className="h-5 w-5" aria-hidden="true" />
-          <span className="text-xs font-bold">Book</span>
-        </button>
-        <Link
-          href={siteConfig.ctas.getQuote.href}
-          className="flex flex-col items-center justify-center gap-1 py-3 text-navy-800 hover:bg-neutral-50 transition-colors active:bg-neutral-100"
-          aria-label="Get a quote"
-        >
-          <FileText className="h-5 w-5 text-brand-blue" aria-hidden="true" />
-          <span className="text-xs font-semibold">Quote</span>
+          <span className="text-sm font-bold">{nav.cta.label}</span>
         </Link>
       </div>
     </div>

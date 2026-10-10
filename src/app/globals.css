@@ -131,3 +131,30 @@
     animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
+@layer components {
+  /* Styles for rich text written in the page editor (no typography plugin in this project). */
+  .cms-prose {
+    @apply text-neutral-700 leading-relaxed;
+  }
+  .cms-prose > * + * {
+    @apply mt-4;
+  }
+  .cms-prose h2 {
+    @apply font-display text-2xl font-bold text-navy-800 mt-8;
+  }
+  .cms-prose h3 {
+    @apply font-display text-xl font-semibold text-navy-800 mt-6;
+  }
+  .cms-prose h4 {
+    @apply font-display text-lg font-semibold text-navy-800 mt-5;
+  }
+  .cms-prose ul {
+    @apply list-disc pl-6 space-y-1.5;
+  }
+  .cms-prose ol {
+    @apply list-decimal pl-6 space-y-1.5;
+  }
+  .cms-prose blockquote {
+    @apply border-l-4 border-brand-blue pl-4 italic text-neutral-600;
+  }
+}

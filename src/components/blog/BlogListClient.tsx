@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
+import { hasRealPhone } from '@/lib/config/contact'
 import Link from 'next/link'
 import { Search, BookOpen, Calendar, Clock, ArrowRight, User, Phone, Sparkles } from 'lucide-react'
 import { BlogCard } from './BlogCard'
@@ -44,7 +45,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
     <div>
       {/* Cinematic Blog Hero */}
       <PageHero
-        imageSrc="/assets/hero-blog.jpg"
+        imageSrc="/art/hero-plumbing.svg"
         imageAlt="PipeFlow plumbing and HVAC research station with notebook, tools, and Denver skyline backdrop"
         eyebrow="PipeFlow Resources"
         eyebrowIcon={BookOpen}
@@ -57,12 +58,12 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
           icon: Calendar,
         }}
         secondaryCta={{
-          label: 'Get Free Estimate',
-          href: '/get-a-quote',
+          label: 'Find a Local Pro',
+          href: '/book-service',
           variant: 'outline',
           icon: Sparkles,
         }}
-        badgeText="Updated Weekly by Licensed Colorado Master Technicians"
+        badgeText="Plumbing & HVAC guides for Denver & Boulder"
       />
 
       {/* Main Content Area */}
@@ -203,25 +204,27 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
       </div>
 
       {/* Newsletter / Direct Inquiry Bar */}
-      <section className="bg-navy-950 text-white py-14 border-t border-navy-800">
+      <section className="bg-navy-900 text-white py-14 border-t border-navy-800">
         <div className="container-site flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div>
             <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
-              Have a Specific Mechanical Problem in Your Home?
+              Have a Plumbing or HVAC Problem?
             </h3>
             <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-              Our master plumbers and HVAC mechanics provide direct diagnostics, system load calculations, and upfront estimates.
+              Tell us what you need and we will help you find a local professional serving Denver or Boulder.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/book-service" className="btn-primary !py-3 !px-6 text-xs bg-brand-red hover:bg-brand-red-dark">
               <Calendar className="h-3.5 w-3.5" />
-              <span>Schedule Inspection</span>
+              <span>Request Service</span>
             </Link>
+            {hasRealPhone(company.phone) && (
             <a href={`tel:${company.phone}`} className="btn-outline !py-3 !px-5 text-xs text-white border-white/30">
               <Phone className="h-3.5 w-3.5" />
               <span>{company.phone}</span>
             </a>
+            )}
           </div>
         </div>
       </section>

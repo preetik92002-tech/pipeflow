@@ -22,7 +22,17 @@ export async function GET() {
     ])
     if (leadResult.error) throw leadResult.error
     if (bookingResult.error) throw bookingResult.error
-    const leads = (leadResult.data ?? []).map((lead) => ({ ...lead, record_kind: 'lead' }))
+    // Customer photos live in a private bucket: give admins links that expire after an hour.
+    const storage = admin.storage.from('service-requests')
+    const leads = await Promise.all((leadResult.data ?? []).map(async (lead) => {
+      const paths: string[] = Array.isArray(lead.attachments) ? lead.attachments : []
+      let attachment_links: Array<{ name: string; url: string }> = []
+      if (paths.length) {
+        const { data } = await storage.createSignedUrls(paths, 3600)
+        attachment_links = (data ?? []).flatMap((d) => (d.signedUrl && d.path ? [{ name: d.path.split('/').pop() ?? 'file', url: d.signedUrl }] : []))
+      }
+      return { ...lead, attachment_links, record_kind: 'lead' }
+    }))
     const bookings = (bookingResult.data ?? []).map((booking) => ({
       id: booking.id, lead_id: booking.booking_id, name: booking.name, phone: booking.phone, email: booking.email,
       service_category: booking.service_category, specific_service: booking.specific_service, zip_code: booking.zip_code,
