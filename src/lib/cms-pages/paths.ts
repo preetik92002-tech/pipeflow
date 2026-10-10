@@ -12,6 +12,7 @@ export const RESERVED_SEGMENTS = [
   'favicon.ico',
   'manifest.webmanifest',
   'assets',
+  'art',
   'blog',
   'book-service',
   'get-a-quote',

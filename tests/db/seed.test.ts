@@ -47,8 +47,24 @@ describe('seed content', () => {
     expect(seedPages.find((p) => p.path === 'hvac/ac-installation')?.title).toBe('AC Installation in Denver & Boulder')
   })
 
+  it('includes every page in the structure document sitemap', () => {
+    const paths = new Set(seedPages.map((p) => p.path))
+    for (const expected of ['', 'plumbing', 'plumbing/plumbing-repair', 'plumbing/water-heater-repair', 'plumbing/water-heater-replacement', 'plumbing/frozen-pipe-repair', 'plumbing/plumbing-fixes', 'hvac', 'hvac/ac-repair', 'hvac/ac-installation', 'hvac/ac-replacement', 'hvac/hvac-repair', 'hvac/hvac-maintenance', 'commercial', 'commercial/plumbing', 'commercial/hvac', 'denver', 'boulder', 'find-a-pro', 'find-a-pro/plumbers', 'find-a-pro/hvac-contractors', 'for-contractors', 'resources']) {
+      expect(paths.has(expected), expected).toBe(true)
+    }
+    // the 14 service + city landing pages, kept as drafts
+    const cityPages = seedPages.filter((p) => /\/(denver|boulder)$/.test(p.path) && p.path.split('/').length === 3)
+    expect(cityPages).toHaveLength(14)
+    for (const p of cityPages) expect(p.draft).toBe(true)
+  })
+
+  it('never claims verification, reviews or specific prices', () => {
+    const text = JSON.stringify(seedPages.filter((p) => p.path !== 'plumbing/water-heater-repair').map((p) => p.sections)).toLowerCase()
+    for (const bad of ['5-star', 'five-star', 'verified professionals', 'licensed and insured', 'same-day', '24/7', '$']) expect(text.includes(bad), bad).toBe(false)
+  })
+
   it('has no link to a page that does not exist', () => {
-    const live = new Set(seedPages.filter((p) => !p.isTemplate).map((p) => (p.path === '' ? '/' : `/${p.path}`)))
+    const live = new Set(seedPages.filter((p) => !p.isTemplate && !p.draft).map((p) => (p.path === '' ? '/' : `/${p.path}`)))
     for (const page of seedPages) {
       for (const href of allHrefs(page.sections)) {
         if (!href.startsWith('/')) continue
@@ -80,10 +96,11 @@ describe('seed migration', () => {
     await db.exec(read('20261009000100_seed_cms_pages.sql'))
   })
 
-  it('creates every page; all are live except the template', async () => {
+  it('creates every page; all are live except the template and drafts', async () => {
     const r = await db.query<{ path: string; status: string; is_template: boolean }>('select path, status, is_template from cms_pages order by path')
     expect(r.rows).toHaveLength(seedPages.length)
-    for (const row of r.rows) expect(row.status).toBe(row.is_template ? 'draft' : 'published')
+    const drafts = new Set(seedPages.filter((p) => p.draft || p.isTemplate).map((p) => p.path))
+    for (const row of r.rows) expect(row.status).toBe(drafts.has(row.path) ? 'draft' : 'published')
   })
 
   it('stores the water heater copy and its eight FAQs', async () => {

@@ -8,6 +8,8 @@
  * Regenerate the migration after editing:  npm run seed:sql
  */
 
+import { extraSeedPages, serviceSeedPages } from './extra-pages.ts'
+
 type Node = Record<string, unknown>
 export interface SeedSection { type: string; data: Record<string, unknown> }
 export interface SeedPage {
@@ -18,6 +20,8 @@ export interface SeedPage {
   seoDescription?: string
   noindex?: boolean
   isTemplate?: boolean
+  /** Saved as a draft, not published. */
+  draft?: boolean
   sections: SeedSection[]
 }
 
@@ -53,24 +57,6 @@ const servesLinks = (service: string, links: { label: string; href: string }[]):
   type: 'linkList',
   data: { heading: `${service} in Denver & Boulder`, links },
 })
-
-/** Pages the client asked for whose copy has not been written yet: structure only, noindex until filled in. */
-function starterServicePage(path: string, title: string, intro: string, noun: string): SeedPage {
-  return {
-    path,
-    title,
-    description: intro,
-    seoTitle: title,
-    seoDescription: intro,
-    noindex: true,
-    sections: [
-      { type: 'hero', data: { eyebrow: 'Serving Denver, CO, and Boulder, CO.', heading: title, subtitle: intro, intro: '', image: '', buttons: [btn('Request Service', REQUEST)], align: 'left' } },
-      howItWorks('How to Request Service', 'Request Service'),
-      servesLinks(noun, [{ label: `${noun} in Denver`, href: '/denver' }, { label: `${noun} in Boulder`, href: '/boulder' }]),
-      { type: 'cta', data: { heading: 'Need a Plumbing or HVAC Professional?', text: 'Tell us what you need and find a local professional serving Denver or Boulder.', buttons: [btn('Request Service', REQUEST)], tone: 'dark' } },
-    ],
-  }
-}
 
 const SERVICE_LINKS_DENVER = [
   { label: 'Plumbing in Denver', href: '/plumbing/plumbing-repair' },
@@ -359,7 +345,9 @@ const plumbing: SeedPage = {
         cards: [
           { title: 'Plumbing Repair', text: 'Plumbing Repair Services in Denver & Boulder', href: '/plumbing/plumbing-repair', image: '' },
           { title: 'Water Heater Repair', text: 'Water Heater Repair in Denver & Boulder', href: '/plumbing/water-heater-repair', image: '' },
+          { title: 'Water Heater Replacement', text: 'Water Heater Replacement in Denver & Boulder', href: '/plumbing/water-heater-replacement', image: '' },
           { title: 'Frozen Pipe Repair', text: 'Frozen Pipe Repair in Denver & Boulder', href: '/plumbing/frozen-pipe-repair', image: '' },
+          { title: 'Plumbing Fixes', text: 'Local Plumbing Fixes for Homes & Businesses in Denver & Boulder', href: '/plumbing/plumbing-fixes', image: '' },
         ],
       },
     },
@@ -382,6 +370,9 @@ const hvac: SeedPage = {
         cards: [
           { title: 'AC Repair', text: 'AC Repair Services in Denver & Boulder', href: '/hvac/ac-repair', image: '' },
           { title: 'AC Installation', text: 'AC Installation in Denver & Boulder', href: '/hvac/ac-installation', image: '' },
+          { title: 'AC Replacement', text: 'AC Replacement in Denver & Boulder', href: '/hvac/ac-replacement', image: '' },
+          { title: 'HVAC Repair', text: 'HVAC Repair Services in Denver & Boulder', href: '/hvac/hvac-repair', image: '' },
+          { title: 'HVAC Maintenance', text: 'HVAC Maintenance Services in Denver & Boulder', href: '/hvac/hvac-maintenance', image: '' },
         ],
       },
     },
@@ -404,7 +395,7 @@ const home: SeedPage = {
         heading: 'Trusted Plumbing & HVAC Services in Denver & Boulder',
         subtitle: 'Find qualified local professionals for plumbing repairs, water heater services, frozen pipe repairs, AC repair, AC installation and HVAC services.',
         intro: '', image: '',
-        buttons: [btn('Request Service', REQUEST), btn('Find a Professional', '/denver', 'secondary')],
+        buttons: [btn('Request Service', REQUEST), btn('Find a Professional', '/find-a-pro', 'secondary')],
         align: 'left',
       },
     },
@@ -414,13 +405,13 @@ const home: SeedPage = {
         heading: 'What Service Do You Need?',
         intro: "Whether you need an urgent repair or are planning a new installation, tell us what you need and we'll help you find the right local professional.",
         cards: [
-          { title: 'Plumbing Services', text: 'Plumbing repair, water heater repair and frozen pipe repair.', href: '/plumbing', image: '' },
-          { title: 'HVAC Services', text: 'AC repair and AC installation.', href: '/hvac', image: '' },
+          { title: 'Plumbing Services', text: 'Plumbing repair, water heater repair and replacement, frozen pipe repair and plumbing fixes.', href: '/plumbing', image: '' },
+          { title: 'HVAC Services', text: 'AC repair, installation and replacement, HVAC repair and maintenance.', href: '/hvac', image: '' },
         ],
       },
     },
-    { type: 'linkList', data: { heading: 'Plumbing', links: [{ label: 'Plumbing Repair', href: '/plumbing/plumbing-repair' }, { label: 'Water Heater Repair', href: '/plumbing/water-heater-repair' }, { label: 'Frozen Pipe Repair', href: '/plumbing/frozen-pipe-repair' }] } },
-    { type: 'linkList', data: { heading: 'HVAC', links: [{ label: 'AC Repair', href: '/hvac/ac-repair' }, { label: 'AC Installation', href: '/hvac/ac-installation' }] } },
+    { type: 'linkList', data: { heading: 'Plumbing', links: [{ label: 'Plumbing Repair', href: '/plumbing/plumbing-repair' }, { label: 'Water Heater Repair', href: '/plumbing/water-heater-repair' }, { label: 'Water Heater Replacement', href: '/plumbing/water-heater-replacement' }, { label: 'Frozen Pipe Repair', href: '/plumbing/frozen-pipe-repair' }, { label: 'Plumbing Fixes', href: '/plumbing/plumbing-fixes' }] } },
+    { type: 'linkList', data: { heading: 'HVAC', links: [{ label: 'AC Repair', href: '/hvac/ac-repair' }, { label: 'AC Installation', href: '/hvac/ac-installation' }, { label: 'AC Replacement', href: '/hvac/ac-replacement' }, { label: 'HVAC Repair', href: '/hvac/hvac-repair' }, { label: 'HVAC Maintenance', href: '/hvac/hvac-maintenance' }] } },
     howItWorks('Getting the Right Professional Is Easy', 'Request Service'),
     {
       type: 'contentBlock',
@@ -444,7 +435,15 @@ const home: SeedPage = {
       data: {
         label: 'Commercial', heading: 'Commercial Plumbing & HVAC Services', imagePosition: 'none', image: '', imageAlt: '',
         content: doc(para('Help keep your business, property or facility running with local professionals for commercial plumbing and HVAC repairs, replacements, installations and service needs.')),
-        button: btn('Request Commercial Service', REQUEST),
+        button: btn('Request Commercial Service', '/commercial'),
+      },
+    },
+    {
+      type: 'contentBlock',
+      data: {
+        label: 'Find a Pro', heading: 'Find a Local Plumbing or HVAC Professional', imagePosition: 'none', image: '', imageAlt: '',
+        content: doc(para('Search professionals by service and location, review their profiles and connect with companies that serve your area.')),
+        button: btn('Find a Professional Near You', '/find-a-pro'),
       },
     },
     {
@@ -464,7 +463,20 @@ const home: SeedPage = {
         ],
       },
     },
-    { type: 'cta', data: { heading: 'Get More Plumbing & HVAC Customers in Denver & Boulder', text: 'Build your online presence, showcase your services and connect with customers looking for plumbing and HVAC professionals.', buttons: [btn('Join as a Professional', '/join-us')], tone: 'light' } },
+    {
+      type: 'featureCards',
+      data: {
+        heading: 'Helpful Plumbing & HVAC Resources', intro: '',
+        cards: [
+          { title: 'What to Do When a Pipe Freezes', text: '', href: '/resources/what-to-do-when-a-pipe-freezes', image: '' },
+          { title: 'When to Repair or Replace a Water Heater', text: '', href: '/resources/when-to-repair-or-replace-a-water-heater', image: '' },
+          { title: 'Signs Your AC Needs Repair', text: '', href: '/resources/signs-your-ac-needs-repair', image: '' },
+          { title: 'AC Repair vs. Replacement', text: '', href: '/resources/ac-repair-vs-replacement', image: '' },
+          { title: 'HVAC Maintenance Checklist', text: '', href: '/resources/hvac-maintenance-checklist', image: '' },
+        ],
+      },
+    },
+    { type: 'cta', data: { heading: 'Get More Plumbing & HVAC Customers in Denver & Boulder', text: 'Build your online presence, showcase your services and connect with customers looking for plumbing and HVAC professionals.', buttons: [btn('Join as a Professional', '/for-contractors')], tone: 'light' } },
     { type: 'cta', data: { heading: 'Need a Plumbing or HVAC Professional?', text: 'Tell us what you need and find a local professional serving Denver or Boulder.', buttons: [btn('REQUEST SERVICE', REQUEST)], tone: 'dark' } },
   ],
 }
@@ -488,14 +500,12 @@ const template: SeedPage = {
 const rawPages: SeedPage[] = [
   home,
   plumbing,
-  starterServicePage('plumbing/plumbing-repair', 'Plumbing Repair Services in Denver & Boulder', 'Find local professionals for plumbing repairs in Denver and Boulder, Colorado. Describe the problem, add photos and request service.', 'Plumbing Repair'),
   waterHeater,
-  starterServicePage('plumbing/frozen-pipe-repair', 'Frozen Pipe Repair in Denver & Boulder', 'Find local professionals for frozen pipe repair in Denver and Boulder, Colorado. Describe the problem, add photos and request service.', 'Frozen Pipe Repair'),
   hvac,
-  starterServicePage('hvac/ac-repair', 'AC Repair Services in Denver & Boulder', 'Find local professionals for AC repair in Denver and Boulder, Colorado. Describe the problem, add photos and request service.', 'AC Repair'),
-  starterServicePage('hvac/ac-installation', 'AC Installation in Denver & Boulder', 'Find local professionals for AC installation in Denver and Boulder, Colorado. Tell us about your home or business and request service.', 'AC Installation'),
   locationPage('Denver', SERVICE_LINKS_DENVER),
   locationPage('Boulder', SERVICE_LINKS_BOULDER),
+  ...serviceSeedPages,
+  ...extraSeedPages,
   template,
 ]
 
@@ -511,6 +521,19 @@ const HERO_ART: Record<string, string> = {
   'hvac/ac-installation': '/art/ac-installation.svg',
   denver: '/art/denver.svg',
   boulder: '/art/boulder.svg',
+  'plumbing/water-heater-replacement': '/art/water-heater.svg',
+  'plumbing/plumbing-fixes': '/art/hero-plumbing.svg',
+  'hvac/ac-replacement': '/art/ac-installation.svg',
+  'hvac/hvac-repair': '/art/hero-hvac.svg',
+  'hvac/hvac-maintenance': '/art/hero-hvac.svg',
+  commercial: '/art/home-pro.svg',
+  'commercial/plumbing': '/art/hero-plumbing.svg',
+  'commercial/hvac': '/art/hero-hvac.svg',
+  'find-a-pro': '/art/home-pro.svg',
+  'find-a-pro/plumbers': '/art/hero-plumbing.svg',
+  'find-a-pro/hvac-contractors': '/art/hero-hvac.svg',
+  'for-contractors': '/art/home-pro.svg',
+  resources: '/art/home-pro.svg',
 }
 const CARD_ART: Record<string, string> = {
   '/plumbing': '/art/hero-plumbing.svg',
@@ -522,13 +545,29 @@ const CARD_ART: Record<string, string> = {
   '/hvac/ac-installation': '/art/ac-installation.svg',
   '/denver': '/art/denver.svg',
   '/boulder': '/art/boulder.svg',
+  '/plumbing/water-heater-replacement': '/art/water-heater.svg',
+  '/plumbing/plumbing-fixes': '/art/hero-plumbing.svg',
+  '/hvac/ac-replacement': '/art/ac-installation.svg',
+  '/hvac/hvac-repair': '/art/hero-hvac.svg',
+  '/hvac/hvac-maintenance': '/art/hero-hvac.svg',
+  '/commercial/plumbing': '/art/hero-plumbing.svg',
+  '/commercial/hvac': '/art/hero-hvac.svg',
+  '/find-a-pro/plumbers': '/art/hero-plumbing.svg',
+  '/find-a-pro/hvac-contractors': '/art/hero-hvac.svg',
+}
+
+const heroFallback = (path: string): string => {
+  if (/^(water|plumbing|frozen)\//.test(path)) return path.startsWith('water/') ? '/art/water-heater.svg' : path.startsWith('frozen/') ? '/art/frozen-pipe.svg' : '/art/hero-plumbing.svg'
+  if (/^(ac|hvac)\//.test(path)) return path.startsWith('ac/ac-installation') ? '/art/ac-installation.svg' : path.startsWith('ac/') ? '/art/ac-repair.svg' : '/art/hero-hvac.svg'
+  if (path.startsWith('resources/')) return '/art/home-pro.svg'
+  return ''
 }
 
 export const seedPages: SeedPage[] = rawPages.map((page) => ({
   ...page,
   sections: page.sections.map((section) => {
-    if (section.type === 'hero' && section.data.image === '' && HERO_ART[page.path]) {
-      return { ...section, data: { ...section.data, image: HERO_ART[page.path] } }
+    if (section.type === 'hero' && section.data.image === '' && (HERO_ART[page.path] || heroFallback(page.path))) {
+      return { ...section, data: { ...section.data, image: HERO_ART[page.path] || heroFallback(page.path) } }
     }
     if (section.type === 'featureCards') {
       const cards = (section.data.cards as Array<Record<string, string>>).map((c) =>

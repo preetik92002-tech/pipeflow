@@ -138,7 +138,7 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4 border-b border-navy-800 pb-2 flex items-center gap-2">
               <MapPin className="h-3.5 w-3.5 text-brand-blue" />
-              <span>Service Areas</span>
+              <span>Locations &amp; Commercial</span>
             </h4>
             <ul className="space-y-2.5">
               {serviceAreaLinks.map((link) => (
@@ -158,7 +158,7 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4 border-b border-navy-800 pb-2 flex items-center gap-2">
               <ShieldCheck className="h-3.5 w-3.5 text-brand-blue" />
-              <span>Company</span>
+              <span>Find a Pro &amp; Company</span>
             </h4>
             <ul className="space-y-2.5">
               {companyLinks.map((link) => (

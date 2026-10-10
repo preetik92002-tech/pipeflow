@@ -28,7 +28,7 @@ const nullable = (value?: string) => (value ? q(value) : 'NULL')
 export function buildSeedSql(): string {
   const blocks = seedPages.map((page) => {
     const sections = page.sections.map((s, i) => ({ id: stableUuid(`${page.path}#${i}`), ...s }))
-    const publish = page.isTemplate ? '' : '    PERFORM cms_publish(v_id, 1, NULL);\n'
+    const publish = page.isTemplate || page.draft ? '' : '    PERFORM cms_publish(v_id, 1, NULL);\n'
     return `DO $$
 DECLARE v_id UUID;
 BEGIN
