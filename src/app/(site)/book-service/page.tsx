@@ -25,7 +25,7 @@ export default async function RequestServicePage({ searchParams }: { searchParam
         <div className="container-wide py-14 sm:py-20">
           <div className="hero-enter max-w-3xl">
             <p className="eyebrow">Denver &amp; Boulder</p>
-            <h1 className="mt-5 font-display text-display-xl font-bold text-ink">Request plumbing or HVAC service</h1>
+            <h1 className="mt-5 font-display text-display-xl font-normal text-ink">Request plumbing or HVAC service</h1>
             <p className="mt-5 max-w-2xl text-lead text-neutral-700">Tell us what you need, add photos if you can, and we will match your request with professionals serving your area.</p>
           </div>
         </div>
@@ -35,3 +35,5 @@ export default async function RequestServicePage({ searchParams }: { searchParam
       </div>
     </div>
 
+  )
+}

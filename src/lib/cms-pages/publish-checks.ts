@@ -3,6 +3,8 @@
  * without a database; the publish API supplies the page and the other live pages.
  */
 
+import { sectionsSchema } from './sections/schema'
+
 /** The editor's checkbox text. Error messages quote it, so both always match. */
 export const NOINDEX_LABEL = 'Ask search engines not to list this page'
 
@@ -33,8 +35,12 @@ export const isCopyTitle = (title: string) => /^copy of /i.test(title.trim())
  * isliye bina edit ki copy ka key original jaisa hi hota hai. URL dekhkar andaza lagane se ye
  * zyada bharosemand hai: "/resources/ad-copy" jaisa asli URL ab galti se block nahi hota.
  */
-export function contentKey(sections: unknown): string {
-  if (!Array.isArray(sections) || sections.length === 0) return ''
+export function contentKey(rawSections: unknown): string {
+  if (!Array.isArray(rawSections) || rawSections.length === 0) return ''
+  // Pehle schema se guzaaro: nayi fields (jaise imageAlt) ke defaults dono taraf barabar lagte hain,
+  // warna purani saved JSON aur duplicate (jo parse hokar bani) alag dikhte aur copy pakdi nahi jaati.
+  const parsed = sectionsSchema.safeParse(rawSections)
+  const sections: unknown[] = parsed.success ? parsed.data : rawSections
   const stable = (v: unknown): unknown => {
     if (Array.isArray(v)) return v.map(stable)
     if (v && typeof v === 'object') {

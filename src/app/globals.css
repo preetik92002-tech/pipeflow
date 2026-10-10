@@ -140,13 +140,13 @@
     @apply mt-4;
   }
   .cms-prose h2 {
-    @apply font-display text-display-md font-bold text-ink mt-10;
+    @apply font-display text-display-md font-normal text-ink mt-10;
   }
   .cms-prose h3 {
-    @apply font-display text-xl font-semibold text-ink mt-8;
+    @apply font-display text-xl font-medium text-ink mt-8;
   }
   .cms-prose h4 {
-    @apply font-display text-lg font-semibold text-ink mt-6;
+    @apply font-display text-lg font-medium text-ink mt-6;
   }
   .cms-prose a {
     @apply font-semibold text-brand-blue underline decoration-brand-blue/30 underline-offset-4 transition-colors hover:decoration-brand-blue;
@@ -199,10 +199,10 @@
   }
 
   .heading-xl {
-    @apply font-display text-display-xl font-bold text-ink;
+    @apply font-display text-display-xl font-normal text-ink;
   }
   .heading-lg {
-    @apply font-display text-display-lg font-bold text-ink;
+    @apply font-display text-display-lg font-normal text-ink;
   }
 
   /* Public buttons. Admin purane .btn-* classes use karta hai, isliye ye alag naam hain. */
@@ -287,20 +287,14 @@
   }
 
   /*
-   * Halka parallax sirf un browsers mein jo scroll-driven animations support karte hain
-   * (koi JavaScript nahi, main thread par bojh nahi). Baaki browsers mein photo bas static rehti hai.
+   * Client-side navigation par naya page halka sa fade-in, bina kuch block kiye.
+   * IMPORTANT: fill-mode "backwards" hai, "both" nahi. Jo element par transform ka animation (identity ke saath
+   * bhi) filling ho, woh position:fixed bachchon ka containing block ban jaata hai: pinned section viewport ki
+   * jagah is wrapper ke saath khisak jaata tha aur screen khali dikhti thi. Animation khatam hote hi wrapper par
+   * koi transform/animation nahi rehta.
    */
-  @supports (animation-timeline: view()) {
-    .parallax-y {
-      animation: parallaxY linear both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 100%;
-    }
-  }
-
-  /* Client-side navigation par naya page halka sa fade-in, bina kuch block kiye. */
   .page-enter {
-    animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
   }
 }
 
@@ -317,11 +311,6 @@
   from { opacity: 0.01; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
 }
-@keyframes parallaxY {
-  from { transform: translateY(-6%) scale(1.12); }
-  to { transform: translateY(6%) scale(1.12); }
-}
-
 /* FAQ: smooth open where supported (::details-content), instant elsewhere. */
 @media (prefers-reduced-motion: no-preference) {
   details.faq-item::details-content {
@@ -338,3 +327,71 @@
     interpolate-size: allow-keywords;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Cinematic layer (GSAP ScrollTrigger drives the scroll-linked parts)  */
+/* ------------------------------------------------------------------ */
+@keyframes clipIn {
+  from { clip-path: inset(7% 4% 7% 4% round 1.5rem); }
+  to { clip-path: inset(0% 0% 0% 0% round 0rem); }
+}
+@keyframes wordUp {
+  from { transform: translateY(108%); }
+  to { transform: none; }
+}
+
+/* Words headline mein masked hote hain: har word neeche se upar slide hota hai. Text DOM mein normal rehta hai. */
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Hero: photo ek chhote frame se poori screen tak khulti hai, phir headline ke words, phir copy aur buttons. Sab CSS: JavaScript ka intezaar nahi. */
+  .hero-clip-reveal {
+    animation: clipIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .word {
+    animation: wordUp 1.05s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(0.2s + var(--i, 0) * 70ms);
+  }
+  .hero-enter > .hero-h1 {
+    animation: none;
+  }
+  .hero-enter > *:nth-child(3) { animation-delay: 0.75s; }
+  .hero-enter > *:nth-child(4) { animation-delay: 0.85s; }
+  .hero-enter > *:nth-child(5) { animation-delay: 0.95s; }
+
+  /* Section headings: JS line-split hone tak chhupe (script fail ho to html.js class hat jaati hai). */
+  html.js [data-lines]:not([data-split]) {
+    visibility: hidden;
+  }
+}
+
+/* Service index: hover/focus par us service ki photo crossfade hoti hai (sirf CSS, :has). */
+.svc-index .svc-photo {
+  opacity: 0;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.svc-index .svc-photo:first-child {
+  opacity: 1;
+}
+.svc-index:has(li:is(:hover, :focus-within)) .svc-photo {
+  opacity: 0;
+}
+.svc-index:has(li:nth-child(1):is(:hover, :focus-within)) .svc-photo:nth-child(1) { opacity: 1; }
+.svc-index:has(li:nth-child(2):is(:hover, :focus-within)) .svc-photo:nth-child(2) { opacity: 1; }
+.svc-index:has(li:nth-child(3):is(:hover, :focus-within)) .svc-photo:nth-child(3) { opacity: 1; }
+.svc-index:has(li:nth-child(4):is(:hover, :focus-within)) .svc-photo:nth-child(4) { opacity: 1; }
+.svc-index:has(li:nth-child(5):is(:hover, :focus-within)) .svc-photo:nth-child(5) { opacity: 1; }
+.svc-index:has(li:nth-child(6):is(:hover, :focus-within)) .svc-photo:nth-child(6) { opacity: 1; }
+.svc-index:has(li:nth-child(7):is(:hover, :focus-within)) .svc-photo:nth-child(7) { opacity: 1; }
+.svc-index:has(li:nth-child(8):is(:hover, :focus-within)) .svc-photo:nth-child(8) { opacity: 1; }
+.svc-index:has(li:nth-child(9):is(:hover, :focus-within)) .svc-photo:nth-child(9) { opacity: 1; }
+.svc-index:has(li:nth-child(10):is(:hover, :focus-within)) .svc-photo:nth-child(10) { opacity: 1; }

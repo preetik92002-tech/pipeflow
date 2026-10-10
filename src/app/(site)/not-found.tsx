@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="container-wide py-24 sm:py-32 lg:py-40">
         <div className="hero-enter max-w-3xl">
           <p className="eyebrow">Error 404</p>
-          <h1 className="mt-5 font-display text-display-2xl font-bold text-ink">This page isn&apos;t here.</h1>
+          <h1 className="mt-5 font-display text-display-2xl font-normal text-ink">This page isn&apos;t here.</h1>
           <p className="mt-6 max-w-xl text-lead text-neutral-700">
             The address may have changed, or the page may not be published yet. Choose where to go next, or send us a service request.
           </p>
@@ -27,7 +27,7 @@ export default function NotFound() {
             { label: 'Denver & Boulder', href: '/denver' },
           ].map((l) => (
             <li key={l.href} className="border-b border-line sm:border-b-0 sm:border-r sm:last:border-r-0">
-              <Link href={l.href} className="group flex items-center justify-between gap-4 px-0 py-5 font-display text-lg font-semibold text-ink sm:px-6 sm:first:pl-0">
+              <Link href={l.href} className="group flex items-center justify-between gap-4 px-0 py-5 font-display text-lg font-medium text-ink sm:px-6 sm:first:pl-0">
                 {l.label}
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-brand-red" aria-hidden="true" />
               </Link>

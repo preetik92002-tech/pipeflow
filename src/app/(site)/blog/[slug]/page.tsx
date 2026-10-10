@@ -167,7 +167,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </div>
             <div>
               <p className="font-bold text-navy-900 text-sm">{post.author}</p>
-              <p className="text-2xs text-neutral-500">{post.authorRole || 'PipeFlow Colorado Specialist'}</p>
+              {post.authorRole && <p className="text-2xs text-neutral-500">{post.authorRole}</p>}
             </div>
           </div>
 

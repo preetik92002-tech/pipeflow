@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Sora } from 'next/font/google'
+import { Fraunces, Inter } from 'next/font/google'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
@@ -9,6 +9,7 @@ import { NavigationProvider } from '@/components/layout/NavigationProvider'
 import { getNavigation } from '@/lib/cms-pages/navigation'
 import { SiteSettingsProvider } from '@/components/layout/SiteSettingsProvider'
 import { RevealObserver, REVEAL_BOOT_SCRIPT } from '@/components/motion/RevealObserver'
+import { MotionRoot } from '@/components/motion/MotionRoot'
 import { generateMetadata as genMeta, generateLocalBusinessSchema, getPublicSiteSettingsBundle } from '@/lib/seo/metadata'
 import '../globals.css'
 
@@ -18,11 +19,13 @@ const inter = Inter({
   display: 'swap',
 })
 
-const sora = Sora({
+// Editorial display face: sirf public site par. Admin apne Sora/Inter khud load karta hai (--font-display wahan define nahi hota),
+// isliye public site par Sora ki zaroorat nahi: ek font file aur preload kam.
+const fraunces = Fraunces({
   subsets: ['latin'],
-  variable: '--font-sora',
+  variable: '--font-display',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
+  axes: ['opsz'],
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   ])
 
   return (
-    <html lang="en" className={`${inter.variable} ${sora.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
         {/* Reveal animations ke liye "js" class; script fail ho to 3s mein hat jaati hai (content kabhi chhupa nahi rehta). */}
@@ -52,6 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <NavigationProvider navigation={navigation}>
             <AnalyticsProvider />
             <RevealObserver />
+            <MotionRoot />
             <Header />
             <main id="main-content" className="flex-1 pb-16 lg:pb-0" tabIndex={-1}>
               {children}

@@ -41,6 +41,8 @@ async function outcome(p: string): Promise<string | null> {
     return String((e as { digest?: string }).digest ?? e)
   }
 }
+/** Visible text of rendered HTML: tags removed, spaces collapsed (the hero headline is split into word spans). */
+const textOf = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ')
 const idOf = async (p: string) => (await db.query<{ id: string; version: number }>('select id, version from cms_pages where path = $1', [p])).rows[0]
 const sitemapUrls = async () => (await sitemap()).map((e) => e.url)
 
@@ -75,6 +77,27 @@ describe('public pages', () => {
   })
 })
 
+describe('structured data', () => {
+  const types = async (p: string) => {
+    const html = await render(p)
+    return [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((m) => JSON.parse(m[1])['@type']).sort()
+  }
+  it('indexable service page: FAQ, breadcrumbs and Service, all matching the visible page', async () => {
+    expect(await types('plumbing/water-heater-repair')).toEqual(['BreadcrumbList', 'FAQPage', 'Service'])
+    const html = await render('plumbing/water-heater-repair')
+    expect(textOf(html)).toContain('Plumbing Services') // the breadcrumb the data describes is on the page
+  })
+  it('indexable location page: breadcrumbs only (not a Service)', async () => {
+    expect(await types('denver')).toEqual(['BreadcrumbList'])
+  })
+  it('noindex starter pages carry no breadcrumb or Service data', async () => {
+    expect(await types('hvac/ac-repair')).toEqual(['FAQPage'])
+  })
+  it('the home page has none', async () => {
+    expect(await types('')).toEqual([])
+  })
+})
+
 describe('city/service URLs', () => {
   it.each(CITY_URLS)('/%s is a draft, so visitors get the 404 page and search engines a noindex', async (p) => {
     expect(await outcome(p)).toMatch(/NEXT_HTTP_ERROR_FALLBACK;404/)
@@ -98,7 +121,7 @@ describe('city/service URLs', () => {
     await db.query('select cms_publish($1, $2, null)', [page.id, page.version])
     try {
       const html = await render('plumbing/water-heater-repair/denver')
-      expect(html).toContain('Water Heater Repair in Denver, Colorado')
+      expect(textOf(html)).toContain('Water Heater Repair in Denver, Colorado')
       const meta = await generateMetadata(params('plumbing/water-heater-repair/denver'))
       expect(meta.alternates?.canonical).toBe('https://pipeflowco.com/plumbing/water-heater-repair/denver')
       expect(meta.robots).toBe('noindex,nofollow')
@@ -127,12 +150,23 @@ describe('admin preview', () => {
     await expect(PreviewPage({ params: Promise.resolve({ id: page.id }) })).rejects.toMatchObject({ digest: expect.stringMatching(/^NEXT_REDIRECT;.*\/admin\/login\?redirectTo=/) })
   })
 
+  it('previews with the same layout context as the live page: breadcrumbs, full-bleed home hero, pinned story and marquee', async () => {
+    state.auth = { authenticated: true, authorized: true, user: { id: 'a' }, role: 'super_admin' }
+    const draftCity = await idOf('hvac/ac-installation/boulder')
+    const city = renderToStaticMarkup((await PreviewPage({ params: Promise.resolve({ id: draftCity.id }) })) as ReactElement)
+    expect(city).toContain('aria-label="Breadcrumb"')
+    expect(textOf(city)).toContain('HVAC')
+    const home = await idOf('')
+    const html = renderToStaticMarkup((await PreviewPage({ params: Promise.resolve({ id: home.id }) })) as ReactElement)
+    for (const hook of ['data-hero', 'data-story', 'data-marquee']) expect(html, hook).toContain(hook)
+  })
+
   it('shows an admin the saved draft, marked as not visible to visitors', async () => {
     const page = await idOf('hvac/ac-installation/boulder')
     state.auth = { authenticated: true, authorized: true, user: { id: 'a' }, role: 'super_admin' }
     const html = renderToStaticMarkup((await PreviewPage({ params: Promise.resolve({ id: page.id }) })) as ReactElement)
     expect(html).toContain('not visible to visitors')
-    expect(html).toContain('AC Installation in Boulder, Colorado')
+    expect(textOf(html)).toContain('AC Installation in Boulder, Colorado')
   })
 })
 

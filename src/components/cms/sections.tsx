@@ -1,7 +1,8 @@
 import { ArrowRight, ArrowUpRight, Check, Clock, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
 import type { CmsButton } from '@/lib/cms-pages/links'
-import { PHOTOS, type Photo } from '@/lib/media/photos'
+import { MARQUEE_PHOTOS, PHOTOS, PROCESS_PHOTOS, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
+import { SplitWords } from '@/components/motion/SplitWords'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
 import { RichTextRenderer } from './RichTextRenderer'
@@ -29,13 +30,13 @@ function Band({ tone, children, className = '', labelledBy }: { tone: Tone; chil
   )
 }
 
-function SectionHeader({ eyebrow, heading, intro, light = false, center = false, id }: { eyebrow?: string; heading?: string; intro?: string; light?: boolean; center?: boolean; id?: string }) {
+function SectionHeader({ eyebrow, heading, intro, light = false, center = false, id, compact = false }: { eyebrow?: string; heading?: string; intro?: string; light?: boolean; center?: boolean; id?: string; compact?: boolean }) {
   if (!heading && !intro) return null
   return (
-    <div className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`} data-reveal>
-      {eyebrow && <p className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{eyebrow}</p>}
-      {heading && <h2 id={id} className={`font-display text-display-lg font-bold ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-4' : ''}`}>{heading}</h2>}
-      {intro && <p className={`mt-5 text-lead ${light ? 'text-white/75' : 'text-neutral-600'}`}>{intro}</p>}
+    <div className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`}>
+      {eyebrow && <p data-reveal="fade" className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{eyebrow}</p>}
+      {heading && <h2 id={id} data-lines className={`font-display ${compact ? 'text-display-md' : 'text-display-lg'} font-normal ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-4' : ''}`}>{heading}</h2>}
+      {intro && <p data-reveal style={{ '--reveal-delay': '160ms' } as React.CSSProperties} className={`mt-5 text-lead ${light ? 'text-white/75' : 'text-neutral-600'}`}>{intro}</p>}
     </div>
   )
 }
@@ -69,8 +70,8 @@ function HeroCopy({ data, first, light, center }: { data: SectionData<'hero'>; f
   return (
     <>
       {data.eyebrow && <p className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{data.eyebrow}</p>}
-      <h1 id={first ? 'page-title' : undefined} className={`mt-5 font-display text-display-2xl font-bold ${light ? 'text-white' : 'text-ink'}`}>
-        {data.heading}
+      <h1 id={first ? 'page-title' : undefined} className={`hero-h1 mt-5 font-display text-display-2xl font-normal ${light ? 'text-white' : 'text-ink'}`}>
+        <SplitWords text={data.heading} />
       </h1>
       {data.subtitle && <p className={`mt-6 max-w-2xl text-lead ${center ? 'mx-auto' : ''} ${light ? 'text-white/85' : 'text-neutral-700'}`}>{data.subtitle}</p>}
       {data.intro && (
@@ -91,15 +92,19 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
 
   if (fullBleed) {
     return (
-      <section className="relative isolate flex min-h-[min(88svh,820px)] items-end overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
-        <div className="absolute inset-0 -z-20 hero-photo-settle">
-          <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="100vw" className="object-cover" />
+      <section data-hero className="relative isolate flex min-h-[min(88svh,820px)] items-end overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
+        <div className="absolute inset-0 -z-20 hero-clip-reveal">
+          <div className="absolute inset-0 hero-photo-settle">
+            <div data-hero-media className="absolute inset-0">
+              <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="100vw" className="object-cover" />
+            </div>
+          </div>
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/55 to-ink/20" aria-hidden="true" />
         {!center && <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/35 to-transparent" aria-hidden="true" />}
         <div className={`container-wide w-full pb-16 pt-32 sm:pb-20 lg:pb-24 ${center ? 'text-center' : ''}`}>
           <Breadcrumbs crumbs={ctx.crumbs} light />
-          <div className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
+          <div data-hero-content className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
             <HeroCopy data={data} first={first} light center={center} />
           </div>
         </div>
@@ -118,9 +123,11 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
             </div>
           </div>
           <div className="lg:col-span-5">
-            <div className="photo-frame aspect-[4/3] w-full sm:aspect-[16/10] lg:aspect-[4/5]">
+            <div className="photo-frame hero-clip-reveal aspect-[4/3] w-full sm:aspect-[16/10] lg:aspect-[4/5]">
               <div className="absolute inset-0 hero-photo-settle">
-                <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
+                <div data-parallax="5" className="absolute inset-0">
+                  <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
+                </div>
               </div>
             </div>
           </div>
@@ -165,14 +172,14 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
     return (
       <Band tone={tone} labelledBy={id}>
         <div className="container-wide grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div data-reveal="scale" className={`photo-frame aspect-[4/3] lg:aspect-[4/5] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
-            <div className="absolute inset-0 parallax-y">
+          <div data-clip className={`photo-frame aspect-[4/3] lg:aspect-[4/5] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
+            <div data-parallax="6" className="absolute inset-0">
               <CmsImage src={data.image} alt={data.imageAlt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
             </div>
           </div>
           <div data-reveal>
-            {number ? <p className="font-display text-sm font-semibold tracking-[0.2em] text-brand-red">{number}</p> : data.label && <p className="eyebrow">{data.label}</p>}
-            <h2 id={id} className="mt-4 font-display text-display-lg font-bold text-ink">{data.heading}</h2>
+            {number ? <p className="font-display text-sm font-medium tracking-[0.2em] text-brand-red">{number}</p> : data.label && <p className="eyebrow">{data.label}</p>}
+            <h2 id={id} data-lines className="mt-4 font-display text-display-lg font-normal text-ink">{data.heading}</h2>
             <RichTextRenderer doc={data.content} className="cms-prose mt-6" />
             {data.button && <CmsButtons buttons={[data.button]} />}
           </div>
@@ -188,12 +195,11 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
         <div className="lg:col-span-5" data-reveal>
           <div className="lg:sticky lg:top-32">
             {number ? (
-              <p className="font-display text-[clamp(3.5rem,6vw,5.5rem)] font-bold leading-none tracking-tight text-transparent [-webkit-text-stroke:1.5px_theme(colors.brand.red)]" aria-hidden="true">{number}</p>
+              <p className="font-display text-[clamp(3.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-transparent [-webkit-text-stroke:1.5px_theme(colors.brand.red)]" aria-hidden="true">{number}</p>
             ) : (
               data.label && <p className="eyebrow">{data.label}</p>
             )}
-            <h2 id={id} className={`font-display text-display-lg font-bold text-ink ${number ? 'mt-5' : data.label ? 'mt-4' : ''}`}>
-              {number && <span className="sr-only">{`${Number(number)}. `}</span>}
+            <h2 id={id} data-lines className={`font-display text-display-lg font-normal text-ink ${number ? 'mt-5' : data.label ? 'mt-4' : ''}`}>
               {data.heading}
             </h2>
           </div>
@@ -217,7 +223,7 @@ export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'conte
           {blocks.map((b, i) => (
             <div key={i} className={`${tone === 'paper' ? 'bg-paper' : 'bg-white'} flex flex-col p-8 sm:p-10`} data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
               {b.label && <p className="eyebrow">{b.label}</p>}
-              <h2 className="mt-4 font-display text-display-md font-bold text-ink">{b.heading}</h2>
+              <h2 className="mt-4 font-display text-display-md font-normal text-ink">{b.heading}</h2>
               <RichTextRenderer doc={b.content} className="cms-prose mt-4 flex-1 !text-base" />
               {b.button && <CmsButtons buttons={[b.button]} asLinks className="mt-8" />}
             </div>
@@ -253,11 +259,13 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
                 <CardShell card={card} className="relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-4xl bg-ink p-7 text-white sm:aspect-[5/4] sm:p-10">
                   {card.image && (
                     <div className="absolute inset-0 -z-20 transition-transform duration-700 ease-out-expo group-hover:scale-105">
-                      <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+                      <div data-parallax="5" className="absolute inset-0">
+                        <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+                      </div>
                     </div>
                   )}
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent" aria-hidden="true" />
-                  <h3 className="font-display text-display-md font-bold">{card.title}</h3>
+                  <h3 className="font-display text-display-md font-normal">{card.title}</h3>
                   {card.text && <p className="mt-3 max-w-md text-white/80">{card.text}</p>}
                   {card.href && (
                     <span className="mt-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-ink transition-all duration-300 ease-out-expo group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
@@ -295,7 +303,7 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
                     )}
                     <div className="flex items-start justify-between gap-4 p-6 sm:p-7">
                       <div>
-                        <h3 className={`font-display font-bold text-ink ${big ? 'text-display-md' : 'text-xl'}`}>{card.title}</h3>
+                        <h3 className={`font-display font-normal text-ink ${big ? 'text-display-md' : 'text-xl'}`}>{card.title}</h3>
                         {card.text && <p className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{card.text}</p>}
                       </div>
                       {card.href && <ArrowUpRight className="mt-1 h-5 w-5 flex-shrink-0 text-brand-red transition-transform duration-300 group-hover:rotate-45" aria-hidden="true" />}
@@ -320,9 +328,9 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
             {data.cards.map((card, i) => (
               <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
                 <SmartLink href={card.href} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-5 py-6 sm:gap-8">
-                  <span className="font-display text-sm font-semibold text-neutral-400">{pad2(i + 1)}</span>
+                  <span className="font-display text-sm font-medium text-neutral-400">{pad2(i + 1)}</span>
                   <span>
-                    <span className="block font-display text-xl font-bold text-ink transition-colors group-hover:text-brand-red sm:text-2xl">{card.title}</span>
+                    <span className="block font-display text-xl font-normal text-ink transition-colors group-hover:text-brand-red sm:text-2xl">{card.title}</span>
                     {card.text && <span className="mt-2 block text-neutral-600">{card.text}</span>}
                   </span>
                   <ArrowRight className="h-5 w-5 text-ink transition-transform duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-brand-red" aria-hidden="true" />
@@ -344,8 +352,8 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
           {data.cards.map((card, i) => (
             <li key={i} className="border-t border-ink/15 pt-6" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
               <CardShell card={card} className="block">
-                <span className="font-display text-sm font-semibold tracking-[0.2em] text-brand-red">{pad2(i + 1)}</span>
-                <h3 className="mt-3 font-display text-xl font-bold text-ink">{card.title}</h3>
+                <span className="font-display text-sm font-medium tracking-[0.2em] text-brand-red">{pad2(i + 1)}</span>
+                <h3 className="mt-3 font-display text-xl font-normal text-ink">{card.title}</h3>
                 {card.text && <p className="mt-3 leading-relaxed text-neutral-600">{card.text}</p>}
               </CardShell>
             </li>
@@ -369,7 +377,7 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
             const dark = i % 2 === 1
             return (
               <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`rounded-4xl p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'border border-line bg-white'}`}>
-                <h3 className={`font-display text-display-md font-bold ${dark ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
+                <h3 className={`font-display text-display-md font-normal ${dark ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
                 <ul className="mt-7 space-y-4">
                   {col.items.map((item, j) => (
                     <li key={j} className={`flex gap-3 ${dark ? 'text-white/80' : 'text-neutral-700'}`}>
@@ -391,20 +399,63 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
   )
 }
 
-export function StepsSection({ data }: { data: SectionData<'steps'> }) {
+export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: PageContext }) {
   const id = `steps-${slug(data.heading)}`
-  const cols = data.steps.length === 4 ? 'lg:grid-cols-4' : data.steps.length >= 5 ? 'lg:grid-cols-3' : 'lg:grid-cols-3'
+  const n = data.steps.length
+  // Pinned story sirf home par aur 3-6 steps ke liye. Baaki pages par steps seedhi list rehti hain (hairline scroll se bharti hai).
+  if (ctx.kind === 'home' && n >= 3 && n <= 6) {
+    return (
+      <section data-story className="relative isolate bg-ink text-white" aria-labelledby={id}>
+        <div data-story-pin className="relative flex items-center py-20 lg:min-h-screen lg:py-0 lg:pb-10 lg:pt-28">
+          <div className="container-wide grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
+            <div className="lg:col-span-6 xl:col-span-5">
+              <SectionHeader eyebrow="How it works" heading={data.heading} intro={data.intro} light compact id={id} />
+              <ol className="mt-9 space-y-6">
+                {data.steps.map((step, i) => (
+                  <li key={i} data-story-step className="grid grid-cols-[auto_1fr] gap-x-5">
+                    <span className="pt-1 font-display text-sm font-medium tracking-[0.2em] text-brand-red-light">{pad2(i + 1)}</span>
+                    <div>
+                      <h3 className="font-display text-[clamp(1.35rem,1.1rem+0.9vw,1.85rem)] font-normal leading-tight text-white">{step.title}</h3>
+                      {step.text && <p className="mt-2 max-w-md leading-relaxed text-white/70">{step.text}</p>}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-10 flex items-center gap-5" aria-hidden="true">
+                <div className="h-px flex-1 bg-white/15"><div data-story-progress className="h-px origin-left bg-brand-red" /></div>
+                <span data-story-count className="font-display text-sm tabular-nums text-white/60">01 / {pad2(n)}</span>
+              </div>
+            </div>
+            <div className="hidden lg:col-span-6 lg:block xl:col-span-7" aria-hidden="true">
+              <div className="photo-frame relative mx-auto aspect-[4/5] max-h-[76vh] w-full max-w-xl bg-ink">
+                {data.steps.map((_, i) => (
+                  <div key={i} data-story-photo className="absolute inset-0" style={i === 0 ? undefined : { clipPath: 'inset(100% 0% 0% 0%)' }}>
+                    <CmsImage src={PROCESS_PHOTOS[i % PROCESS_PHOTOS.length].src} decorative sizes="(min-width: 1024px) 40vw, 0px" className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        {data.buttons.length > 0 && (
+          <div className="container-wide pb-20 pt-2 lg:pb-24">
+            <CmsButtons buttons={data.buttons} onDark className="mt-0" />
+          </div>
+        )}
+      </section>
+    )
+  }
+  const cols = n === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
   return (
     <section className={`relative isolate overflow-hidden bg-ink text-white ${pad}`} aria-labelledby={id}>
-      <div className="pointer-events-none absolute -left-40 bottom-0 -z-10 h-[30rem] w-[30rem] rounded-full bg-brand-blue/20 blur-3xl" aria-hidden="true" />
       <div className="container-wide">
         <SectionHeader heading={data.heading} intro={data.intro} light id={id} />
         <ol className={`mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 ${cols}`}>
           {data.steps.map((step, i) => (
             <li key={i} className="relative border-t border-white/15 pt-7" data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
-              <span className="absolute -top-px left-0 h-px w-12 bg-brand-red" aria-hidden="true" />
-              <span className="font-display text-sm font-semibold tracking-[0.2em] text-brand-red-light">Step {pad2(i + 1)}</span>
-              <h3 className="mt-3 font-display text-xl font-bold text-white">{step.title}</h3>
+              <span data-step-line className="absolute -top-px left-0 h-px w-full origin-left bg-brand-red" style={{ transform: 'scaleX(0.16)' }} aria-hidden="true" />
+              <span className="font-display text-sm font-medium tracking-[0.2em] text-brand-red-light">Step {pad2(i + 1)}</span>
+              <h3 className="mt-3 font-display text-xl font-medium text-white">{step.title}</h3>
               {step.text && <p className="mt-3 leading-relaxed text-white/70">{step.text}</p>}
             </li>
           ))}
@@ -427,7 +478,7 @@ export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Ton
         <div className="border-t border-line lg:col-span-8" data-reveal>
           {data.items.map((item, i) => (
             <details key={i} className="faq-item group border-b border-line">
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left font-display text-lg font-semibold text-ink transition-colors hover:text-brand-red sm:text-xl [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left font-display text-lg font-medium text-ink transition-colors hover:text-brand-red sm:text-xl [&::-webkit-details-marker]:hidden">
                 {item.question}
                 <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-line transition-all duration-300 ease-out-expo group-open:rotate-45 group-open:border-brand-red group-open:bg-brand-red group-open:text-white" aria-hidden="true">
                   <Plus className="h-4 w-4" />
@@ -456,14 +507,14 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
     return (
       <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={id}>
         <div className="absolute inset-0 -z-20 opacity-40">
-          <div className="absolute inset-0 parallax-y">
+          <div data-parallax="7" className="absolute inset-0">
             <CmsImage src={photo.src} decorative sizes="100vw" className="object-cover" />
           </div>
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/80 via-ink/70 to-ink" aria-hidden="true" />
         <div className="container-wide py-24 text-center sm:py-28 lg:py-36">
           <div className="mx-auto max-w-3xl" data-reveal>
-            <h2 id={id} className="font-display text-display-xl font-bold">{data.heading}</h2>
+            <h2 id={id} data-lines className="font-display text-display-xl font-normal">{data.heading}</h2>
             {data.text && (
               <div className="mx-auto mt-6 max-w-2xl space-y-3 text-lead text-white/75">
                 {data.text.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
@@ -480,7 +531,7 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
       <div className="container-wide">
         <div className="flex flex-col gap-8 rounded-4xl border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
           <div className="max-w-2xl">
-            <h2 id={id} className="font-display text-display-lg font-bold text-ink">{data.heading}</h2>
+            <h2 id={id} className="font-display text-display-lg font-normal text-ink">{data.heading}</h2>
             {data.text && (
               <div className="mt-4 space-y-2 text-lead text-neutral-600">
                 {data.text.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
@@ -502,7 +553,7 @@ function LinkRows({ links }: { links: { label: string; href: string }[] }) {
       {links.map((l, i) => (
         <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
           <SmartLink href={l.href} className="group flex items-center justify-between gap-6 py-5">
-            <span className="font-display text-lg font-semibold text-ink transition-colors group-hover:text-brand-red sm:text-xl">{l.label}</span>
+            <span className="font-display text-lg font-medium text-ink transition-colors group-hover:text-brand-red sm:text-xl">{l.label}</span>
             <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-line transition-all duration-300 ease-out-expo group-hover:border-brand-red group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
               <ArrowRight className="h-4 w-4" />
             </span>
@@ -525,11 +576,34 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
             <SectionHeader heading={data.heading} id={id} />
             <div className="mt-10"><LinkRows links={data.links} /></div>
           </div>
-          <div className="lg:col-span-6" data-reveal="scale">
-            <div className="photo-frame aspect-[4/3] lg:aspect-[4/5]">
-              <div className="absolute inset-0 parallax-y">
+          <div className="lg:col-span-6">
+            <div data-clip className="photo-frame aspect-[4/3] lg:aspect-[4/5]">
+              <div data-parallax="6" className="absolute inset-0">
                 <CmsImage src={ctx.cityPhoto.src} alt={ctx.cityPhoto.alt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
               </div>
+            </div>
+          </div>
+        </div>
+      </Band>
+    )
+  }
+  // Service index: 3+ links jinki photo maujood hai -> hover/focus par photo crossfade (sirf CSS).
+  const photos = data.links.map((l) => SERVICE_PHOTOS[l.href])
+  if (photos.filter(Boolean).length >= 3 && data.links.length <= 10) {
+    return (
+      <Band tone={tone} labelledBy={id} className="!py-16 sm:!py-20">
+        <div className="svc-index container-wide grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-7">
+            <SectionHeader heading={data.heading} id={id} />
+            <div className="mt-8"><LinkRows links={data.links} /></div>
+          </div>
+          <div className="hidden lg:col-span-5 lg:block" aria-hidden="true">
+            <div className="photo-frame sticky top-32 aspect-[4/5] w-full">
+              {data.links.map((l, i) => (
+                <div key={i} className="svc-photo absolute inset-0">
+                  <CmsImage src={(photos[i] ?? photos.find(Boolean)!).src} decorative sizes="(min-width: 1024px) 38vw, 0px" className="object-cover" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -619,6 +693,24 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
         </dl>
       </div>
     </Band>
+  )
+}
+
+/**
+ * Photo strip: scroll position se chalti hai (GSAP scrub), apne aap nahi. Poori tarah sajawati, isliye
+ * screen readers se chhupi aur alt khaali. Sab photos alag hain.
+ */
+export function PhotoMarquee({ photos = MARQUEE_PHOTOS, direction = 'left' }: { photos?: Photo[]; direction?: 'left' | 'right' }) {
+  return (
+    <section className="overflow-hidden bg-white py-10 sm:py-14" aria-hidden="true">
+      <div data-marquee={direction} className="flex w-max gap-4 will-change-transform sm:gap-6">
+        {photos.map((p, i) => (
+          <div key={i} className={`photo-frame !rounded-3xl aspect-[4/5] w-[58vw] flex-none sm:w-[34vw] lg:w-[22vw] ${i % 2 ? 'translate-y-6 sm:translate-y-10' : ''}`}>
+            <CmsImage src={p.src} decorative sizes="(min-width: 1024px) 22vw, 58vw" className="object-cover" />
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
 

@@ -51,6 +51,7 @@ function HeroForm({ data, onChange, errors }: FormProps) {
       <TextField label="Subtitle" value={str(data.subtitle)} onChange={(subtitle) => set({ subtitle })} max={500} multiline rows={2} />
       <TextField label="Intro text (optional)" value={str(data.intro)} onChange={(intro) => set({ intro })} max={2000} multiline rows={4} hint="Leave a blank line between paragraphs." />
       <ImageField label="Hero image (optional)" value={str(data.image)} onChange={(image) => set({ image })} />
+      {str(data.image) && <TextField label="Hero image description (for screen readers)" value={str(data.imageAlt)} onChange={(imageAlt) => set({ imageAlt })} max={250} hint="Describe what the photo shows. Leave empty to use the built-in description for this photo." />}
       <SelectField label="Alignment" value={str(data.align) || 'left'} onChange={(align) => set({ align })} options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centered' }]} />
       <ButtonsField buttons={list<Btn>(data.buttons)} onChange={(buttons) => set({ buttons })} errors={errors} />
     </div>
@@ -114,18 +115,19 @@ function FeatureCardsForm({ data, onChange, errors }: FormProps) {
       <TextField label="Heading" value={str(data.heading)} onChange={(heading) => set({ heading })} max={180} />
       <TextField label="Intro (optional)" value={str(data.intro)} onChange={(intro) => set({ intro })} max={1000} multiline rows={2} />
       <ListEditor
-        items={list<{ title: string; text: string; href: string; image: string }>(data.cards)}
+        items={list<{ title: string; text: string; href: string; image: string; imageAlt?: string }>(data.cards)}
         onChange={(cards) => set({ cards })}
         max={12}
         itemLabel="Card"
         addLabel="Add card"
-        newItem={() => ({ title: '', text: '', href: '', image: '' })}
+        newItem={() => ({ title: '', text: '', href: '', image: '', imageAlt: '' })}
         render={(c, update, i) => (
           <>
             <TextField label="Title" value={c.title} onChange={(title) => update({ title })} max={120} error={errors[`cards.${i}.title`]} />
             <TextField label="Text" value={c.text} onChange={(text) => update({ text })} max={600} multiline rows={2} />
             <TextField label="Links to (optional)" value={c.href} onChange={(href) => update({ href })} error={errors[`cards.${i}.href`]} />
             <ImageField label="Image (optional)" value={c.image} onChange={(image) => update({ image })} />
+            {c.image && <TextField label="Image description (for screen readers)" value={c.imageAlt ?? ''} onChange={(imageAlt) => update({ imageAlt })} max={250} hint="Leave empty if the photo is only decoration." />}
           </>
         )}
       />

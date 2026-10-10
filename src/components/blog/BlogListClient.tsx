@@ -45,8 +45,8 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
     <div>
       {/* Cinematic Blog Hero */}
       <PageHero
-        imageSrc="/art/hero-plumbing.svg"
-        imageAlt="PipeFlow plumbing and HVAC research station with notebook, tools, and Denver skyline backdrop"
+        imageSrc="/images/photos/plumbing-tools.jpg"
+        imageAlt=""
         eyebrow="PipeFlow Resources"
         eyebrowIcon={BookOpen}
         title="Plumbing & HVAC insights for your Colorado home."
@@ -59,7 +59,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
         }}
         secondaryCta={{
           label: 'Find a Local Pro',
-          href: '/book-service',
+          href: '/find-a-pro',
           variant: 'outline',
           icon: Sparkles,
         }}

@@ -82,6 +82,40 @@ describe('admin page list', () => {
   })
 })
 
+describe('content comparison (publish check) stays strict after schema normalization', () => {
+  const sec = (heading: string, extra: Record<string, unknown> = {}, id = uuid()) => ({ id, type: 'hero', data: { heading, subtitle: 'Sub', buttons: [{ label: 'Go', href: '/book-service', variant: 'primary' }], ...extra } })
+  const base = [sec('Water heater repair'), { id: uuid(), type: 'faq', data: { heading: 'FAQ', items: [{ question: 'Q?', answer: 'A.' }] } }]
+  const copyOf = (sections: typeof base) => sectionsSchema.parse(sections).map((s) => ({ ...s, id: uuid() }))
+
+  it('a copy that only gained schema defaults and new section ids is identical', () => {
+    expect(contentKey(copyOf(base))).toBe(contentKey(base))
+  })
+  it.each([
+    ['one changed word in the heading', (s: typeof base) => [sec('Water heater repairs'), s[1]]],
+    ['a different subtitle', (s: typeof base) => [sec('Water heater repair', { subtitle: 'Other' }), s[1]]],
+    ['a changed button link', (s: typeof base) => [sec('Water heater repair', { buttons: [{ label: 'Go', href: '/contact', variant: 'primary' }] }), s[1]]],
+    ['a changed button label', (s: typeof base) => [sec('Water heater repair', { buttons: [{ label: 'Start', href: '/book-service', variant: 'primary' }] }), s[1]]],
+    ['a written image description', (s: typeof base) => [sec('Water heater repair', { imageAlt: 'A tank heater' }), s[1]]],
+    ['sections in a different order', (s: typeof base) => [s[1], s[0]]],
+    ['a removed section', (s: typeof base) => [s[0]]],
+    ['an added section', (s: typeof base) => [...s, sec('Extra')]],
+    ['a changed FAQ answer', (s: typeof base) => [s[0], { id: uuid(), type: 'faq', data: { heading: 'FAQ', items: [{ question: 'Q?', answer: 'B.' }] } }]],
+  ])('detects %s', (_name, change) => {
+    expect(contentKey(change(base) as never)).not.toBe(contentKey(base))
+  })
+  it('is not fooled by key order, and ignores nothing a visitor can see', () => {
+    const a = [{ id: 'x', type: 'hero', data: { heading: 'H', subtitle: 'S' } }]
+    const b = [{ type: 'hero', id: 'y', data: { subtitle: 'S', heading: 'H' } }]
+    expect(contentKey(a)).toBe(contentKey(b))
+  })
+  it('falls back to comparing the raw data when a section does not validate, instead of treating everything as equal', () => {
+    const broken = [{ id: 'a', type: 'hero', data: { heading: '' } }]
+    const other = [{ id: 'b', type: 'hero', data: { heading: '', note: 'different' } }]
+    expect(contentKey(broken)).not.toBe(contentKey(other))
+    expect(contentKey(broken)).not.toBe('')
+  })
+})
+
 describe('publish checks', () => {
   const hero = (heading: string, id = crypto.randomUUID()) => ({ id, type: 'hero', data: { heading, buttons: [{ label: 'Go', href: '/book-service', variant: 'primary' }] } })
   const liveSections = [hero('Water Heater Repair'), hero('FAQ')]

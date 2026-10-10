@@ -104,7 +104,7 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
                   <Link
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
-                    className={cn('flex items-center justify-between py-4 font-display text-xl font-semibold', isActive ? 'text-brand-red' : 'text-ink')}
+                    className={cn('flex items-center justify-between py-4 font-display text-xl font-medium', isActive ? 'text-brand-red' : 'text-ink')}
                   >
                     {item.label}
                     <ArrowRight className="h-4 w-4 opacity-40" aria-hidden="true" />

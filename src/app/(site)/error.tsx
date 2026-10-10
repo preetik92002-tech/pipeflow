@@ -21,7 +21,7 @@ export default function GlobalError({
       <div className="container-wide py-24 sm:py-32 lg:py-40">
         <div className="max-w-3xl" role="alert">
           <p className="eyebrow">Something went wrong</p>
-          <h1 className="mt-5 font-display text-display-xl font-bold text-ink">We couldn&apos;t load this page.</h1>
+          <h1 className="mt-5 font-display text-display-xl font-normal text-ink">We couldn&apos;t load this page.</h1>
           <p className="mt-6 max-w-xl text-lead text-neutral-700">
             Please try again. If the problem continues you can still send a service request and we&apos;ll take it from there.
           </p>

@@ -2,7 +2,7 @@ import type { Section, SectionData } from '@/lib/cms-pages/sections/schema'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import {
   HeroSection, RichTextSection, ContentBlockSection, ContentBlockGroup, GallerySection, FeatureCardsSection, ComparisonSection,
-  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection,
+  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, PhotoMarquee,
   type PageContext, type Tone,
 } from './sections'
 
@@ -46,7 +46,7 @@ function renderSection(section: Section, index: number, tone: Tone, ctx: PageCon
     case 'gallery': return <GallerySection data={section.data} tone={tone} />
     case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} />
     case 'comparison': return <ComparisonSection data={section.data} tone={tone} />
-    case 'steps': return <StepsSection data={section.data} />
+    case 'steps': return <StepsSection data={section.data} ctx={ctx} />
     case 'faq': return <FaqSection data={section.data} tone={tone} />
     case 'cta': return <CtaSection data={section.data} tone={tone} />
     case 'testimonials': return <TestimonialsSection data={section.data} tone={tone} />
@@ -70,13 +70,22 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
   }
   // Split hero paper par hota hai, isliye uske baad pehla light section white se shuru.
   let light = 0
+  let marqueeShown = false
   const nextTone = (): Tone => (light++ % 2 === 0 ? 'white' : 'paper')
   return (
     <>
       {layoutSections(valid).map((item) => {
         if (item.kind === 'group') return <div key={item.id}><ContentBlockGroup blocks={item.blocks} tone={nextTone()} /></div>
         const tone = isDark(item.section) ? 'white' : nextTone()
-        return <div key={item.section.id}>{renderSection(item.section, item.index, tone, ctx)}</div>
+        // Home par pehli photo-tiles wali section ke baad photo strip: ek hi scroll-journey ka hissa, naya content nahi.
+        const marqueeAfter = ctx.kind === 'home' && item.section.type === 'featureCards' && !marqueeShown && item.section.data.cards.some((c) => c.image)
+        if (marqueeAfter) marqueeShown = true
+        return (
+          <div key={item.section.id}>
+            {renderSection(item.section, item.index, tone, ctx)}
+            {marqueeAfter && <PhotoMarquee />}
+          </div>
+        )
       })}
     </>
   )

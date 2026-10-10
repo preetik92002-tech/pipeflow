@@ -17,6 +17,8 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
 import { duplicatePage, listPages, listPagesPage, saveDraft, CmsError } from '@/lib/cms-pages/repository'
 import { GET as listRoute } from '@/app/api/admin/pages/route'
+import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
+import { contentKey } from '@/lib/cms-pages/publish-checks'
 import { POST as publishRoute } from '@/app/api/admin/pages/[id]/publish/route'
 import { POST as duplicateRoute } from '@/app/api/admin/pages/[id]/duplicate/route'
 
@@ -84,10 +86,16 @@ describe('duplicating a page', () => {
     const [a, b] = [await draft(id), await draft(copy)]
     expect(a.sections).toHaveLength(2)
     expect(b.sections).toHaveLength(2)
-    b.sections.forEach((s, i) => {
-      expect(s.id).not.toBe(a.sections[i].id)
-      expect({ ...s, id: '' }).toEqual({ ...a.sections[i], id: '' })
-    })
+    // Copy schema se guzarkar bani hai (naye fields ke defaults ke saath), isliye dono ko normalise karke compare.
+    const norm = (sections: unknown) => sectionsSchema.parse(sections).map((s) => ({ ...s, id: '' }))
+    b.sections.forEach((s, i) => expect(s.id).not.toBe(a.sections[i].id))
+    expect(norm(b.sections)).toEqual(norm(a.sections))
+  })
+
+  it('treats a copy as identical to its original even when the schema has gained fields since the original was saved', () => {
+    const original = [{ id: crypto.randomUUID(), type: 'hero', data: { heading: 'H', buttons: [] } }]
+    const copy = sectionsSchema.parse(original).map((s) => ({ ...s, id: crypto.randomUUID() }))
+    expect(contentKey(copy)).toBe(contentKey(original))
   })
 
   it('hides the copy from search engines and clears its SEO fields', async () => {

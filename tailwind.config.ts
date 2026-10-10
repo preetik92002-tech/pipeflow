@@ -33,9 +33,9 @@ const config: Config = {
       },
       fontSize: {
         // Fluid display scale: badi screens par bade, mobile par bina tootey headings.
-        'display-2xl': ['clamp(2.6rem, 1.4rem + 4.6vw, 5.4rem)', { lineHeight: '1.02', letterSpacing: '-0.035em' }],
-        'display-xl': ['clamp(2.2rem, 1.3rem + 3.2vw, 4rem)', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
-        'display-lg': ['clamp(1.85rem, 1.25rem + 2.1vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
+        'display-2xl': ['clamp(2.6rem, 1.3rem + 5vw, 6rem)', { lineHeight: '1.0', letterSpacing: '-0.025em' }],
+        'display-xl': ['clamp(2.2rem, 1.3rem + 3.2vw, 4.2rem)', { lineHeight: '1.04', letterSpacing: '-0.022em' }],
+        'display-lg': ['clamp(1.85rem, 1.25rem + 2.1vw, 3.1rem)', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
         'display-md': ['clamp(1.45rem, 1.15rem + 1.1vw, 2.1rem)', { lineHeight: '1.18', letterSpacing: '-0.02em' }],
         lead: ['clamp(1.075rem, 1rem + 0.35vw, 1.3rem)', { lineHeight: '1.65' }],
       },
@@ -47,7 +47,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-sora)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display, var(--font-sora))', 'var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',

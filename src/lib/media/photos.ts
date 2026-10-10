@@ -78,3 +78,30 @@ export function resolveImage(src: string, alt = ''): { src: string; alt: string;
   if (!photo) return { src, alt }
   return { src: photo.src, alt: alt || photo.alt, focus: photo.focus }
 }
+
+/** Pinned process story: har step ki apni photo (sab alag, koi repeat nahi). Photos sirf sajawat hain; step ka text hi jaankari hai. */
+export const PROCESS_PHOTOS: Photo[] = [PHOTOS.plumberUnderSink, PHOTOS.houseBlossom, PHOTOS.technicianToolBelt, PHOTOS.plumberBathroom]
+
+/** Service index: kis page ke link par hover karne se kaunsi photo dikhe. Key = page ka path. */
+export const SERVICE_PHOTOS: Record<string, Photo> = {
+  '/plumbing/plumbing-repair': PHOTOS.plumberUnderSink,
+  '/plumbing/water-heater-repair': PHOTOS.waterHeater,
+  '/plumbing/water-heater-replacement': PHOTOS.plumberSinkPipes,
+  '/plumbing/frozen-pipe-repair': PHOTOS.faucet,
+  '/plumbing/plumbing-fixes': PHOTOS.plumbingTools,
+  '/hvac/ac-repair': PHOTOS.acCondenser,
+  '/hvac/ac-installation': PHOTOS.miniSplit,
+  '/hvac/ac-replacement': PHOTOS.acUnitsWall,
+  '/hvac/hvac-repair': PHOTOS.technicianEquipment,
+  '/hvac/hvac-maintenance': PHOTOS.technicianToolBelt,
+}
+
+/**
+ * Home page par photo-strip (scroll se chalti): 8 alag photos. Isme woh photos nahi jo isi page par hero, service tiles ya
+ * pinned story mein dikhti hain (khaaskar hero ki photo do screen ke andar dobara na aaye). City photos aur woh photos jo
+ * sirf hover-preview mein aati hain (screen par dikhti nahi) istemaal hui hain.
+ */
+export const MARQUEE_PHOTOS: Photo[] = [
+  PHOTOS.denverAerial, PHOTOS.plumberSinkPipes, PHOTOS.acUnitsWall, PHOTOS.boulderMeadow,
+  PHOTOS.faucet, PHOTOS.denverCityView, PHOTOS.technicianEquipment, PHOTOS.boulderAutumn,
+]

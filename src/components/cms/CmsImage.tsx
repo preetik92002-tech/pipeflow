@@ -30,7 +30,8 @@ export function CmsImage({
   const finalAlt = decorative ? '' : img.alt
   const style = img.focus ? { objectPosition: img.focus } : undefined
   if (OPTIMISED.test(img.src)) {
-    return <Image src={img.src} alt={finalAlt} fill sizes={sizes} priority={priority} className={className} style={style} />
+    // priority = preload + eager; fetchPriority=high alag se dena padta hai (Next 16 ise khud nahi lagata), warna hero photo Low priority par aati thi.
+    return <Image src={img.src} alt={finalAlt} fill sizes={sizes} priority={priority} fetchPriority={priority ? 'high' : undefined} className={className} style={style} />
   }
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={img.src} alt={finalAlt} loading={priority ? 'eager' : 'lazy'} className={`absolute inset-0 h-full w-full ${className ?? ''}`} style={style} />
