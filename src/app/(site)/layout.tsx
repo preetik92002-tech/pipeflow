@@ -8,7 +8,7 @@ import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import { BookingModalProvider } from '@/components/booking/BookingModalProvider'
 import { SiteSettingsProvider } from '@/components/layout/SiteSettingsProvider'
 import { generateMetadata as genMeta, generateLocalBusinessSchema, getPublicSiteSettingsBundle } from '@/lib/seo/metadata'
-import './globals.css'
+import '../globals.css'
 
 const inter = Inter({
   subsets: ['latin'],
