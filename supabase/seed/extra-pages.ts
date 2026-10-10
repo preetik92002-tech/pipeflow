@@ -427,10 +427,43 @@ function cityPage(s: CitySvc, city: 'Denver' | 'Boulder'): SeedPage {
   }
 }
 
+// ---------------------------------------------------------------- company pages
+const about: SeedPage = {
+  path: 'about', title: 'About', description: 'PipeFlow helps homeowners and businesses in Denver and Boulder find qualified local plumbing and HVAC professionals.',
+  seoTitle: 'About PipeFlow | Plumbing & HVAC Professionals in Denver & Boulder', seoDescription: 'PipeFlow helps homeowners and businesses in Denver and Boulder find qualified local plumbing and HVAC professionals.', noindex: true,
+  sections: [
+    hero('A Better Way to Find Plumbing & HVAC Help', 'PipeFlow is a local platform that helps homeowners and businesses in Denver and Boulder find qualified plumbing and HVAC professionals.', [btn('Request Service', REQUEST), btn('Join as a Professional', '/for-contractors', 'secondary')], 'About PipeFlow'),
+    block('What we do', 'Tell Us What You Need. We Help You Find the Right Pro.', doc(para('Customers describe the problem, add photos and choose a time. We match each request with professionals serving Denver or Boulder, so you can arrange the appointment with confidence.'), para('For plumbing and HVAC companies, PipeFlow is a way to build an online presence and connect with customers who are looking for help.'))),
+    cards('How we work', '', [
+      ['Local first', 'We focus on Denver and Boulder, and add new areas only when we can serve them.', ''],
+      ['Clear information', 'Professionals are shown with clear business information and service areas.', ''],
+      ['Credentials checked first', 'We show a credential as verified only after it has actually been checked.', ''],
+      ['Real reviews only', 'We show authentic reviews from customers, never invented ones.', ''],
+    ]),
+    cta(),
+  ],
+}
+const contact: SeedPage = {
+  path: 'contact', title: 'Contact', description: 'Contact PipeFlow about plumbing and HVAC service in Denver and Boulder.',
+  seoTitle: 'Contact PipeFlow | Denver & Boulder', seoDescription: 'Request plumbing or HVAC service in Denver or Boulder, or get in touch with the PipeFlow team.', noindex: true,
+  sections: [
+    hero('Contact PipeFlow', 'The fastest way to get help is to send a service request. For anything else, use the details below.', [btn('Request Service', REQUEST)], 'Denver & Boulder'),
+    { type: 'contactInfo', data: { heading: 'Get in touch', phone: '', email: '', address: '', hours: '' } },
+    cta('Looking for Plumbing or HVAC Help?', 'Tell us what you need and find a local professional serving Denver or Boulder.'),
+  ],
+}
+const legalDraft = (path: string, title: string): SeedPage => ({
+  path, title, description: `${title} for PipeFlow.`, seoTitle: `${title} | PipeFlow`, seoDescription: `${title} for PipeFlow.`, noindex: true, draft: true,
+  sections: [
+    hero(title, 'DRAFT. Replace this page with your own policy, reviewed by a lawyer, before publishing.', [], ''),
+    block('', `${title} goes here`, doc(para('This page is a placeholder and is not published. Write or paste the policy that applies to your business, have it reviewed, then publish the page and add a link to it in Admin > Navigation.'))),
+  ],
+})
+
 export const serviceSeedPages: SeedPage[] = SERVICES.map(servicePage)
 export const extraSeedPages: SeedPage[] = [
   commercialHub, commercialTrade('plumbing'), commercialTrade('hvac'),
   findAPro, finderCategory('plumbers'), finderCategory('hvac-contractors'),
-  forContractors, resources, ...GUIDES.map(guidePage),
+  forContractors, resources, about, contact, legalDraft('privacy', 'Privacy Policy'), legalDraft('terms', 'Terms of Service'), ...GUIDES.map(guidePage),
   ...CITY_SERVICES.flatMap((s) => (['Denver', 'Boulder'] as const).map((c) => cityPage(s, c))),
 ]

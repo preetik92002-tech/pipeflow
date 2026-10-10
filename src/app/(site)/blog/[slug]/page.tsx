@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
+import { hasRealPhone } from '@/lib/config/contact'
 import Link from 'next/link'
 import {
   Calendar,
@@ -272,24 +273,24 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="mt-12 rounded-3xl bg-neutral-900 text-white p-8 shadow-xl relative overflow-hidden">
           <div className="relative z-10">
             <span className="text-xs font-bold uppercase tracking-wider text-brand-blue-lighter">
-              Denver &amp; Surrounding Colorado Route Dispatch
+              Denver &amp; Boulder
             </span>
             <h3 className="text-2xl font-display font-bold text-white mt-1 mb-2">
               Need Professional Assistance With This Issue?
             </h3>
             <p className="text-sm text-neutral-300 leading-relaxed mb-6 max-w-xl">
-              PipeFlow Co. provides licensed technicians equipped with modern diagnostic tools to
-              resolve your plumbing and HVAC problems quickly with transparent upfront quotes.
+              Tell us what you need, add photos and we will help you find a local professional serving Denver or Boulder.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/book-service" className="btn-primary !py-3 !px-6 text-xs">
                 <CalendarDays className="h-4 w-4" />
-                Book An On-Time Visit
+                Request Service
               </Link>
               <Link href="/book-service" className="btn-outline !text-white !border-white/30 text-xs !py-3 !px-5">
                 <FileText className="h-4 w-4" />
-                Request Upfront Quote
+                Find a Local Pro
               </Link>
+              {hasRealPhone(company.phone || siteConfig.company.phone) && (
               <a
                 href={`tel:${company.phone || siteConfig.company.phone}`}
                 className="inline-flex items-center gap-2 text-xs font-bold text-white/90 hover:text-white px-3 py-3"
@@ -297,6 +298,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <Phone className="h-4 w-4 text-brand-red" />
                 Call: {company.phone || siteConfig.company.phone}
               </a>
+              )}
             </div>
           </div>
         </div>

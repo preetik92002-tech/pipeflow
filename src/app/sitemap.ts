@@ -20,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly' as const,
         priority: p.path === '' ? 1 : p.path.includes('/') ? 0.8 : 0.9,
       })),
-    ...['/book-service', '/about', '/blog', '/contact', '/join-us'].map((path) => ({ url: `${baseUrl}${path}`, changeFrequency: 'monthly' as const, priority: 0.6 })),
+    ...['/book-service', '/blog', '/join-us'].map((path) => ({ url: `${baseUrl}${path}`, changeFrequency: 'monthly' as const, priority: 0.6 })),
     ...blogs.filter((blog) => !blog.noindex).map((blog) => ({ url: `${baseUrl}/blog/${blog.slug}`, lastModified: new Date(blog.updated_at), changeFrequency: 'monthly' as const, priority: 0.7 })),
   ]
 }

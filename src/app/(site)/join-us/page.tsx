@@ -1,228 +1,80 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
-import {
-  HardHat,
-  DollarSign,
-  Calendar,
-  ShieldCheck,
-  Award,
-  CheckCircle2,
-  Briefcase,
-  Phone,
-} from 'lucide-react'
+import { BarChart3, BadgeCheck, ClipboardList, Inbox, MapPin, Star, UserRound, Wrench } from 'lucide-react'
 import { ProApplicationForm } from '@/components/pro/ProApplicationForm'
 import { Accordion } from '@/components/ui/Accordion'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
-import { PageHero } from '@/components/sections/PageHero'
 
-export async function generateMetadata(): Promise<Metadata> { return genMeta({
-  title: 'Grow Your Business With PipeFlow — Pro Trade Partner Network',
-  description:
-    'Join PipeFlow Co. as a licensed plumber, HVAC technician, or independent service contractor in Denver, Colorado. Steady residential dispatch, weekly payouts, and top support.',
-  path: '/join-us',
-}) }
+export async function generateMetadata(): Promise<Metadata> {
+  return genMeta({
+    title: 'Join as a Plumbing or HVAC Professional in Denver & Boulder',
+    description: 'Create your professional profile, showcase your services and service areas, and connect with customers looking for plumbing and HVAC help in Denver and Boulder.',
+    path: '/join-us',
+  })
+}
+
+const benefits = [
+  { icon: UserRound, title: 'Create Your Professional Profile', text: 'Present your company clearly to customers.' },
+  { icon: Wrench, title: 'Showcase Your Services', text: 'List the plumbing and HVAC work you do.' },
+  { icon: MapPin, title: 'Promote Your Service Areas', text: 'Tell customers in Denver and Boulder where you work.' },
+  { icon: BadgeCheck, title: 'Display Verified Credentials', text: 'Licences and insurance are shown as verified once they have been checked.' },
+  { icon: Inbox, title: 'Receive Customer Leads', text: 'Get service requests from customers in your area.' },
+  { icon: ClipboardList, title: 'Manage Leads and Requests', text: 'Keep track of the requests you receive.' },
+  { icon: Star, title: 'Collect Customer Reviews', text: 'Build a reputation with authentic reviews.' },
+  { icon: BarChart3, title: 'Track Performance', text: 'See how your profile and leads are doing.' },
+]
 
 const proFaqs = [
-  {
-    id: 'pro-faq-1',
-    question: 'What licensing is required to partner with PipeFlow?',
-    answer:
-      'Plumbers must hold a valid Colorado Journeyman or Master Plumbing License. HVAC technicians must hold EPA Universal certification and relevant municipal mechanical certifications.',
-  },
-  {
-    id: 'pro-faq-2',
-    question: 'How does dispatch scheduling work for trade contractors?',
-    answer:
-      'You define your service routes and available days. Our dispatch desk sends pre-qualified, vetted residential service calls directly into your territory.',
-  },
-  {
-    id: 'pro-faq-3',
-    question: 'What are the payout terms?',
-    answer:
-      'We operate transparent, weekly electronic payouts for completed jobs. Full compensation breakdown is provided before onboarding.',
-  },
-  {
-    id: 'pro-faq-4',
-    question: 'Do I need my own truck and hand tools?',
-    answer:
-      'Independent contractors should possess a reliable vehicle and primary field tools. PipeFlow provides diagnostic software, dispatch tech, and access to commercial equipment support.',
-  },
+  { id: 'pro-faq-1', question: 'Who can apply?', answer: 'Plumbing and HVAC companies and independent professionals who serve Denver or Boulder, Colorado.' },
+  { id: 'pro-faq-2', question: 'What do you ask for?', answer: 'Your company details, the services you offer, the areas you serve, and your licence and insurance information so it can be checked.' },
+  { id: 'pro-faq-3', question: 'When are credentials shown as verified?', answer: 'Only after the information has actually been checked. We never display a verification badge that has not been earned.' },
+  { id: 'pro-faq-4', question: 'What happens after I apply?', answer: 'We review your application and contact you about the next steps. Terms, pricing and how leads work are discussed with you before anything starts.' },
 ]
 
 export default function JoinUsPage() {
   return (
-    <div className="bg-white min-h-screen">
-      {/* Cinematic Hero */}
-      <PageHero
-        imageSrc="/art/hero-hvac.svg"
-        imageAlt="Master trade technician carrying manifold gauges overlooking Colorado skyline"
-        eyebrow="Contractor &amp; Trade Careers"
-        eyebrowIcon={HardHat}
-        title="Grow your trade business with PipeFlow."
-        description="Whether you are an independent licensed master looking for steady Front Range dispatch, or an experienced technician seeking an organization that respects the trades—partner with PipeFlow Co."
-        primaryCta={{
-          label: 'Apply to Join Network',
-          href: '#application-form',
-          variant: 'red',
-          icon: Briefcase,
-        }}
-        secondaryCta={{
-          label: 'Call Contractor Relations',
-          href: 'tel:(720)555-0100',
-          variant: 'outline',
-          icon: Phone,
-          isExternal: true,
-        }}
-        badgeText="Weekly Electronic Payouts • Pre-Vetted Colorado Residential Calls"
-      />
-
-      {/* Visual & Core Value Proposition Section */}
-      <section className="section-padding bg-neutral-50 border-b border-neutral-200">
-        <div className="container-site">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16">
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] shadow-xl border border-neutral-200">
-                <Image
-                  src="/art/home-pro.svg"
-                  alt="PipeFlow technician working with high quality gloves and tools in Colorado"
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                />
-              </div>
-            </div>
-
-            <div className="lg:col-span-7 space-y-4">
-              <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">
-                Contractor First Ecosystem
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-display font-bold text-navy-900 leading-tight">
-                Spend Less Time Chasing Invoices &amp; More Time Doing Quality Work
-              </h2>
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                We handle digital marketing, upfront customer qualification, address verification, and
-                billing logistics. You focus on top-tier mechanical diagnostics, clean installations, and code compliance.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-bold text-xs text-navy-900">Pre-Qualified Homeowners</h3>
-                    <p className="text-2xs text-neutral-500 mt-0.5">
-                      No cold leads or unvetted addresses. Every job has verified requirements.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-bold text-xs text-navy-900">Weekly Guaranteed Payouts</h3>
-                    <p className="text-2xs text-neutral-500 mt-0.5">
-                      Direct deposit settlements every single Friday for verified jobs completed.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-bold text-xs text-navy-900">Dispatch Mobile Tools</h3>
-                    <p className="text-2xs text-neutral-500 mt-0.5">
-                      Simple mobile job acceptance, navigation, customer notes, and photo uploads.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-bold text-xs text-navy-900">Territory Autonomy</h3>
-                    <p className="text-2xs text-neutral-500 mt-0.5">
-                      Set your radius. Choose your days. Maintain full command of your schedule.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Core Benefit Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
-                <DollarSign className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-navy-900 text-sm">Competitive Rates</h3>
-              <p className="text-2xs text-neutral-600 mt-1">
-                Transparent flat-rate compensation models with performance bonuses.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-navy-900 text-sm">Consistent Volume</h3>
-              <p className="text-2xs text-neutral-600 mt-1">
-                Year-round residential plumbing &amp; HVAC demand across Front Range ZIP codes.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-navy-900 text-sm">Dispute Protection</h3>
-              <p className="text-2xs text-neutral-600 mt-1">
-                PipeFlow supports our mechanics with dedicated customer dispute management.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center mb-3">
-                <Award className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-navy-900 text-sm">Master Recognition</h3>
-              <p className="text-2xs text-neutral-600 mt-1">
-                Top-rated contractors receive priority dispatch for high-value installations.
-              </p>
-            </div>
+    <div className="min-h-screen bg-white">
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-600 text-white">
+        <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden="true" />
+        <div className="container-site py-16 sm:py-20">
+          <div className="max-w-3xl">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-100">For plumbing &amp; HVAC professionals</p>
+            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Grow Your Plumbing or HVAC Business in Denver &amp; Boulder</h1>
+            <p className="mt-5 text-lg leading-relaxed text-neutral-200">Build a professional online presence and connect with customers actively looking for plumbing and HVAC services.</p>
+            <a href="#application-form" className="btn-primary mt-8 !px-6 !py-3">Create Your Professional Profile</a>
           </div>
         </div>
       </section>
 
-      {/* Contractor Application Form Section */}
-      <section id="application-form" className="section-padding container-site scroll-mt-12">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold font-display text-navy-900">
-              Apply to Join the PipeFlow Network
-            </h2>
-            <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-              Submit your credentials below. Our contractor onboarding desk reviews applications within 2 business days.
-            </p>
-          </div>
+      <section className="border-b border-neutral-200 bg-neutral-50 py-14">
+        <div className="container-site">
+          <h2 className="font-display text-2xl font-bold text-navy-800 sm:text-3xl">What You Get</h2>
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {benefits.map(({ icon: Icon, title, text }) => (
+              <li key={title} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-brand-blue"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+                <h3 className="font-display text-base font-semibold text-navy-800">{title}</h3>
+                <p className="mt-1 text-sm text-neutral-600">{text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-          <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-10 shadow-lg">
+      <section id="application-form" className="container-site scroll-mt-12 py-14">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-8 text-center">
+            <h2 className="font-display text-3xl font-bold text-navy-800">Create Your Professional Profile</h2>
+            <p className="mt-2 text-sm text-neutral-500">Tell us about your company. We review every application.</p>
+          </div>
+          <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-lg sm:p-10">
             <ProApplicationForm />
           </div>
         </div>
       </section>
 
-      {/* Pro FAQs Section */}
-      <section className="section-padding bg-neutral-50 border-t border-neutral-200">
+      <section className="border-t border-neutral-200 bg-neutral-50 py-14">
         <div className="container-site max-w-4xl">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold font-display text-navy-900">
-              Frequently Asked Questions for Contractors
-            </h2>
-            <p className="text-xs text-neutral-500 mt-1">
-              Common questions about licensing, territories, insurance, and onboarding.
-            </p>
-          </div>
-
+          <h2 className="mb-8 text-center font-display text-2xl font-bold text-navy-800 sm:text-3xl">Questions From Professionals</h2>
           <Accordion items={proFaqs} />
         </div>
       </section>

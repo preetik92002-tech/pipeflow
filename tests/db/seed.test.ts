@@ -11,7 +11,7 @@ const dir = path.join(__dirname, '../../supabase/migrations')
 const read = (f: string) => readFileSync(path.join(dir, f), 'utf8')
 
 // Routes that exist in the app outside the CMS and may be linked to.
-const STATIC_ROUTES = ['/book-service', '/join-us', '/contact', '/about', '/blog']
+const STATIC_ROUTES = ['/book-service', '/join-us', '/blog']
 
 function allHrefs(value: unknown, out: string[] = []): string[] {
   if (Array.isArray(value)) value.forEach((v) => allHrefs(v, out))

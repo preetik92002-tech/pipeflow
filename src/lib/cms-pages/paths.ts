@@ -17,8 +17,6 @@ export const RESERVED_SEGMENTS = [
   'book-service',
   'get-a-quote',
   'join-us',
-  'contact',
-  'about',
 ] as const
 
 const SEGMENT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/

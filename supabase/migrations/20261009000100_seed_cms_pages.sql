@@ -489,6 +489,88 @@ END $$;
 DO $$
 DECLARE v_id UUID;
 BEGIN
+  IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE path = $cms_seed$about$cms_seed$ AND deleted_at IS NULL) THEN
+    v_id := cms_create_page(
+      $cms_seed$About$cms_seed$,
+      $cms_seed$about$cms_seed$,
+      $cms_seed$PipeFlow helps homeowners and businesses in Denver and Boulder find qualified local plumbing and HVAC professionals.$cms_seed$,
+      $cms_seed$[{"id":"ec37fbee-f5b3-43d9-8451-e3d17dcbadf8","type":"hero","data":{"eyebrow":"About PipeFlow","heading":"A Better Way to Find Plumbing & HVAC Help","subtitle":"PipeFlow is a local platform that helps homeowners and businesses in Denver and Boulder find qualified plumbing and HVAC professionals.","intro":"","image":"","buttons":[{"label":"Request Service","href":"/book-service","variant":"primary"},{"label":"Join as a Professional","href":"/for-contractors","variant":"secondary"}],"align":"left"}},{"id":"93f4173e-9d3f-4cc7-8725-29f50cd7f9cb","type":"contentBlock","data":{"label":"What we do","heading":"Tell Us What You Need. We Help You Find the Right Pro.","imagePosition":"none","image":"","imageAlt":"","content":{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Customers describe the problem, add photos and choose a time. We match each request with professionals serving Denver or Boulder, so you can arrange the appointment with confidence."}]},{"type":"paragraph","content":[{"type":"text","text":"For plumbing and HVAC companies, PipeFlow is a way to build an online presence and connect with customers who are looking for help."}]}]},"button":null}},{"id":"f448b845-93af-4fca-822c-10f1e5a88cb4","type":"featureCards","data":{"heading":"How we work","intro":"","cards":[{"title":"Local first","text":"We focus on Denver and Boulder, and add new areas only when we can serve them.","href":"","image":""},{"title":"Clear information","text":"Professionals are shown with clear business information and service areas.","href":"","image":""},{"title":"Credentials checked first","text":"We show a credential as verified only after it has actually been checked.","href":"","image":""},{"title":"Real reviews only","text":"We show authentic reviews from customers, never invented ones.","href":"","image":""}]}},{"id":"67fa8500-ec4d-44c0-8c50-b8c1cb3e12b5","type":"cta","data":{"heading":"Need a Plumbing or HVAC Professional?","text":"Tell us what you need and find a local professional serving Denver or Boulder.","buttons":[{"label":"Request Service","href":"/book-service","variant":"primary"}],"tone":"dark"}}]$cms_seed$::jsonb,
+      $cms_seed$About PipeFlow | Plumbing & HVAC Professionals in Denver & Boulder$cms_seed$,
+      $cms_seed$PipeFlow helps homeowners and businesses in Denver and Boulder find qualified local plumbing and HVAC professionals.$cms_seed$,
+      NULL,
+      NULL,
+      true,
+      false,
+      NULL
+    );
+    PERFORM cms_publish(v_id, 1, NULL);
+  END IF;
+END $$;
+
+DO $$
+DECLARE v_id UUID;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE path = $cms_seed$contact$cms_seed$ AND deleted_at IS NULL) THEN
+    v_id := cms_create_page(
+      $cms_seed$Contact$cms_seed$,
+      $cms_seed$contact$cms_seed$,
+      $cms_seed$Contact PipeFlow about plumbing and HVAC service in Denver and Boulder.$cms_seed$,
+      $cms_seed$[{"id":"75eb749d-a25d-494a-8bcf-b37c20e44340","type":"hero","data":{"eyebrow":"Denver & Boulder","heading":"Contact PipeFlow","subtitle":"The fastest way to get help is to send a service request. For anything else, use the details below.","intro":"","image":"","buttons":[{"label":"Request Service","href":"/book-service","variant":"primary"}],"align":"left"}},{"id":"71e1af59-ce4c-4b67-8b76-137d5adf3b79","type":"contactInfo","data":{"heading":"Get in touch","phone":"","email":"","address":"","hours":""}},{"id":"630d3990-44e8-4eac-89bb-45cdd3971223","type":"cta","data":{"heading":"Looking for Plumbing or HVAC Help?","text":"Tell us what you need and find a local professional serving Denver or Boulder.","buttons":[{"label":"Request Service","href":"/book-service","variant":"primary"}],"tone":"dark"}}]$cms_seed$::jsonb,
+      $cms_seed$Contact PipeFlow | Denver & Boulder$cms_seed$,
+      $cms_seed$Request plumbing or HVAC service in Denver or Boulder, or get in touch with the PipeFlow team.$cms_seed$,
+      NULL,
+      NULL,
+      true,
+      false,
+      NULL
+    );
+    PERFORM cms_publish(v_id, 1, NULL);
+  END IF;
+END $$;
+
+DO $$
+DECLARE v_id UUID;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE path = $cms_seed$privacy$cms_seed$ AND deleted_at IS NULL) THEN
+    v_id := cms_create_page(
+      $cms_seed$Privacy Policy$cms_seed$,
+      $cms_seed$privacy$cms_seed$,
+      $cms_seed$Privacy Policy for PipeFlow.$cms_seed$,
+      $cms_seed$[{"id":"086a931f-b88f-46a2-80af-b5863f13f619","type":"hero","data":{"eyebrow":"","heading":"Privacy Policy","subtitle":"DRAFT. Replace this page with your own policy, reviewed by a lawyer, before publishing.","intro":"","image":"","buttons":[],"align":"left"}},{"id":"a7c4efab-0676-43d4-8376-7caf9d2bd8de","type":"contentBlock","data":{"label":"","heading":"Privacy Policy goes here","imagePosition":"none","image":"","imageAlt":"","content":{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"This page is a placeholder and is not published. Write or paste the policy that applies to your business, have it reviewed, then publish the page and add a link to it in Admin > Navigation."}]}]},"button":null}}]$cms_seed$::jsonb,
+      $cms_seed$Privacy Policy | PipeFlow$cms_seed$,
+      $cms_seed$Privacy Policy for PipeFlow.$cms_seed$,
+      NULL,
+      NULL,
+      true,
+      false,
+      NULL
+    );
+  END IF;
+END $$;
+
+DO $$
+DECLARE v_id UUID;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE path = $cms_seed$terms$cms_seed$ AND deleted_at IS NULL) THEN
+    v_id := cms_create_page(
+      $cms_seed$Terms of Service$cms_seed$,
+      $cms_seed$terms$cms_seed$,
+      $cms_seed$Terms of Service for PipeFlow.$cms_seed$,
+      $cms_seed$[{"id":"2d5f1ef8-aa6f-46be-85f1-a0f193bdeb36","type":"hero","data":{"eyebrow":"","heading":"Terms of Service","subtitle":"DRAFT. Replace this page with your own policy, reviewed by a lawyer, before publishing.","intro":"","image":"","buttons":[],"align":"left"}},{"id":"c73413e4-0eed-474b-80a1-430ee824d5aa","type":"contentBlock","data":{"label":"","heading":"Terms of Service goes here","imagePosition":"none","image":"","imageAlt":"","content":{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"This page is a placeholder and is not published. Write or paste the policy that applies to your business, have it reviewed, then publish the page and add a link to it in Admin > Navigation."}]}]},"button":null}}]$cms_seed$::jsonb,
+      $cms_seed$Terms of Service | PipeFlow$cms_seed$,
+      $cms_seed$Terms of Service for PipeFlow.$cms_seed$,
+      NULL,
+      NULL,
+      true,
+      false,
+      NULL
+    );
+  END IF;
+END $$;
+
+DO $$
+DECLARE v_id UUID;
+BEGIN
   IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE path = $cms_seed$resources/what-to-do-when-a-pipe-freezes$cms_seed$ AND deleted_at IS NULL) THEN
     v_id := cms_create_page(
       $cms_seed$What to Do When a Pipe Freezes$cms_seed$,
