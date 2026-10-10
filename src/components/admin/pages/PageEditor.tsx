@@ -52,6 +52,8 @@ export function PageEditor({ pageId }: Props) {
   const [confirm, setConfirm] = useState<null | 'publish' | 'unpublish'>(null)
   const [picker, setPicker] = useState(false)
   const [history, setHistory] = useState(false)
+  const [recovered, setRecovered] = useState<null | { at: string; data: Record<string, unknown> }>(null)
+  const backupKey = `pipeflow-page-backup-${pageId}`
   const loadedFor = useRef<string | null>(null)
 
   const applyPage = useCallback((p: AdminPage) => {
@@ -93,6 +95,30 @@ export function PageEditor({ pageId }: Props) {
     loadedFor.current = pageId
     void load()
   }, [pageId, load])
+
+  // Keep a copy of unsaved edits in this browser, so a crash or closed tab does not lose them.
+  useEffect(() => {
+    if (!dirty || !page) return
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(backupKey, JSON.stringify({ baseVersion: page.version, at: new Date().toISOString(), data: { title, description, seoTitle, seoDescription, ogImage, canonicalUrl, noindex, sections } }))
+      } catch { /* storage full or blocked: the backup is a convenience only */ }
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [dirty, page, backupKey, title, description, seoTitle, seoDescription, ogImage, canonicalUrl, noindex, sections])
+
+  useEffect(() => {
+    if (!page || dirty) return
+    try {
+      const raw = localStorage.getItem(backupKey)
+      if (!raw) return
+      const b = JSON.parse(raw) as { baseVersion: number; at: string; data: Record<string, unknown> }
+      if (b.baseVersion === page.version) setRecovered({ at: b.at, data: b.data })
+      else localStorage.removeItem(backupKey)
+    } catch { /* ignore a corrupt backup */ }
+    // only when a page has just loaded or been saved
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page?.version, page?.id])
 
   useEffect(() => {
     if (!dirty) return
@@ -161,6 +187,8 @@ export function PageEditor({ pageId }: Props) {
       }
       setPage({ ...page, version: body.version, title, path, hasUnpublishedChanges: page.status === 'published' ? true : false })
       setDirty(false)
+      try { localStorage.removeItem(backupKey) } catch { /* ignore */ }
+      setRecovered(null)
       setToast({ type: 'success', message: 'Draft saved. Visitors still see the published version.' })
       return body.version as number
     } catch {
@@ -265,6 +293,21 @@ export function PageEditor({ pageId }: Props) {
           </div>
         </div>
       </div>
+
+      {recovered && !dirty && (
+        <div role="status" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+          <p><span className="font-semibold">Unsaved edits found.</span> We kept a copy from {new Date(recovered.at).toLocaleString()}.</p>
+          <span className="flex gap-2">
+            <Button type="button" size="sm" variant="secondary" onClick={() => {
+              const d = recovered.data as { title: string; description: string; seoTitle: string; seoDescription: string; ogImage: string; canonicalUrl: string; noindex: boolean; sections: DraftSection[] }
+              setTitle(d.title); setDescription(d.description); setSeoTitle(d.seoTitle); setSeoDescription(d.seoDescription)
+              setOgImage(d.ogImage); setCanonicalUrl(d.canonicalUrl); setNoindex(d.noindex); setSections(d.sections)
+              setDirty(true); setRecovered(null)
+            }}>Restore them</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => { try { localStorage.removeItem(backupKey) } catch { /* ignore */ } setRecovered(null) }}>Discard</Button>
+          </span>
+        </div>
+      )}
 
       {conflict && (
         <div role="alert" className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
