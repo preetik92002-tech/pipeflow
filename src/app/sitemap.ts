@@ -1,19 +1,26 @@
 import type { MetadataRoute } from 'next'
-import { getPublishedBlogs, getServiceAreas, getServices } from '@/lib/cms/queries'
+import { getPublishedBlogs } from '@/lib/cms/queries'
+import { listPublishedPaths } from '@/lib/cms-pages/repository'
+import { pathToUrl } from '@/lib/cms-pages/paths'
 import { getPublicSeoSettings } from '@/lib/seo/metadata'
 
+// Fresh on every request so a publish or unpublish shows up immediately.
 export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [services, areas, blogs, seo] = await Promise.all([getServices(), getServiceAreas(), getPublishedBlogs(), getPublicSeoSettings()])
+  const [pages, blogs, seo] = await Promise.all([listPublishedPaths(), getPublishedBlogs(), getPublicSeoSettings()])
   const baseUrl = seo?.canonical_domain || process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: baseUrl, changeFrequency: 'weekly', priority: 1 },
-    ...['/services','/services/plumbing','/services/hvac','/service-areas','/about','/blog','/book-service','/get-a-quote','/join-us','/contact'].map((path) => ({ url: `${baseUrl}${path}`, changeFrequency: 'weekly' as const, priority: path === '/services' || path === '/blog' ? 0.9 : 0.7 })),
-  ]
   return [
-    ...staticRoutes,
-    ...services.map((service) => ({ url: `${baseUrl}/services/${service.category}/${service.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.8 })),
-    ...areas.map((area) => ({ url: `${baseUrl}/service-areas/${area.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.7 })),
-    ...blogs.filter((blog) => !blog.noindex).map((blog) => ({ url: `${baseUrl}/blog/${blog.slug}`, lastModified: new Date(blog.updated_at), changeFrequency: 'monthly' as const, priority: 0.75 })),
+    // Drafts, unpublished pages, templates and noindex pages never appear here.
+    ...pages
+      .filter((p) => !p.noindex)
+      .map((p) => ({
+        url: p.path === '' ? baseUrl : `${baseUrl}${pathToUrl(p.path)}`,
+        lastModified: new Date(p.updatedAt),
+        changeFrequency: 'weekly' as const,
+        priority: p.path === '' ? 1 : p.path.includes('/') ? 0.8 : 0.9,
+      })),
+    ...['/about', '/blog', '/contact', '/join-us'].map((path) => ({ url: `${baseUrl}${path}`, changeFrequency: 'monthly' as const, priority: 0.6 })),
+    ...blogs.filter((blog) => !blog.noindex).map((blog) => ({ url: `${baseUrl}/blog/${blog.slug}`, lastModified: new Date(blog.updated_at), changeFrequency: 'monthly' as const, priority: 0.7 })),
   ]
 }
