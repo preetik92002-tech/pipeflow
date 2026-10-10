@@ -11,17 +11,25 @@ const h2 = 'font-display text-2xl font-bold tracking-tight text-navy-800 sm:text
 export function HeroSection({ data, first }: { data: SectionData<'hero'>; first: boolean }) {
   const center = data.align === 'center'
   const hasImage = data.image !== ''
+  const split = hasImage && !center
   return (
-    <section className="relative isolate overflow-hidden bg-navy-900 text-white" aria-labelledby={first ? 'page-title' : undefined}>
-      {hasImage && (
+    <section className="relative isolate overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-600 text-white" aria-labelledby={first ? 'page-title' : undefined}>
+      <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -bottom-32 left-1/4 -z-10 h-80 w-80 rounded-full bg-brand-red/15 blur-3xl" aria-hidden="true" />
+      {hasImage && center && (
         <>
           <CmsImage src={data.image} alt="" priority={first} sizes="100vw" className="-z-10 object-cover" />
           <div className="absolute inset-0 -z-10 bg-navy-900/75" aria-hidden="true" />
         </>
       )}
-      <div className={`${wrap} py-16 sm:py-20 lg:py-28 ${center ? 'text-center' : ''}`}>
+      <div className={`${wrap} grid items-center gap-10 py-14 sm:py-20 lg:py-24 ${split ? 'lg:grid-cols-[1.15fr_0.85fr]' : ''} ${center ? 'text-center' : ''}`}>
         <div className={center ? 'mx-auto max-w-3xl' : 'max-w-3xl'}>
-          {data.eyebrow && <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-brand-blue-lighter">{data.eyebrow}</p>}
+          {data.eyebrow && (
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-100">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-red" aria-hidden="true" />
+              {data.eyebrow}
+            </p>
+          )}
           <h1 id={first ? 'page-title' : undefined} className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
             {data.heading}
           </h1>
@@ -35,6 +43,11 @@ export function HeroSection({ data, first }: { data: SectionData<'hero'>; first:
           )}
           <CmsButtons buttons={data.buttons} onDark center={center} />
         </div>
+        {split && (
+          <div className="relative mx-auto aspect-[3/2] w-full max-w-xl overflow-hidden rounded-3xl border border-white/15 shadow-2xl shadow-black/30 lg:mx-0">
+            <CmsImage src={data.image} alt="" priority={first} sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
+          </div>
+        )}
       </div>
     </section>
   )
@@ -114,14 +127,14 @@ export function FeatureCardsSection({ data }: { data: SectionData<'featureCards'
                 {card.text && <p className="mt-2 text-sm leading-relaxed text-neutral-600">{card.text}</p>}
               </>
             )
-            const cls = 'block h-full rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm'
+            const cls = 'group block h-full overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm'
             return (
               <li key={i}>
                 {card.href ? (
                   card.href.startsWith('/') ? (
-                    <Link href={card.href} className={`${cls} transition hover:border-brand-blue hover:shadow-md`}>{inner}</Link>
+                    <Link href={card.href} className={`${cls} transition duration-200 hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg`}>{inner}</Link>
                   ) : (
-                    <a href={card.href} className={`${cls} transition hover:border-brand-blue hover:shadow-md`}>{inner}</a>
+                    <a href={card.href} className={`${cls} transition duration-200 hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg`}>{inner}</a>
                   )
                 ) : (
                   <div className={cls}>{inner}</div>

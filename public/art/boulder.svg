@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Illustration of the Flatirons and foothills near Boulder"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0c4a6e"/><stop offset="1" stop-color="#0f766e"/></linearGradient>
+<pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#fff" fill-opacity=".10"/></pattern></defs>
+<rect width="1200" height="800" fill="url(#bg)"/><rect width="1200" height="800" fill="url(#dots)"/><path d="M0 640 L170 470 L260 560 L390 400 L520 590 L640 450 L760 580 L900 420 L1040 560 L1200 450 L1200 800 L0 800Z" fill="#fff" fill-opacity=".08"/>
+<path d="M0 700 L200 560 L330 650 L480 520 L640 660 L800 540 L960 650 L1200 540 L1200 800 L0 800Z" fill="#fff" fill-opacity=".10"/><path d="M120 700 L360 360 L480 520 L600 300 L860 700Z" fill="#fff" fill-opacity=".92"/><path d="M600 300 L650 380 L620 395 L585 360 L555 400 L520 380Z" fill="#bfdbfe"/>
+<g fill="#134e4a"><path d="M900 700 l50 -150 l50 150z M980 700 l40 -120 l40 120z M1060 700 l45 -140 l45 140z"/></g><circle cx="990" cy="170" r="64" fill="#fbbf24"/></svg>

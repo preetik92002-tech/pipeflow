@@ -485,7 +485,7 @@ const template: SeedPage = {
   ],
 }
 
-export const seedPages: SeedPage[] = [
+const rawPages: SeedPage[] = [
   home,
   plumbing,
   starterServicePage('plumbing/plumbing-repair', 'Plumbing Repair Services in Denver & Boulder', 'Find local professionals for plumbing repairs in Denver and Boulder, Colorado. Describe the problem, add photos and request service.', 'Plumbing Repair'),
@@ -498,3 +498,44 @@ export const seedPages: SeedPage[] = [
   locationPage('Boulder', SERVICE_LINKS_BOULDER),
   template,
 ]
+
+/** Original illustrations in /public/art. Heroes by page, and cards by the page they link to. */
+const HERO_ART: Record<string, string> = {
+  '': '/art/home-pro.svg',
+  plumbing: '/art/hero-plumbing.svg',
+  hvac: '/art/hero-hvac.svg',
+  'plumbing/plumbing-repair': '/art/hero-plumbing.svg',
+  'plumbing/water-heater-repair': '/art/water-heater.svg',
+  'plumbing/frozen-pipe-repair': '/art/frozen-pipe.svg',
+  'hvac/ac-repair': '/art/ac-repair.svg',
+  'hvac/ac-installation': '/art/ac-installation.svg',
+  denver: '/art/denver.svg',
+  boulder: '/art/boulder.svg',
+}
+const CARD_ART: Record<string, string> = {
+  '/plumbing': '/art/hero-plumbing.svg',
+  '/hvac': '/art/hero-hvac.svg',
+  '/plumbing/plumbing-repair': '/art/hero-plumbing.svg',
+  '/plumbing/water-heater-repair': '/art/water-heater.svg',
+  '/plumbing/frozen-pipe-repair': '/art/frozen-pipe.svg',
+  '/hvac/ac-repair': '/art/ac-repair.svg',
+  '/hvac/ac-installation': '/art/ac-installation.svg',
+  '/denver': '/art/denver.svg',
+  '/boulder': '/art/boulder.svg',
+}
+
+export const seedPages: SeedPage[] = rawPages.map((page) => ({
+  ...page,
+  sections: page.sections.map((section) => {
+    if (section.type === 'hero' && section.data.image === '' && HERO_ART[page.path]) {
+      return { ...section, data: { ...section.data, image: HERO_ART[page.path] } }
+    }
+    if (section.type === 'featureCards') {
+      const cards = (section.data.cards as Array<Record<string, string>>).map((c) =>
+        c.image === '' && CARD_ART[c.href] ? { ...c, image: CARD_ART[c.href] } : c,
+      )
+      return { ...section, data: { ...section.data, cards } }
+    }
+    return section
+  }),
+}))
