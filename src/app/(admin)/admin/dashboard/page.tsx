@@ -8,7 +8,6 @@ import {
   ArrowRight,
   TrendingUp,
   Plus,
-  Wrench,
 } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'

@@ -33,8 +33,6 @@ const adminNav = [
   { label: 'Leads & Inquiries', href: '/admin/leads', icon: Users },
   { label: 'Pro Applications', href: '/admin/pro-applications', icon: HardHat },
   { label: 'Blog Engine', href: '/admin/blogs', icon: BookOpen },
-  { label: 'Testimonials', href: '/admin/testimonials', icon: MessageSquare },
-  { label: 'FAQs', href: '/admin/faqs', icon: CircleHelp },
   { label: 'Services', href: '/admin/services', icon: Wrench },
   { label: 'Service Areas', href: '/admin/service-areas', icon: MapPin },
   { label: 'Media Library', href: '/admin/media', icon: ImageIcon },
