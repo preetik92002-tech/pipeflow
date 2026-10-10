@@ -218,6 +218,38 @@ export async function getPageForAdmin(id: string): Promise<AdminPage | null> {
   }
 }
 
+export interface RevisionSummary {
+  number: number
+  title: string
+  createdAt: string
+  isPublished: boolean
+  isCurrentDraft: boolean
+}
+
+/** Every saved version of a page, newest first. */
+export async function listRevisions(pageId: string): Promise<RevisionSummary[]> {
+  const db = createAdminClient()
+  const { data: page, error: pageError } = await db.from('cms_pages').select('draft_revision_id,published_revision_id').eq('id', pageId).is('deleted_at', null).maybeSingle()
+  if (pageError) throw new CmsError('database', pageError.message)
+  if (!page) throw new CmsError('not_found', 'Page not found.')
+  const { data, error } = await db.from('cms_page_revisions').select('id,number,title,created_at').eq('page_id', pageId).order('number', { ascending: false }).limit(100)
+  if (error) throw new CmsError('database', error.message)
+  return (data ?? []).map((r) => ({
+    number: r.number,
+    title: r.title,
+    createdAt: r.created_at,
+    isPublished: r.id === page.published_revision_id,
+    isCurrentDraft: r.id === page.draft_revision_id,
+  }))
+}
+
+/** The content of one saved version, to load into the editor. */
+export async function getRevisionContent(pageId: string, number: number): Promise<PageContent | null> {
+  const { data, error } = await createAdminClient().from('cms_page_revisions').select(REVISION_COLUMNS).eq('page_id', pageId).eq('number', number).maybeSingle()
+  if (error) throw new CmsError('database', error.message)
+  return data ? content(data as RevisionRow) : null
+}
+
 // ---------------------------------------------------------------------- writes
 
 export interface PageInput {

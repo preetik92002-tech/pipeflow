@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, ExternalLink, Eye, GripVertical, Plus, Save, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, ExternalLink, Eye, GripVertical, History, Plus, Save, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Toast } from '@/components/ui/Toast'
@@ -14,6 +14,7 @@ import { SECTION_TYPES, sectionMeta } from '@/lib/cms-pages/sections/registry'
 import type { DraftSection, SectionType } from '@/lib/cms-pages/sections/schema'
 import type { AdminPage } from '@/lib/cms-pages/repository'
 import { Field, ImageField, inputCls, SelectField, TextField } from './fields'
+import { VersionHistory } from './VersionHistory'
 import { SectionForm, sectionSummary } from './SectionForms'
 import { StatusBadge } from './StatusBadge'
 
@@ -50,6 +51,7 @@ export function PageEditor({ pageId }: Props) {
   const [toast, setToast] = useState<ToastState>(null)
   const [confirm, setConfirm] = useState<null | 'publish' | 'unpublish'>(null)
   const [picker, setPicker] = useState(false)
+  const [history, setHistory] = useState(false)
   const loadedFor = useRef<string | null>(null)
 
   const applyPage = useCallback((p: AdminPage) => {
@@ -255,6 +257,7 @@ export function PageEditor({ pageId }: Props) {
           {dirty && <span className="text-xs font-medium text-amber-700">Unsaved changes</span>}
           <div className="flex flex-wrap gap-2">
             {liveUrl && <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-200"><ExternalLink className="h-4 w-4" />View live</a>}
+            <Button type="button" variant="ghost" size="md" onClick={() => setHistory(true)} disabled={busy !== null} leftIcon={<History className="h-4 w-4" />}>History</Button>
             <Button type="button" variant="outline" size="md" onClick={() => void preview()} disabled={busy !== null} leftIcon={<Eye className="h-4 w-4" />}>Preview</Button>
             <Button type="button" variant="secondary" size="md" onClick={() => void save()} loading={busy === 'save'} disabled={busy !== null || !dirty} leftIcon={<Save className="h-4 w-4" />}>Save draft</Button>
             {published && <Button type="button" variant="ghost" size="md" onClick={() => setConfirm('unpublish')} disabled={busy !== null}>Unpublish</Button>}
@@ -366,6 +369,25 @@ export function PageEditor({ pageId }: Props) {
           ))}
         </ul>
       </Modal>
+
+      <VersionHistory
+        pageId={pageId}
+        isOpen={history}
+        onClose={() => setHistory(false)}
+        onRestore={(r) => {
+          setTitle(r.title)
+          setDescription(r.description ?? '')
+          setSeoTitle(r.seoTitle ?? '')
+          setSeoDescription(r.seoDescription ?? '')
+          setOgImage(r.ogImage ?? '')
+          setCanonicalUrl(r.canonicalUrl ?? '')
+          setNoindex(r.noindex)
+          setSections((Array.isArray(r.sections) ? (r.sections as DraftSection[]) : []).map((sec) => ({ ...sec, id: sec.id || newId() })))
+          setDirty(true)
+          setHistory(false)
+          setToast({ type: 'info', message: 'Version loaded into the editor. Check it, then Save draft to keep it.' })
+        }}
+      />
 
       <Modal isOpen={confirm !== null} onClose={() => setConfirm(null)} title={confirm === 'publish' ? (published ? 'Publish your changes?' : 'Publish this page?') : 'Unpublish this page?'} size="sm">
         <div className="space-y-4 p-6 text-sm text-neutral-700">
