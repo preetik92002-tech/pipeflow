@@ -22,6 +22,11 @@ interface LeadItem {
   status: 'New' | 'Contacted' | 'Qualified' | 'Scheduled' | 'In Progress' | 'Closed Won' | 'Closed Lost' | 'Spam' | 'Requested' | 'Confirmed' | 'Completed' | 'Cancelled'
   isEmergency: boolean
   message?: string
+  address?: string
+  urgency?: string
+  customerType?: string
+  business?: { name?: string; propertyType?: string; equipment?: string }
+  attachments: Array<{ name: string; url: string }>
   preferredDate?: string
   preferredTime?: string
   utmSource?: string
@@ -59,6 +64,10 @@ export default function AdminLeadsPage() {
         category: String(row.service_category || 'service') as LeadItem['category'], service: String(row.specific_service || row.service_category || 'General inquiry'),
         zipCode: String(row.zip_code || ''), serviceArea: String(row.service_area || ''), leadType: title(row.lead_type) as LeadItem['leadType'], status: title(row.status) as LeadItem['status'],
         isEmergency: Boolean(row.is_emergency), message: typeof row.message === 'string' ? row.message : undefined,
+        address: typeof row.address === 'string' ? row.address : undefined, urgency: typeof row.urgency === 'string' ? row.urgency : undefined,
+        customerType: typeof row.customer_type === 'string' ? row.customer_type : undefined,
+        business: (row.details as { business?: LeadItem['business'] } | null)?.business,
+        attachments: Array.isArray(row.attachment_links) ? (row.attachment_links as LeadItem['attachments']) : [],
         preferredDate: typeof row.preferred_date === 'string' ? row.preferred_date : undefined, preferredTime: typeof row.preferred_time === 'string' ? row.preferred_time : undefined,
         utmSource: typeof row.utm_source === 'string' ? row.utm_source : undefined, utmMedium: typeof row.utm_medium === 'string' ? row.utm_medium : undefined,
         utmCampaign: typeof row.utm_campaign === 'string' ? row.utm_campaign : undefined, gclid: typeof row.gclid === 'string' ? row.gclid : undefined,
@@ -317,6 +326,25 @@ export default function AdminLeadsPage() {
                 <p className="font-bold text-navy-900">{selectedLead.zipCode}, CO</p>
               </div>
             </div>
+
+            {(selectedLead.address || selectedLead.urgency || selectedLead.business) && (
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs space-y-1 text-neutral-700">
+                {selectedLead.customerType && <p><strong>Customer:</strong> {selectedLead.customerType === 'business' ? 'Business' : 'Homeowner'}</p>}
+                {selectedLead.urgency && <p><strong>Urgency:</strong> {selectedLead.urgency}</p>}
+                {selectedLead.address && <p><strong>Address:</strong> {selectedLead.address}, {selectedLead.serviceArea} {selectedLead.zipCode}</p>}
+                {selectedLead.business?.name && <p><strong>Business:</strong> {selectedLead.business.name}{selectedLead.business.propertyType ? ` · ${selectedLead.business.propertyType}` : ''}</p>}
+                {selectedLead.business?.equipment && <p><strong>Equipment:</strong> {selectedLead.business.equipment}</p>}
+              </div>
+            )}
+
+            {selectedLead.attachments.length > 0 && (
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs">
+                <p className="font-bold text-navy-900 mb-1">Photos and videos (links expire in an hour):</p>
+                <ul className="space-y-1">
+                  {selectedLead.attachments.map((a) => <li key={a.url}><a href={a.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-blue hover:underline">{a.name}</a></li>)}
+                </ul>
+              </div>
+            )}
 
             {/* Message / Problem Description */}
             {selectedLead.message && (

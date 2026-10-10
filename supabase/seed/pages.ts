@@ -421,7 +421,7 @@ const home: SeedPage = {
         button: btn('Upload Photos & Request Service', REQUEST),
       },
     },
-    { type: 'cta', data: { heading: 'Need Plumbing or HVAC Help Now?', text: 'For urgent plumbing or HVAC problems, submit your service request and tell us how quickly you need help.', buttons: [btn('Get Emergency Help', REQUEST)], tone: 'dark' } },
+    { type: 'cta', data: { heading: 'Need Plumbing or HVAC Help Now?', text: 'For urgent plumbing or HVAC problems, submit your service request and tell us how quickly you need help.', buttons: [btn('Get Emergency Help', '/book-service?urgency=emergency')], tone: 'dark' } },
     {
       type: 'contentBlock',
       data: {
@@ -563,9 +563,34 @@ const heroFallback = (path: string): string => {
   return ''
 }
 
+// Request Service buttons open the form already filled in for the page they are on.
+const PLUMBING_SERVICES = ['plumbing-repair', 'water-heater-repair', 'water-heater-replacement', 'frozen-pipe-repair', 'plumbing-fixes']
+const HVAC_SERVICES = ['ac-repair', 'ac-installation', 'ac-replacement', 'hvac-repair', 'hvac-maintenance']
+function requestLinkFor(path: string): string {
+  const parts = path.split('/')
+  const params: string[] = []
+  const city = parts[parts.length - 1]
+  if (city === 'denver' || city === 'boulder') params.push(`city=${city}`)
+  const service = parts.find((p) => PLUMBING_SERVICES.includes(p) || HVAC_SERVICES.includes(p))
+  if (service) params.push(`category=${PLUMBING_SERVICES.includes(service) ? 'plumbing' : 'hvac'}`, `service=${service}`)
+  else if (parts[0] === 'plumbing' || parts[0] === 'hvac') params.push(`category=${parts[0]}`)
+  if (parts[0] === 'commercial') {
+    params.push('type=business')
+    if (parts[1]) params.push(`category=${parts[1]}`)
+  }
+  return params.length ? `${REQUEST}?${params.join('&')}` : REQUEST
+}
+function retarget(value: unknown, href: string): unknown {
+  if (Array.isArray(value)) return value.map((v) => retarget(v, href))
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, k === 'href' && v === REQUEST ? href : retarget(v, href)]))
+  }
+  return value
+}
+
 export const seedPages: SeedPage[] = rawPages.map((page) => ({
   ...page,
-  sections: page.sections.map((section) => {
+  sections: (retarget(page.sections, requestLinkFor(page.path)) as SeedSection[]).map((section) => {
     if (section.type === 'hero' && section.data.image === '' && (HERO_ART[page.path] || heroFallback(page.path))) {
       return { ...section, data: { ...section.data, image: HERO_ART[page.path] || heroFallback(page.path) } }
     }

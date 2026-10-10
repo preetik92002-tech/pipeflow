@@ -5,7 +5,6 @@ import { Footer } from '@/components/layout/Footer'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { FloatingCallButton } from '@/components/layout/FloatingCallButton'
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
-import { BookingModalProvider } from '@/components/booking/BookingModalProvider'
 import { NavigationProvider } from '@/components/layout/NavigationProvider'
 import { getNavigation } from '@/lib/cms-pages/navigation'
 import { SiteSettingsProvider } from '@/components/layout/SiteSettingsProvider'
@@ -46,7 +45,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="min-h-screen flex flex-col">
-        <BookingModalProvider>
           <SiteSettingsProvider initialSettings={siteSettings}>
           <NavigationProvider navigation={navigation}>
             <AnalyticsProvider />
@@ -59,7 +57,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <FloatingCallButton />
           </NavigationProvider>
           </SiteSettingsProvider>
-        </BookingModalProvider>
       </body>
     </html>
   )

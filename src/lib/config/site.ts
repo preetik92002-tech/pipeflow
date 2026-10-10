@@ -29,7 +29,7 @@ export const siteConfig: SiteConfig = {
 
   ctas: {
     bookService: { label: 'Request Service', href: '/book-service' },
-    getQuote: { label: 'Get a Quote', href: '/get-a-quote' },
+    getQuote: { label: 'Request Service', href: '/book-service' },
     callNow: { label: 'Call Now', phone: '(720) 555-0100' }, // [PLACEHOLDER]
     joinPro: { label: 'Join PipeFlow', href: '/join-us' },
   },

@@ -37,6 +37,7 @@ const nextConfig: NextConfig = {
   // URLs in the client's structure document. Keep old links and bookmarks working.
   async redirects() {
     return [
+      { source: '/get-a-quote', destination: '/book-service', permanent: true },
       { source: '/services', destination: '/', permanent: true },
       { source: '/services/plumbing', destination: '/plumbing', permanent: true },
       { source: '/services/hvac', destination: '/hvac', permanent: true },

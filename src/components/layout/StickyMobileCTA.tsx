@@ -2,14 +2,12 @@
 
 import Link from 'next/link'
 import { Phone, Calendar } from 'lucide-react'
-import { useBookingModal } from '@/components/booking/BookingModalProvider'
 import { useSiteSettings } from './SiteSettingsProvider'
 import { useNavigation } from './NavigationProvider'
 import { hasRealPhone } from '@/lib/config/contact'
 
 export function StickyMobileCTA() {
   const { company } = useSiteSettings()
-  const { openModal } = useBookingModal()
   const nav = useNavigation()
 
   return (
@@ -29,14 +27,13 @@ export function StickyMobileCTA() {
             <span className="text-sm font-semibold">Call</span>
           </Link>
         )}
-        <button
-          type="button"
-          onClick={() => openModal()}
+        <Link
+          href={nav.cta.href}
           className="flex w-full items-center justify-center gap-2 bg-brand-red py-3.5 text-white transition-colors hover:bg-brand-red-dark active:bg-brand-red-dark"
         >
           <Calendar className="h-5 w-5" aria-hidden="true" />
           <span className="text-sm font-bold">{nav.cta.label}</span>
-        </button>
+        </Link>
       </div>
     </div>
   )

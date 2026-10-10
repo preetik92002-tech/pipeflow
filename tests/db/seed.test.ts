@@ -11,7 +11,7 @@ const dir = path.join(__dirname, '../../supabase/migrations')
 const read = (f: string) => readFileSync(path.join(dir, f), 'utf8')
 
 // Routes that exist in the app outside the CMS and may be linked to.
-const STATIC_ROUTES = ['/book-service', '/get-a-quote', '/join-us', '/contact', '/about', '/blog']
+const STATIC_ROUTES = ['/book-service', '/join-us', '/contact', '/about', '/blog']
 
 function allHrefs(value: unknown, out: string[] = []): string[] {
   if (Array.isArray(value)) value.forEach((v) => allHrefs(v, out))
@@ -58,6 +58,15 @@ describe('seed content', () => {
     for (const p of cityPages) expect(p.draft).toBe(true)
   })
 
+  it('opens the request form already filled in for the page it is on', () => {
+    const hrefs = (path: string) => allHrefs(seedPages.find((p) => p.path === path)!.sections)
+    expect(hrefs('plumbing/water-heater-repair')).toContain('/book-service?category=plumbing&service=water-heater-repair')
+    expect(hrefs('hvac/ac-repair')).toContain('/book-service?category=hvac&service=ac-repair')
+    expect(hrefs('commercial')).toContain('/book-service?type=business')
+    expect(hrefs('water/water-heater-repair/boulder')).toContain('/book-service?city=boulder&category=plumbing&service=water-heater-repair')
+    expect(hrefs('')).toContain('/book-service?urgency=emergency')
+  })
+
   it('never claims verification, reviews or specific prices', () => {
     const text = JSON.stringify(seedPages.filter((p) => p.path !== 'plumbing/water-heater-repair').map((p) => p.sections)).toLowerCase()
     for (const bad of ['5-star', 'five-star', 'verified professionals', 'licensed and insured', 'same-day', '24/7', '$']) expect(text.includes(bad), bad).toBe(false)
@@ -68,7 +77,8 @@ describe('seed content', () => {
     for (const page of seedPages) {
       for (const href of allHrefs(page.sections)) {
         if (!href.startsWith('/')) continue
-        expect(live.has(href) || STATIC_ROUTES.includes(href), `${page.path || '(home)'} links to missing ${href}`).toBe(true)
+        const target = href.split('?')[0]
+        expect(live.has(target) || STATIC_ROUTES.includes(target), `${page.path || '(home)'} links to missing ${href}`).toBe(true)
       }
     }
   })

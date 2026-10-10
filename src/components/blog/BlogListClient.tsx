@@ -58,7 +58,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
         }}
         secondaryCta={{
           label: 'Get Free Estimate',
-          href: '/get-a-quote',
+          href: '/book-service',
           variant: 'outline',
           icon: Sparkles,
         }}

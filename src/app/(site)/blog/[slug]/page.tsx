@@ -286,7 +286,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <CalendarDays className="h-4 w-4" />
                 Book An On-Time Visit
               </Link>
-              <Link href="/get-a-quote" className="btn-outline !text-white !border-white/30 text-xs !py-3 !px-5">
+              <Link href="/book-service" className="btn-outline !text-white !border-white/30 text-xs !py-3 !px-5">
                 <FileText className="h-4 w-4" />
                 Request Upfront Quote
               </Link>

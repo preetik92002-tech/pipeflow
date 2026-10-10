@@ -168,7 +168,7 @@ export default function AboutPage() {
               <Calendar className="h-4 w-4" />
               <span>Book Appointment</span>
             </Link>
-            <Link href="/get-a-quote" className="btn-outline !py-3.5 !px-6 text-xs text-white border-white/30">
+            <Link href="/book-service" className="btn-outline !py-3.5 !px-6 text-xs text-white border-white/30">
               <FileText className="h-4 w-4" />
               <span>Get Free Estimate</span>
             </Link>
