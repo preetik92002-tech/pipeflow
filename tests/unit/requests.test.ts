@@ -48,6 +48,12 @@ describe('service request schema', () => {
 
   it('labels services', () => {
     expect(serviceLabel('frozen-pipe-repair')).toBe('Frozen Pipe Repair')
+    expect(serviceLabel('water-heater-installation')).toBe('Water Heater Installation')
+  })
+
+  it('accepts water heater installation as a plumbing service only', () => {
+    expect(requestSchema.safeParse({ ...valid, service: 'water-heater-installation' }).success).toBe(true)
+    expect(requestSchema.safeParse({ ...valid, category: 'hvac', service: 'water-heater-installation' }).success).toBe(false)
   })
 })
 
