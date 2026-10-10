@@ -10,6 +10,7 @@ import { AnnouncementBar } from './AnnouncementBar'
 import { useBookingModal } from '@/components/booking/BookingModalProvider'
 import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
+import { useNavigation } from './NavigationProvider'
 import { cn } from '@/lib/cn'
 import { useSiteSettings } from './SiteSettingsProvider'
 
@@ -18,6 +19,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { openModal } = useBookingModal()
   const { company, announcementMessages } = useSiteSettings()
+  const nav = useNavigation()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16)
@@ -65,7 +67,7 @@ export function Header() {
             </Link>
 
             {/* Desktop nav — hidden below lg */}
-            <Navigation items={siteConfig.nav} className="hidden lg:flex flex-1 justify-center" />
+            <Navigation items={nav.header} className="hidden lg:flex flex-1 justify-center" />
 
             {/* Desktop CTA cluster */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
@@ -87,7 +89,7 @@ export function Header() {
                 className="btn-primary !py-2 !px-4 !text-sm"
               >
                 <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
-                {siteConfig.ctas.bookService.label}
+                {nav.cta.label}
               </button>
             </div>
 
@@ -109,8 +111,8 @@ export function Header() {
       <MobileNavigation
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        items={siteConfig.nav}
-        config={siteConfig.ctas}
+        items={nav.header}
+        config={{ ...siteConfig.ctas, bookService: nav.cta }}
         phone={company.phone}
         onBookService={() => openModal()}
       />

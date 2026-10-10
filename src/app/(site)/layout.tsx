@@ -6,6 +6,8 @@ import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { FloatingCallButton } from '@/components/layout/FloatingCallButton'
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import { BookingModalProvider } from '@/components/booking/BookingModalProvider'
+import { NavigationProvider } from '@/components/layout/NavigationProvider'
+import { getNavigation } from '@/lib/cms-pages/navigation'
 import { SiteSettingsProvider } from '@/components/layout/SiteSettingsProvider'
 import { generateMetadata as genMeta, generateLocalBusinessSchema, getPublicSiteSettingsBundle } from '@/lib/seo/metadata'
 import '../globals.css'
@@ -28,9 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [ldJson, siteSettings] = await Promise.all([
+  const [ldJson, siteSettings, navigation] = await Promise.all([
     generateLocalBusinessSchema(),
     getPublicSiteSettingsBundle(),
+    getNavigation(),
   ])
 
   return (
@@ -45,6 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-screen flex flex-col">
         <BookingModalProvider>
           <SiteSettingsProvider initialSettings={siteSettings}>
+          <NavigationProvider navigation={navigation}>
             <AnalyticsProvider />
             <Header />
             <main id="main-content" className="flex-1 pb-16 lg:pb-0" tabIndex={-1}>
@@ -53,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Footer />
             <StickyMobileCTA />
             <FloatingCallButton />
+          </NavigationProvider>
           </SiteSettingsProvider>
         </BookingModalProvider>
       </body>

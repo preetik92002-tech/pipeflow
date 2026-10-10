@@ -30,6 +30,7 @@ import { createClient } from '@/lib/supabase/client'
 const adminNav = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Pages', href: '/admin/pages', icon: FileText },
+  { label: 'Navigation', href: '/admin/navigation', icon: Menu },
   { label: 'Leads & Inquiries', href: '/admin/leads', icon: Users },
   { label: 'Pro Applications', href: '/admin/pro-applications', icon: HardHat },
   { label: 'Blog Engine', href: '/admin/blogs', icon: BookOpen },

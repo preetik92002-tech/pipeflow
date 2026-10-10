@@ -50,7 +50,7 @@ function HeroForm({ data, onChange, errors }: FormProps) {
       <TextField label="Heading" value={str(data.heading)} onChange={(heading) => set({ heading })} max={180} error={errors.heading} />
       <TextField label="Subtitle" value={str(data.subtitle)} onChange={(subtitle) => set({ subtitle })} max={500} multiline rows={2} />
       <TextField label="Intro text (optional)" value={str(data.intro)} onChange={(intro) => set({ intro })} max={2000} multiline rows={4} hint="Leave a blank line between paragraphs." />
-      <ImageField label="Background image (optional)" value={str(data.image)} onChange={(image) => set({ image })} />
+      <ImageField label="Hero image (optional)" value={str(data.image)} onChange={(image) => set({ image })} />
       <SelectField label="Alignment" value={str(data.align) || 'left'} onChange={(align) => set({ align })} options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centered' }]} />
       <ButtonsField buttons={list<Btn>(data.buttons)} onChange={(buttons) => set({ buttons })} errors={errors} />
     </div>

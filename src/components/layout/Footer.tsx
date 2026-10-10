@@ -19,34 +19,15 @@ import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { useSiteSettings } from './SiteSettingsProvider'
-
-const serviceLinks = [
-  { label: 'Plumbing Repair', href: '/plumbing/plumbing-repair' },
-  { label: 'Water Heater Repair', href: '/plumbing/water-heater-repair' },
-  { label: 'Frozen Pipe Repair', href: '/plumbing/frozen-pipe-repair' },
-  { label: 'AC Repair', href: '/hvac/ac-repair' },
-  { label: 'AC Installation', href: '/hvac/ac-installation' },
-]
-
-const serviceAreaLinks = [
-  { label: 'Denver', href: '/denver' },
-  { label: 'Boulder', href: '/boulder' },
-]
-
-const companyLinks = [
-  { label: 'Plumbing', href: '/plumbing' },
-  { label: 'HVAC', href: '/hvac' },
-  { label: 'For Contractors', href: '/join-us' },
-  { label: 'Contact', href: '/contact' },
-]
-
-const resourceLinks = [
-  { label: 'Blog', href: '/blog' },
-  { label: 'Request Service', href: '/book-service' },
-]
+import { useNavigation } from './NavigationProvider'
 
 export function Footer() {
   const year = new Date().getFullYear()
+  const nav = useNavigation()
+  const serviceLinks = nav.footerServices
+  const serviceAreaLinks = nav.footerAreas
+  const companyLinks = nav.footerCompany
+  const resourceLinks = nav.footerResources
   const { company: staticCompany, social } = siteConfig
   const { company: liveCompany, emergencyAvailable } = useSiteSettings()
   const company = { ...staticCompany, ...liveCompany }
@@ -104,19 +85,12 @@ export function Footer() {
             {/* Prominent Footer CTAs */}
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <Link
-                href={siteConfig.ctas.bookService.href}
+                href={nav.cta.href}
                 className="btn-primary w-full sm:w-auto !py-4 !px-8 !text-base shadow-xl shadow-brand-red/30 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
                 <Calendar className="h-5 w-5" />
-                <span>{siteConfig.ctas.bookService.label}</span>
+                <span>{nav.cta.label}</span>
                 <ArrowRight className="h-4 w-4" />
-              </Link>
-
-              <Link
-                href={siteConfig.ctas.getQuote.href}
-                className="btn-outline w-full sm:w-auto !text-white !border-white/20 hover:!border-white hover:!bg-white/10 !py-4 !px-8 !text-base backdrop-blur-sm hover:-translate-y-0.5 transition-all text-center"
-              >
-                <span>{siteConfig.ctas.getQuote.label}</span>
               </Link>
 
               {hasRealPhone(company.phone) && (
