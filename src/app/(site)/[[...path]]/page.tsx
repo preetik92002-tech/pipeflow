@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import { SectionRenderer } from '@/components/cms/SectionRenderer'
 import { faqJsonLd, serializeJsonLd } from '@/lib/cms-pages/jsonld'
 import { validatePath, pathToUrl } from '@/lib/cms-pages/paths'
+import { getFallbackPage } from '@/lib/cms-pages/fallback'
 import { getPublishedPage, getRedirect } from '@/lib/cms-pages/repository'
 import { generateMetadata as buildMetadata } from '@/lib/seo/metadata'
 
@@ -30,7 +31,13 @@ function toPath(segments: string[] | undefined) {
 
 const load = cache(async (path: string) => {
   if (validatePath(path, { allowHome: true })) return null
-  return getPublishedPage(path)
+  try {
+    return await getPublishedPage(path)
+  } catch (error) {
+    // Database unreachable or not set up yet: serve the built-in launch pages.
+    console.error('CMS page lookup failed, using built-in content', error)
+    return getFallbackPage(path)
+  }
 })
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -54,7 +61,7 @@ export default async function CmsPage({ params }: Props) {
 
   if (!page) {
     if (!validatePath(path, { allowHome: true }) && path !== '') {
-      const redirect = await getRedirect(path)
+      const redirect = await getRedirect(path).catch(() => null)
       if (redirect) permanentRedirect(pathToUrl(redirect.to))
     }
     notFound()
