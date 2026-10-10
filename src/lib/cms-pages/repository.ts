@@ -2,6 +2,8 @@ import 'server-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sectionsSchema, type Section } from './sections/schema'
 import { joinPath } from './paths'
+import { contentKey, type LivePage } from './publish-checks'
+import { PAGE_LIST_LIMIT } from './page-list'
 
 /**
  * All CMS page data access. Server only: it uses the service role key, which
@@ -157,13 +159,18 @@ export async function listPublishedPaths(): Promise<{ path: string; updatedAt: s
 // ----------------------------------------------------------------- admin reads
 
 export async function listPages(opts: { search?: string; status?: PageStatus | 'all' } = {}): Promise<PageListItem[]> {
+  return (await listPagesPage(opts)).items
+}
+
+export async function listPagesPage(opts: { search?: string; status?: PageStatus | 'all' } = {}): Promise<{ items: PageListItem[]; truncated: boolean }> {
   const db = createAdminClient()
+  // Ek extra row maango: woh aaye to matlab list adhuri hai, aur admin ko bataya jaata hai.
   let q = db
     .from('cms_pages')
     .select('id,title,path,status,is_template,draft_revision_id,published_revision_id,updated_at,published_at')
     .is('deleted_at', null)
     .order('updated_at', { ascending: false })
-    .limit(500)
+    .limit(PAGE_LIST_LIMIT + 1)
   if (opts.status && opts.status !== 'all') q = q.eq('status', opts.status)
   if (opts.search?.trim()) {
     // Strip characters that have meaning in PostgREST filters before using the text.
@@ -172,16 +179,20 @@ export async function listPages(opts: { search?: string; status?: PageStatus | '
   }
   const { data, error } = await q
   if (error) throw new CmsError('database', error.message)
-  return (data ?? []).map((p) => ({
-    id: p.id,
-    title: p.title,
-    path: p.path,
-    status: p.status as PageStatus,
-    isTemplate: p.is_template,
-    hasUnpublishedChanges: p.status === 'published' && p.draft_revision_id !== p.published_revision_id,
-    updatedAt: p.updated_at,
-    publishedAt: p.published_at,
-  }))
+  const rows = data ?? []
+  return {
+    truncated: rows.length > PAGE_LIST_LIMIT,
+    items: rows.slice(0, PAGE_LIST_LIMIT).map((p) => ({
+      id: p.id,
+      title: p.title,
+      path: p.path,
+      status: p.status as PageStatus,
+      isTemplate: p.is_template,
+      hasUnpublishedChanges: p.status === 'published' && p.draft_revision_id !== p.published_revision_id,
+      updatedAt: p.updated_at,
+      publishedAt: p.published_at,
+    })),
+  }
 }
 
 export async function getPageStats() {
@@ -319,6 +330,29 @@ export async function deletePage(id: string, userId: string | null): Promise<voi
   if (error) throw toCmsError(error)
 }
 
+/** Live pages with the SEO fields of their published version, for the publish checks. */
+export async function listLivePagesForChecks(): Promise<LivePage[]> {
+  const db = createAdminClient()
+  const { data, error } = await db
+    .from('cms_pages')
+    .select('id,path,published_revision_id')
+    .eq('status', 'published')
+    .eq('is_template', false)
+    .is('deleted_at', null)
+  if (error) throw new CmsError('database', error.message)
+  const ids = (data ?? []).map((p) => p.published_revision_id).filter(Boolean) as string[]
+  const revs = new Map<string, { seo_title: string | null; noindex: boolean; sections: unknown }>()
+  if (ids.length) {
+    const { data: rows, error: revError } = await db.from('cms_page_revisions').select('id,seo_title,noindex,sections').in('id', ids)
+    if (revError) throw new CmsError('database', revError.message)
+    rows?.forEach((r) => revs.set(r.id, r))
+  }
+  return (data ?? []).map((p) => {
+    const rev = revs.get(p.published_revision_id)
+    return { id: p.id, path: p.path, seoTitle: rev?.seo_title ?? null, noindex: rev?.noindex ?? true, contentKey: contentKey(rev?.sections) }
+  })
+}
+
 /**
  * Duplicate a page as a new draft: same sections in the same order with the
  * same layout, new section ids. The URL gets a free "-copy" suffix, the title
@@ -346,7 +380,9 @@ export async function duplicatePage(id: string, userId: string | null): Promise<
       seoDescription: null,
       ogImage: null,
       canonicalUrl: null,
-      noindex: false,
+      // Copy hamesha "Hide from search engines" ke saath banti hai. Admin jab title, URL aur
+      // SEO fields apne likh le tabhi ise hataye; publish check bina SEO ke indexable copy rokta hai.
+      noindex: true,
     },
     userId
   )

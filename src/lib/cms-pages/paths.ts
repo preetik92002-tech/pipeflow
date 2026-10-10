@@ -67,3 +67,22 @@ export function splitPath(path: string): { parent: string; slug: string } {
   return i === -1 ? { parent: '', slug: path } : { parent: path.slice(0, i), slug: path.slice(i + 1) }
 }
 export const joinPath = (parent: string, slug: string) => (parent ? `${parent}/${slug}` : slug)
+
+export const PAGE_CATEGORIES = ['plumbing', 'hvac'] as const
+export const PAGE_LOCATIONS = ['denver', 'boulder'] as const
+export type PageCategory = (typeof PAGE_CATEGORIES)[number]
+export type PageLocation = (typeof PAGE_LOCATIONS)[number]
+
+/**
+ * Service category and city of a page, read from its URL:
+ * plumbing/water-heater-repair/denver -> plumbing + denver, commercial/hvac -> hvac, denver -> denver.
+ * URL hi source of truth hai, isliye alag database column ki zaroorat nahi aur dono kabhi alag nahi ho sakte.
+ */
+export function classifyPath(path: string): { category: PageCategory | null; location: PageLocation | null } {
+  const segments = path.split('/')
+  const trade = segments[0] === 'commercial' ? segments[1] : segments[0]
+  const category = (PAGE_CATEGORIES as readonly string[]).includes(trade) ? (trade as PageCategory) : null
+  const city = segments[segments.length - 1]
+  const location = (PAGE_LOCATIONS as readonly string[]).includes(city) ? (city as PageLocation) : null
+  return { category, location }
+}

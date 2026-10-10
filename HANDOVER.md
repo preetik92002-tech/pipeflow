@@ -35,5 +35,5 @@ npm install --legacy-peer-deps
 npm test            # unit, database (PGlite) and render tests
 npx tsc --noEmit
 npm run lint
-npm run seed:sql    # regenerate the seed migration after editing supabase/seed/*.ts
+npm run seed:sql    # regenerate the seed migration after editing supabase/seed/*.ts (needs Node 22.6 or newer)
 ```

@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { NextRequest } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { SITE_IMAGE_MAX, sniffSiteImage } from '@/lib/requests/files'
+import { SITE_IMAGE_MAX, sniffSiteImage, validateSiteImage } from '@/lib/requests/files'
+import { ascii, concat, gif, jpeg, png, webp } from '../helpers/images'
 
 const state = vi.hoisted(() => ({
   auth: {} as Record<string, unknown>,
@@ -27,10 +28,10 @@ import { POST } from '@/app/api/admin/media/route'
 
 const ADMIN = { authenticated: true, authorized: true, user: { id: 'admin-1' }, role: 'super_admin' }
 const pad = (head: number[], size = 64) => new Uint8Array([...head, ...Array(Math.max(0, size - head.length)).fill(0)])
-const PNG = pad([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
-const JPEG = pad([0xff, 0xd8, 0xff, 0xe0])
-const GIF = pad([...new TextEncoder().encode('GIF89a')])
-const WEBP = pad([...new TextEncoder().encode('RIFF'), 0, 0, 0, 0, ...new TextEncoder().encode('WEBP')])
+const PNG = png()
+const JPEG = jpeg()
+const GIF = gif()
+const WEBP = webp()
 const text = (s: string) => new TextEncoder().encode(s.padEnd(64, ' '))
 
 function upload(bytes: Uint8Array, name: string, type: string, origin = 'http://localhost') {
@@ -60,6 +61,52 @@ describe('site image detection', () => {
     const heic = pad([0, 0, 0, 0x18, ...new TextEncoder().encode('ftypheic')])
     expect(sniffSiteImage(heic)).toBeNull()
     expect(sniffSiteImage(new Uint8Array([0xff, 0xd8, 0xff]))).toBeNull()
+  })
+})
+
+describe('whole-file image validation', () => {
+  const bad = (bytes: Uint8Array) => 'error' in validateSiteImage(bytes)
+
+  it.each([['PNG', PNG, 'image/png'], ['JPEG', JPEG, 'image/jpeg'], ['GIF', GIF, 'image/gif'], ['WebP', WEBP, 'image/webp']])('accepts a well-formed %s', (_n, bytes, type) => {
+    expect(validateSiteImage(bytes)).toEqual({ type })
+  })
+  it.each([
+    ['real.jpg', 'image/jpeg'], ['real-progressive.jpg', 'image/jpeg'], ['real.png', 'image/png'],
+    ['real.webp', 'image/webp'], ['real-lossless.webp', 'image/webp'], ['real.gif', 'image/gif'],
+  ])('accepts %s made by a real image encoder', (name, type) => {
+    const bytes = new Uint8Array(readFileSync(path.join(__dirname, '../fixtures/images', name)))
+    expect(validateSiteImage(bytes)).toEqual({ type })
+  })
+  it('accepts camera-style extra bytes after the end marker, but not hidden HTML there', () => {
+    const real = new Uint8Array(readFileSync(path.join(__dirname, '../fixtures/images/real.jpg')))
+    expect(validateSiteImage(concat(real, new Array(64).fill(0)))).toEqual({ type: 'image/jpeg' })
+    expect(bad(concat(real, ascii('<iframe src=//evil></iframe>')))).toBe(true)
+  })
+  it('rejects files that only start like an image', () => {
+    for (const fake of [pad([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), pad([0xff, 0xd8, 0xff, 0xe0]), pad([...ascii('GIF89a')])]) expect(bad(fake)).toBe(true)
+  })
+  it('rejects truncated images', () => {
+    expect(bad(PNG.slice(0, PNG.length - 12))).toBe(true)
+    expect(bad(JPEG.slice(0, JPEG.length - 2))).toBe(true)
+    expect(bad(GIF.slice(0, GIF.length - 1))).toBe(true)
+    expect(bad(WEBP.slice(0, WEBP.length - 1))).toBe(true)
+  })
+  it('rejects HTML appended after a real image (polyglot)', () => {
+    const html = ascii('<html><script>alert(document.cookie)</script></html>')
+    expect(bad(concat(PNG, html))).toBe(true)
+    expect(bad(concat(JPEG, html))).toBe(true)
+    expect(bad(concat(WEBP, html))).toBe(true)
+    expect(bad(concat(GIF.slice(0, -1), html, [0x3b]))).toBe(true)
+  })
+  it('rejects web page code hidden inside image metadata', () => {
+    expect(validateSiteImage(jpeg({ comment: 'hello' }))).toEqual({ type: 'image/jpeg' })
+    expect(validateSiteImage(jpeg({ comment: '<SCRIPT>alert(1)</SCRIPT>' }))).toEqual({ error: 'This image contains web page code and cannot be used.' })
+    expect(bad(jpeg({ comment: '<svg onload=alert(1)>' }))).toBe(true)
+  })
+  it('rejects images with zero width or height', () => {
+    expect(bad(png({ width: 0 }))).toBe(true)
+    expect(bad(jpeg({ height: 0 }))).toBe(true)
+    expect(bad(gif({ width: 0 }))).toBe(true)
   })
 })
 
@@ -101,13 +148,29 @@ describe('admin media upload', () => {
 
   it('accepts up to 4 MB, the most a Vercel function request can carry, and says so clearly above that', async () => {
     expect(SITE_IMAGE_MAX).toBe(4 * 1024 * 1024)
-    const exact = new Uint8Array(SITE_IMAGE_MAX); exact.set(PNG)
+    const exact = png({ size: SITE_IMAGE_MAX })
+    expect(exact.length).toBe(SITE_IMAGE_MAX)
     expect((await upload(exact, 'exact.png', 'image/png')).status).toBe(201)
-    const over = new Uint8Array(SITE_IMAGE_MAX + 1); over.set(PNG)
-    const res = await upload(over, 'big.png', 'image/png')
+    const res = await upload(png({ size: SITE_IMAGE_MAX + 1 }), 'big.png', 'image/png')
     expect(res.status).toBe(413)
     expect((await res.json()).error).toBe('Images can be up to 4 MB. Make this one smaller and try again.')
     expect(state.uploads).toHaveLength(1)
+  })
+
+  it('rejects damaged images and images carrying web page code, and stores nothing', async () => {
+    const truncated = await upload(PNG.slice(0, -12), 'cut.png', 'image/png')
+    expect(truncated.status).toBe(400)
+    expect((await truncated.json()).error).toMatch(/damaged or incomplete/)
+    const polyglot = await upload(concat(PNG, ascii('<html><script>x()</script>')), 'poly.png', 'image/png')
+    expect(polyglot.status).toBe(400)
+    expect((await upload(jpeg({ comment: '<script>x()</script>' }), 'c.jpg', 'image/jpeg')).status).toBe(400)
+    expect(state.uploads).toEqual([])
+  })
+
+  it('never shows storage or database error details to the browser', async () => {
+    const src = readFileSync(path.join(__dirname, '../../src/app/api/admin/media/route.ts'), 'utf8')
+    const post = src.slice(src.indexOf('export async function POST'), src.indexOf('export async function DELETE'))
+    expect(post).not.toMatch(/error: `[^`]*\$\{[^}]*\.message/)
   })
 
   it('refuses an empty file', async () => {

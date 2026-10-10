@@ -1,0 +1,3 @@
+# SQL migrations are compared byte for byte by the tests (the seed migration must match
+# scripts/generate-seed-sql.ts output), so keep them LF on every OS, including Windows.
+*.sql text eol=lf

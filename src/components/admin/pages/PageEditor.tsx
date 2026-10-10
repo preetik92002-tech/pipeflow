@@ -17,6 +17,7 @@ import { Field, ImageField, inputCls, SelectField, TextField } from './fields'
 import { VersionHistory } from './VersionHistory'
 import { SectionForm, sectionSummary } from './SectionForms'
 import { StatusBadge } from './StatusBadge'
+import { NOINDEX_LABEL } from '@/lib/cms-pages/publish-checks'
 
 type Issues = { path: string; message: string }[]
 type ToastState = { message: string; type: 'success' | 'error' | 'info' } | null
@@ -221,6 +222,7 @@ export function PageEditor({ pageId }: Props) {
         return
       }
       if (!res.ok) {
+        if (Array.isArray(body.issues)) setIssues(body.issues)
         setToast({ type: 'error', message: body.error || `Could not ${action}.` })
         return
       }
@@ -392,7 +394,7 @@ export function PageEditor({ pageId }: Props) {
             <Field label="Visibility">
               <label className="flex items-start gap-2 text-sm text-neutral-700">
                 <input type="checkbox" checked={noindex} onChange={(e) => edit(setNoindex)(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-neutral-300" />
-                <span>Ask search engines not to list this page</span>
+                <span>{NOINDEX_LABEL}</span>
               </label>
             </Field>
           </section>

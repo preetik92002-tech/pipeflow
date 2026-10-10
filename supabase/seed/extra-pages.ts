@@ -401,22 +401,25 @@ const CITY_NOTES: Record<string, Record<string, string>> = {
     general: 'Boulder has a mix of homes, rentals and businesses, and plumbing and HVAC needs vary widely from one property to the next.',
   },
 }
-interface CitySvc { path: string; name: string; parent: string; parentName: string; note: 'freeze' | 'heat' | 'general'; ask: string }
-const CITY_SERVICES: CitySvc[] = [
-  { path: 'water/water-heater-repair', name: 'Water Heater Repair', parent: '/plumbing/water-heater-repair', parentName: 'Water Heater Repair', note: 'general', ask: 'Describe what the water heater is doing: no hot water, leaks, noises or a pilot or error light.' },
-  { path: 'water/water-heater-replacement', name: 'Water Heater Replacement', parent: '/plumbing/water-heater-replacement', parentName: 'Water Heater Replacement', note: 'general', ask: 'Share the age and type of the current unit and what you would like from the new one.' },
-  { path: 'frozen/frozen-pipe-repair', name: 'Frozen Pipe Repair', parent: '/plumbing/frozen-pipe-repair', parentName: 'Frozen Pipe Repair', note: 'freeze', ask: 'Tell us which taps have no water and where the pipes run.' },
-  { path: 'plumbing/plumbing-repair', name: 'Plumbing Repair', parent: '/plumbing/plumbing-repair', parentName: 'Plumbing Repair', note: 'general', ask: 'Describe the leak, drip or blockage and add photos if you can.' },
-  { path: 'ac/ac-repair', name: 'AC Repair', parent: '/hvac/ac-repair', parentName: 'AC Repair', note: 'heat', ask: 'Tell us what the AC is doing and add photos of the unit and thermostat.' },
-  { path: 'ac/ac-installation', name: 'AC Installation', parent: '/hvac/ac-installation', parentName: 'AC Installation', note: 'heat', ask: 'Tell us about the size of the space and any existing heating or ductwork.' },
-  { path: 'hvac/hvac-repair', name: 'HVAC Repair', parent: '/hvac/hvac-repair', parentName: 'HVAC Repair', note: 'general', ask: 'Tell us whether it is heating or cooling and what the system is doing.' },
+// City page ka URL hamesha service page ke neeche hota hai: /plumbing/water-heater-repair/denver.
+// `legacy` purana prefix hai jahan ye drafts pehle bane the; seed us path ke rehte duplicate nahi banata.
+interface CitySvc { parent: string; legacy?: string; name: string; parentName: string; note: 'freeze' | 'heat' | 'general'; ask: string }
+export const CITY_SERVICES: CitySvc[] = [
+  { parent: '/plumbing/water-heater-repair', legacy: 'water/water-heater-repair', name: 'Water Heater Repair', parentName: 'Water Heater Repair', note: 'general', ask: 'Describe what the water heater is doing: no hot water, leaks, noises or a pilot or error light.' },
+  { parent: '/plumbing/water-heater-replacement', legacy: 'water/water-heater-replacement', name: 'Water Heater Replacement', parentName: 'Water Heater Replacement', note: 'general', ask: 'Share the age and type of the current unit and what you would like from the new one.' },
+  { parent: '/plumbing/frozen-pipe-repair', legacy: 'frozen/frozen-pipe-repair', name: 'Frozen Pipe Repair', parentName: 'Frozen Pipe Repair', note: 'freeze', ask: 'Tell us which taps have no water and where the pipes run.' },
+  { parent: '/plumbing/plumbing-repair', name: 'Plumbing Repair', parentName: 'Plumbing Repair', note: 'general', ask: 'Describe the leak, drip or blockage and add photos if you can.' },
+  { parent: '/hvac/ac-repair', legacy: 'ac/ac-repair', name: 'AC Repair', parentName: 'AC Repair', note: 'heat', ask: 'Tell us what the AC is doing and add photos of the unit and thermostat.' },
+  { parent: '/hvac/ac-installation', legacy: 'ac/ac-installation', name: 'AC Installation', parentName: 'AC Installation', note: 'heat', ask: 'Tell us about the size of the space and any existing heating or ductwork.' },
+  { parent: '/hvac/hvac-repair', name: 'HVAC Repair', parentName: 'HVAC Repair', note: 'general', ask: 'Tell us whether it is heating or cooling and what the system is doing.' },
 ]
 function cityPage(s: CitySvc, city: 'Denver' | 'Boulder'): SeedPage {
   const c = city.toLowerCase()
   const title = `${s.name} in ${city}`
   const intro = `Find local professionals for ${s.name.toLowerCase()} in ${city}, Colorado. Describe the problem, add photos and request service.`
   return {
-    path: `${s.path}/${c}`, title, description: intro, seoTitle: `${title}, CO`, seoDescription: intro, noindex: true, draft: true,
+    path: `${s.parent.slice(1)}/${c}`, legacyPaths: s.legacy ? [`${s.legacy}/${c}`] : undefined,
+    title, description: intro, seoTitle: `${title}, CO`, seoDescription: intro, noindex: true, draft: true,
     sections: [
       hero(`${title}, Colorado`, intro, [btn('Request Service', REQUEST)], `Serving ${city}, CO.`),
       block(`${s.name} for ${city} homes and businesses`, `Request ${s.name} in ${city}`, doc(para(CITY_NOTES[city][s.note]), para(s.ask), para(`Request service and we will match you with professionals serving ${city}.`)), btn('Request Service', REQUEST)),

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { ShieldCheck } from 'lucide-react'
-import { RequestServiceFlow, type RequestPrefill } from '@/components/request/RequestServiceFlow'
+import { RequestServiceFlow } from '@/components/request/RequestServiceFlow'
 import { hasRealPhone } from '@/lib/config/contact'
-import { CITIES, SERVICES, URGENCY } from '@/lib/requests/schema'
+import { toPrefill, type PrefillParams } from '@/lib/requests/prefill'
 import { generateMetadata as genMeta, getPublicCompanySettings } from '@/lib/seo/metadata'
 import { siteConfig } from '@/lib/config/site'
 
@@ -14,21 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-type Params = Record<string, string | string[] | undefined>
-const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
-
-function toPrefill(sp: Params): RequestPrefill {
-  const category = one(sp.category) === 'hvac' ? 'hvac' : one(sp.category) === 'plumbing' ? 'plumbing' : undefined
-  const serviceParam = one(sp.service)
-  const service = category && serviceParam && SERVICES[category].some((s) => s.value === serviceParam) ? serviceParam : undefined
-  const cityParam = one(sp.city)?.toLowerCase()
-  const city = CITIES.find((c) => c.toLowerCase() === cityParam)
-  const urgency = URGENCY.find((u) => u.value === one(sp.urgency))?.value
-  const customerType = one(sp.type) === 'business' ? 'business' : category ? 'homeowner' : one(sp.type) === 'homeowner' ? 'homeowner' : undefined
-  return { category, service, city, urgency, customerType }
-}
-
-export default async function RequestServicePage({ searchParams }: { searchParams: Promise<Params> }) {
+export default async function RequestServicePage({ searchParams }: { searchParams: Promise<PrefillParams> }) {
   const prefill = toPrefill(await searchParams)
   const company = await getPublicCompanySettings()
   const phone = company.phone || siteConfig.company.phone

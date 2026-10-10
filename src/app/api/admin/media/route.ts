@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
+import { SITE_IMAGE_EXT, SITE_IMAGE_MAX, SITE_IMAGE_MAX_LABEL, SITE_IMAGE_TYPES, validateSiteImage } from '@/lib/requests/files'
 
-const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+const allowedTypes = new Set<string>(SITE_IMAGE_TYPES)
 
 async function requireAdmin() {
   const auth = await verifyAdminAuth()
@@ -19,29 +20,53 @@ export async function GET() {
     if (error) throw error
     return NextResponse.json({ items: data ?? [] })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to load media.' }, { status: 503 })
+    console.error('[admin/media] list failed', error instanceof Error ? error.message : error)
+    return NextResponse.json({ error: 'Unable to load media.' }, { status: 503 })
   }
 }
 
 export async function POST(request: NextRequest) {
+  // Dusri site se aaya form upload nahi kar sakta (admin ki login cookie ka galat use).
+  const origin = request.headers.get('origin')
+  if (origin && origin !== request.nextUrl.origin) return NextResponse.json({ error: 'Cross-site requests are not allowed.' }, { status: 403 })
   const auth = await verifyAdminAuth()
   if (!auth.authorized) return NextResponse.json({ error: auth.authenticated ? 'Admin authorization required.' : 'Sign in required.' }, { status: auth.authenticated ? 403 : 401 })
-  const form = await request.formData()
+  let form: FormData
+  try {
+    form = await request.formData()
+  } catch {
+    return NextResponse.json({ error: 'Choose an image file to upload.' }, { status: 400 })
+  }
   const file = form.get('file')
   const altText = form.get('alt_text')
   if (!(file instanceof File)) return NextResponse.json({ error: 'Choose an image file to upload.' }, { status: 400 })
   if (!allowedTypes.has(file.type)) return NextResponse.json({ error: 'Upload a JPEG, PNG, WebP, or GIF image.' }, { status: 400 })
-  if (file.size < 1 || file.size > 10 * 1024 * 1024) return NextResponse.json({ error: 'Image size must be less than 10 MB.' }, { status: 400 })
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-120)
-  const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${safeName}`
+  if (file.size < 1) return NextResponse.json({ error: 'This file is empty.' }, { status: 400 })
+  if (file.size > SITE_IMAGE_MAX) return NextResponse.json({ error: `Images can be up to ${SITE_IMAGE_MAX_LABEL}. Make this one smaller and try again.` }, { status: 413 })
+  // Poori file check hoti hai (structure, end marker, andar chhupa HTML): browser ka type sirf pehla filter hai.
+  // Jo bytes check hue, wahi upload hote hain, taaki check aur stored content alag na ho sakein.
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  const checked = validateSiteImage(bytes)
+  if ('error' in checked) return NextResponse.json({ error: checked.error }, { status: 400 })
+  const kind = checked.type
+  // Extension bhi asli type ka, taaki storage mein "photo.html" jaisa naam na bane.
+  const base = file.name.replace(/\.[^.]*$/, '').replace(/[^a-zA-Z0-9_-]/g, '-').slice(-100) || 'image'
+  const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${base}.${SITE_IMAGE_EXT[kind]}`
   const admin = createAdminClient()
-  const { error: uploadError } = await admin.storage.from('site-media').upload(path, file, { contentType: file.type, upsert: false })
-  if (uploadError) return NextResponse.json({ error: `Upload failed: ${uploadError.message}` }, { status: 503 })
+  // Ye route sirf public 'site-media' bucket mein likhta hai. Customer ki private photos
+  // 'service-requests' bucket mein alag rehti hain aur yahan se kabhi nahi chhuti.
+  const { error: uploadError } = await admin.storage.from('site-media').upload(path, bytes, { contentType: kind, upsert: false })
+  if (uploadError) {
+    // Storage ka andar ka error sirf server log mein; admin ko saaf, generic message.
+    console.error('[admin/media] upload failed', uploadError.message)
+    return NextResponse.json({ error: 'The image could not be stored. Please try again.' }, { status: 503 })
+  }
   const url = admin.storage.from('site-media').getPublicUrl(path).data.publicUrl
-  const { data, error } = await admin.from('media').insert({ filename: file.name, url, bucket: 'site-media', alt_text: typeof altText === 'string' ? altText.slice(0, 250) : null, media_type: file.type, size_bytes: file.size, uploaded_by: auth.user?.id || null }).select('*').single()
+  const { data, error } = await admin.from('media').insert({ filename: file.name.slice(0, 250), url, bucket: 'site-media', alt_text: typeof altText === 'string' ? altText.slice(0, 250) : null, media_type: kind, size_bytes: bytes.length, uploaded_by: auth.user?.id || null }).select('*').single()
   if (error) {
     await admin.storage.from('site-media').remove([path])
-    return NextResponse.json({ error: `Unable to save media record: ${error.message}` }, { status: 503 })
+    console.error('[admin/media] media record failed', error.message)
+    return NextResponse.json({ error: 'The image could not be saved. Please try again.' }, { status: 503 })
   }
   return NextResponse.json({ item: data }, { status: 201 })
 }

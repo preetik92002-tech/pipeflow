@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { failure, invalidInput, pageInputSchema, readJson, requireAdmin } from '@/lib/cms-pages/api'
-import { createPage, listPages } from '@/lib/cms-pages/repository'
+import { createPage, listPagesPage } from '@/lib/cms-pages/repository'
 
 export async function GET(request: NextRequest) {
   const admin = await requireAdmin(request, { mutating: false })
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams
   const status = z.enum(['all', 'draft', 'published', 'unpublished']).catch('all').parse(params.get('status') ?? 'all')
   try {
-    return NextResponse.json({ items: await listPages({ search: params.get('search') ?? '', status }) })
+    return NextResponse.json(await listPagesPage({ search: params.get('search') ?? '', status }))
   } catch (error) {
     return failure(error)
   }

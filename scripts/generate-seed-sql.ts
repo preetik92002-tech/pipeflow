@@ -29,10 +29,12 @@ export function buildSeedSql(): string {
   const blocks = seedPages.map((page) => {
     const sections = page.sections.map((s, i) => ({ id: stableUuid(`${page.path}#${i}`), ...s }))
     const publish = page.isTemplate || page.draft ? '' : '    PERFORM cms_publish(v_id, 1, NULL);\n'
+    // Purane address par page abhi bhi hai (move migration nahi chali) to naya copy mat banao.
+    const match = page.legacyPaths?.length ? `path IN (${[page.path, ...page.legacyPaths].map(q).join(', ')})` : `path = ${q(page.path)}`
     return `DO $$
 DECLARE v_id UUID;
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE path = ${q(page.path)} AND deleted_at IS NULL) THEN
+  IF NOT EXISTS (SELECT 1 FROM cms_pages WHERE ${match} AND deleted_at IS NULL) THEN
     v_id := cms_create_page(
       ${q(page.title)},
       ${q(page.path)},

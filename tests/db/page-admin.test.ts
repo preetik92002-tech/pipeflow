@@ -15,7 +15,8 @@ vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => state.client }
 vi.mock('@/lib/supabase/auth', () => ({ verifyAdminAuth: async () => state.auth }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
-import { duplicatePage, saveDraft, CmsError } from '@/lib/cms-pages/repository'
+import { duplicatePage, listPages, listPagesPage, saveDraft, CmsError } from '@/lib/cms-pages/repository'
+import { GET as listRoute } from '@/app/api/admin/pages/route'
 import { POST as publishRoute } from '@/app/api/admin/pages/[id]/publish/route'
 import { POST as duplicateRoute } from '@/app/api/admin/pages/[id]/duplicate/route'
 
@@ -103,6 +104,26 @@ describe('duplicating a page', () => {
     const res = await duplicateRoute(req(`/api/admin/pages/${id}/duplicate`), { params: Promise.resolve({ id }) })
     expect(res.status).toBe(401)
     expect((await db.query('select count(*)::int as n from cms_pages')).rows[0]).toEqual({ n: 1 })
+  })
+})
+
+describe('admin page list', () => {
+  it('returns every page when there are 500 or fewer, and flags the list as cut off above that', async () => {
+    await db.exec(`do $$ begin for i in 1..500 loop perform cms_create_page('P' || i, 'p' || i, null, '[]'::jsonb, null, null, null, null, true, false, null); end loop; end $$`)
+    const full = await listPagesPage()
+    expect(full.items).toHaveLength(500)
+    expect(full.truncated).toBe(false)
+    await create('p501')
+    const cut = await listPagesPage()
+    expect(cut.items).toHaveLength(500)
+    expect(cut.truncated).toBe(true)
+    expect(await listPages()).toHaveLength(500)
+  })
+
+  it('requires an admin', async () => {
+    state.auth = { authenticated: false, authorized: false, user: null, role: null }
+    const res = await listRoute(new NextRequest('http://localhost/api/admin/pages'))
+    expect(res.status).toBe(401)
   })
 })
 

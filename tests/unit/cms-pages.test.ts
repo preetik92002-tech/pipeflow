@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { isSafeHref } from '@/lib/cms-pages/links'
 import { classifyPath, pathSchema, slugify, splitPath, validatePath } from '@/lib/cms-pages/paths'
 import { contentKey, isCopyTitle, NOINDEX_LABEL, publishProblems } from '@/lib/cms-pages/publish-checks'
+import { filterPages, summarize } from '@/lib/cms-pages/page-list'
 import { richTextToPlainText, sanitizeRichText } from '@/lib/cms-pages/richtext'
 import { SECTION_TYPES, dataSchemas } from '@/lib/cms-pages/sections/registry'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
@@ -56,6 +57,28 @@ describe('paths', () => {
     expect(classifyPath('denver')).toEqual({ category: null, location: 'denver' })
     expect(classifyPath('')).toEqual({ category: null, location: null })
     expect(classifyPath('resources/what-to-do-when-a-pipe-freezes')).toEqual({ category: null, location: null })
+  })
+})
+
+describe('admin page list', () => {
+  const row = (path: string, status = 'published', isTemplate = false) => ({ path, status, isTemplate })
+  const items = [
+    row('plumbing/water-heater-repair'), row('plumbing/water-heater-repair/denver', 'draft'), row('hvac/ac-repair/boulder', 'draft'),
+    row('denver'), row('commercial/hvac'), row('about'), row('service-page-template', 'draft', true),
+  ]
+  it('filters by category and city from the URL', () => {
+    expect(filterPages(items, { category: 'plumbing', location: 'all' }).map((i) => i.path)).toEqual(['plumbing/water-heater-repair', 'plumbing/water-heater-repair/denver'])
+    expect(filterPages(items, { category: 'all', location: 'denver' }).map((i) => i.path)).toEqual(['plumbing/water-heater-repair/denver', 'denver'])
+    expect(filterPages(items, { category: 'hvac', location: 'boulder' }).map((i) => i.path)).toEqual(['hvac/ac-repair/boulder'])
+    expect(filterPages(items, { category: 'all', location: 'all' })).toHaveLength(items.length)
+  })
+  it('counts only the rows shown, never templates', () => {
+    expect(summarize(items, { filtered: false, truncated: false, limit: 500 })).toBe('6 pages · 4 published · 2 drafts')
+    const denver = filterPages(items, { category: 'all', location: 'denver' })
+    expect(summarize(denver, { filtered: true, truncated: false, limit: 500 })).toBe('2 matching pages · 1 published · 1 draft')
+  })
+  it('says when the list was cut off', () => {
+    expect(summarize(items, { filtered: false, truncated: true, limit: 500 })).toMatch(/showing the 500 most recently changed; search to find others$/)
   })
 })
 

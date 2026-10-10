@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Toast } from '@/components/ui/Toast'
 import { joinPath, pathToUrl, slugify, splitPath, validatePath } from '@/lib/cms-pages/paths'
+import { filterPages, PAGE_LIST_LIMIT, summarize } from '@/lib/cms-pages/page-list'
 import type { PageListItem } from '@/lib/cms-pages/repository'
 import { inputCls, SelectField, TextField } from './fields'
 import { StatusBadge } from './StatusBadge'
@@ -17,9 +18,12 @@ type ToastState = { message: string; type: 'success' | 'error' } | null
 export function PagesList() {
   const router = useRouter()
   const [items, setItems] = useState<PageListItem[] | null>(null)
+  const [truncated, setTruncated] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
+  const [category, setCategory] = useState('all')
+  const [location, setLocation] = useState('all')
   const [toast, setToast] = useState<ToastState>(null)
   const [creating, setCreating] = useState(false)
   const [toDelete, setToDelete] = useState<PageListItem | null>(null)
@@ -34,6 +38,7 @@ export function PagesList() {
       const body = await res.json()
       if (!res.ok) throw new Error(body.error || 'Unable to load pages.')
       setItems(body.items as PageListItem[])
+      setTruncated(body.truncated === true)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unable to load pages.')
     }
@@ -73,17 +78,17 @@ export function PagesList() {
     }
   }
 
-  const counts = useMemo(() => {
-    const real = (items ?? []).filter((i) => !i.isTemplate)
-    return { total: real.length, published: real.filter((i) => i.status === 'published').length, draft: real.filter((i) => i.status === 'draft').length }
-  }, [items])
+  // Category aur city URL se nikalte hain, isliye filter browser mein hi lagta hai.
+  const shown = useMemo(() => (items ? filterPages(items, { category, location }) : null), [items, category, location])
+  const filtered = search !== '' || status !== 'all' || category !== 'all' || location !== 'all'
+  const summary = shown ? summarize(shown, { filtered, truncated, limit: PAGE_LIST_LIMIT }) : 'Loading…'
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-navy-800">Pages</h1>
-          <p className="text-sm text-neutral-600">{items ? `${counts.total} pages · ${counts.published} published · ${counts.draft} drafts` : 'Loading…'}</p>
+          <p className="text-sm text-neutral-600">{summary}</p>
         </div>
         <Button type="button" onClick={() => setCreating(true)} leftIcon={<FilePlus2 className="h-4 w-4" />}>New page</Button>
       </div>
@@ -99,19 +104,29 @@ export function PagesList() {
           <option value="draft">Draft</option>
           <option value="unpublished">Unpublished</option>
         </select>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Filter by service category" className={`${inputCls} sm:w-44`}>
+          <option value="all">All categories</option>
+          <option value="plumbing">Plumbing</option>
+          <option value="hvac">HVAC</option>
+        </select>
+        <select value={location} onChange={(e) => setLocation(e.target.value)} aria-label="Filter by location" className={`${inputCls} sm:w-40`}>
+          <option value="all">All locations</option>
+          <option value="denver">Denver</option>
+          <option value="boulder">Boulder</option>
+        </select>
       </div>
 
       {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error} <button type="button" onClick={() => void load()} className="font-semibold underline">Try again</button></div>}
 
       {items === null && !error ? (
         <div className="space-y-2" aria-busy="true">{[0, 1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-neutral-200" />)}</div>
-      ) : items && items.length === 0 ? (
+      ) : shown && shown.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-12 text-center">
-          <p className="font-semibold text-navy-800">{search || status !== 'all' ? 'No pages match your search.' : 'No pages yet.'}</p>
-          {!search && status === 'all' && <Button type="button" className="mt-4" onClick={() => setCreating(true)}>Create your first page</Button>}
+          <p className="font-semibold text-navy-800">{filtered ? 'No pages match your filters.' : 'No pages yet.'}</p>
+          {!filtered && <Button type="button" className="mt-4" onClick={() => setCreating(true)}>Create your first page</Button>}
         </div>
       ) : (
-        items && (
+        shown && (
           <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
             <table className="w-full min-w-[720px] text-left text-sm">
               <caption className="sr-only">All pages</caption>
@@ -124,7 +139,7 @@ export function PagesList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
-                {items.map((p) => (
+                {shown.map((p) => (
                   <tr key={p.id} className="hover:bg-neutral-50">
                     <td className="px-4 py-3">
                       <Link href={`/admin/pages/${p.id}`} className="font-semibold text-navy-800 hover:text-brand-blue">{p.title}</Link>

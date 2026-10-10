@@ -22,6 +22,8 @@ export interface SeedPage {
   isTemplate?: boolean
   /** Saved as a draft, not published. */
   draft?: boolean
+  /** Old addresses of this page. The seed skips the page if one of them still exists. */
+  legacyPaths?: string[]
   sections: SeedSection[]
 }
 
@@ -36,6 +38,14 @@ const doc = (...content: Node[]) => ({ type: 'doc', content })
 
 const REQUEST = '/book-service'
 const btn = (label: string, href: string, variant: 'primary' | 'secondary' = 'primary') => ({ label, href, variant })
+
+// Water heater page ke har CTA ka apna service: repair, replacement aur installation alag leads hain.
+// Commercial wala button business request kholta hai aur service customer khud chunta hai,
+// kyunki commercial section repair, replacement aur installation teeno cover karta hai.
+const WH_REPAIR = `${REQUEST}?category=plumbing&service=water-heater-repair`
+const WH_REPLACEMENT = `${REQUEST}?category=plumbing&service=water-heater-replacement`
+const WH_INSTALLATION = `${REQUEST}?category=plumbing&service=water-heater-installation`
+const WH_COMMERCIAL = `${REQUEST}?category=plumbing&type=business`
 
 // ---- reusable blocks -----------------------------------------------------------
 const howItWorks = (heading: string, buttonLabel: string): SeedSection => ({
@@ -132,7 +142,7 @@ const waterHeater: SeedPage = {
           ]),
           para('If you need water heater repair in Denver or Boulder, submit your service request with details about the issue. You can also upload photos to help the professional understand your situation before the appointment.')
         ),
-        button: btn('Request Water Heater Repair', REQUEST),
+        button: btn('Request Water Heater Repair', WH_REPAIR),
       },
     },
     {
@@ -153,7 +163,7 @@ const waterHeater: SeedPage = {
           para('A plumbing professional can evaluate your current system, discuss suitable replacement options, and help you choose a water heater based on your hot water demand, available space, fuel type, and budget.'),
           para('Looking for water heater replacement in Denver or Boulder, CO? Submit your requirements to connect with a local professional.')
         ),
-        button: btn('Get Water Heater Replacement Help', REQUEST),
+        button: btn('Get Water Heater Replacement Help', WH_REPLACEMENT),
       },
     },
     {
@@ -176,7 +186,7 @@ const waterHeater: SeedPage = {
           para('Proper installation is important for system performance, safety, and reliability. Gas, electrical, venting, and plumbing work should be handled by appropriately qualified professionals in accordance with applicable codes and permit requirements.'),
           para('If you are planning water heater installation in Denver or Boulder, share your project details to help find a professional who serves your location.')
         ),
-        button: btn('Request Water Heater Installation', REQUEST),
+        button: btn('Request Water Heater Installation', WH_INSTALLATION),
       },
     },
     {
@@ -216,7 +226,7 @@ const waterHeater: SeedPage = {
           ]),
           para('Provide your business type, property location, system details, and service requirements so that your request can be matched with professionals offering the appropriate services.')
         ),
-        button: btn('Request Commercial Water Heater Service', REQUEST),
+        button: btn('Request Commercial Water Heater Service', WH_COMMERCIAL),
       },
     },
     {
@@ -269,7 +279,7 @@ const waterHeater: SeedPage = {
           { title: 'Tankless water heaters', items: ['Heat water on demand', 'Generally take up less space than traditional tank systems', 'Can provide continuous hot water within their rated capacity', 'May require upgrades to gas supply, electrical service, or venting, depending on the model'] },
         ],
         outro: "A qualified professional can assess your property's requirements and explain the costs, capacity, and installation considerations of each option.",
-        buttons: [btn('Explore Water Heater Installation Options', REQUEST)],
+        buttons: [btn('Explore Water Heater Installation Options', WH_INSTALLATION)],
       },
     },
     {
@@ -556,15 +566,16 @@ const CARD_ART: Record<string, string> = {
   '/find-a-pro/hvac-contractors': '/art/hero-hvac.svg',
 }
 
+// A city page (plumbing/water-heater-repair/denver) uses its service page's art.
 const heroFallback = (path: string): string => {
-  if (/^(water|plumbing|frozen)\//.test(path)) return path.startsWith('water/') ? '/art/water-heater.svg' : path.startsWith('frozen/') ? '/art/frozen-pipe.svg' : '/art/hero-plumbing.svg'
-  if (/^(ac|hvac)\//.test(path)) return path.startsWith('ac/ac-installation') ? '/art/ac-installation.svg' : path.startsWith('ac/') ? '/art/ac-repair.svg' : '/art/hero-hvac.svg'
+  const service = path.replace(/\/(denver|boulder)$/, '')
+  if (service !== path && HERO_ART[service]) return HERO_ART[service]
   if (path.startsWith('resources/')) return '/art/home-pro.svg'
   return ''
 }
 
 // Request Service buttons open the form already filled in for the page they are on.
-const PLUMBING_SERVICES = ['plumbing-repair', 'water-heater-repair', 'water-heater-replacement', 'frozen-pipe-repair', 'plumbing-fixes']
+const PLUMBING_SERVICES = ['plumbing-repair', 'water-heater-repair', 'water-heater-replacement', 'water-heater-installation', 'frozen-pipe-repair', 'plumbing-fixes']
 const HVAC_SERVICES = ['ac-repair', 'ac-installation', 'ac-replacement', 'hvac-repair', 'hvac-maintenance']
 function requestLinkFor(path: string): string {
   const parts = path.split('/')

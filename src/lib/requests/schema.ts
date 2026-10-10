@@ -7,6 +7,8 @@ export const SERVICES = {
     { value: 'plumbing-repair', label: 'Plumbing Repair' },
     { value: 'water-heater-repair', label: 'Water Heater Repair' },
     { value: 'water-heater-replacement', label: 'Water Heater Replacement' },
+    // Naya option: purane leads ki values same rehti hain, isliye stored data par koi asar nahi.
+    { value: 'water-heater-installation', label: 'Water Heater Installation' },
     { value: 'frozen-pipe-repair', label: 'Frozen Pipe Repair' },
     { value: 'plumbing-fixes', label: 'Plumbing Fixes' },
     { value: 'other-plumbing', label: 'Something else / not sure' },
