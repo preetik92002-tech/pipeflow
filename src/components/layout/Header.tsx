@@ -78,14 +78,6 @@ export function Header() {
                 <span className="xl:hidden text-sm font-semibold">Call</span>
               </Link>
 
-              <Link
-                href={siteConfig.ctas.getQuote.href}
-                className="btn-outline !py-2 !px-4 !text-sm hidden xl:inline-flex"
-              >
-                <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                {siteConfig.ctas.getQuote.label}
-              </Link>
-
               <button
                 type="button"
                 onClick={() => openModal()}

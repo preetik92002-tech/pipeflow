@@ -15,21 +15,20 @@ export const siteConfig: SiteConfig = {
     city: 'Denver',
     state: 'CO',
     zip: '80202', // [PLACEHOLDER]
-    license: 'LICENSE# [PLACEHOLDER]',
+    license: '',
   },
 
   nav: [
     { label: 'Home', href: '/' },
-    { label: 'Services', href: '/services' },
-    { label: 'Service Areas', href: '/service-areas' },
-    { label: 'About', href: '/about' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Join as a Pro', href: '/join-us' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Plumbing', href: '/plumbing' },
+    { label: 'HVAC', href: '/hvac' },
+    { label: 'Denver', href: '/denver' },
+    { label: 'Boulder', href: '/boulder' },
+    { label: 'For Contractors', href: '/join-us' },
   ],
 
   ctas: {
-    bookService: { label: 'Book a Service', href: '/book-service' },
+    bookService: { label: 'Request Service', href: '/book-service' },
     getQuote: { label: 'Get a Quote', href: '/get-a-quote' },
     callNow: { label: 'Call Now', phone: '(720) 555-0100' }, // [PLACEHOLDER]
     joinPro: { label: 'Join PipeFlow', href: '/join-us' },
@@ -38,9 +37,7 @@ export const siteConfig: SiteConfig = {
   announcement: {
     enabled: true,
     messages: [
-      '⚡ Same-Day Service Available — Call Now',
-      '🚨 24/7 Emergency Plumbing & HVAC Response',
-      '📍 Serving Denver & Surrounding Colorado Communities',
+      'Plumbing & HVAC help in Denver & Boulder',
     ],
   },
 

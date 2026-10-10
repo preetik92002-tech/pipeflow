@@ -20,40 +20,28 @@ import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { useSiteSettings } from './SiteSettingsProvider'
 
 const serviceLinks = [
-  { label: 'Leak Repair & Detection', href: '/services/plumbing/leak-repair' },
-  { label: 'Drain Cleaning & Jetting', href: '/services/plumbing/drain-cleaning' },
-  { label: 'Water Heater Repair & Install', href: '/services/plumbing/water-heater' },
-  { label: 'Pipe Repair & Repiping', href: '/services/plumbing/pipe-repair' },
-  { label: 'Furnace & Heating Repair', href: '/services/hvac/furnace-heating' },
-  { label: 'Heat Pumps & Dual Fuel', href: '/services/hvac/heat-pumps' },
-  { label: 'Air Conditioning Service', href: '/services/hvac/ac-installation' },
+  { label: 'Plumbing Repair', href: '/plumbing/plumbing-repair' },
+  { label: 'Water Heater Repair', href: '/plumbing/water-heater-repair' },
+  { label: 'Frozen Pipe Repair', href: '/plumbing/frozen-pipe-repair' },
+  { label: 'AC Repair', href: '/hvac/ac-repair' },
+  { label: 'AC Installation', href: '/hvac/ac-installation' },
 ]
 
 const serviceAreaLinks = [
-  { label: 'Denver (Primary Hub)', href: '/service-areas/denver' },
-  { label: 'Aurora', href: '/service-areas/aurora' },
-  { label: 'Lakewood', href: '/service-areas/lakewood' },
-  { label: 'Englewood & Littleton', href: '/service-areas/englewood' },
-  { label: 'Arvada & Westminster', href: '/service-areas/arvada' },
-  { label: 'Thornton & Centennial', href: '/service-areas/centennial' },
-  { label: 'All 12 Service Territories →', href: '/service-areas' },
+  { label: 'Denver', href: '/denver' },
+  { label: 'Boulder', href: '/boulder' },
 ]
 
 const companyLinks = [
-  { label: 'About PipeFlow', href: '/about' },
-  { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'The PipeFlow Standard', href: '/#trust-heading' },
-  { label: 'Join as a Pro Contractor', href: '/join-us' },
-  { label: 'Careers & Recruitment', href: '/join-us' },
-  { label: 'Customer Reviews', href: '/#reviews' },
+  { label: 'Plumbing', href: '/plumbing' },
+  { label: 'HVAC', href: '/hvac' },
+  { label: 'For Contractors', href: '/join-us' },
+  { label: 'Contact', href: '/contact' },
 ]
 
 const resourceLinks = [
-  { label: 'PipeFlow Journal & Blog', href: '/blog' },
-  { label: 'Winter Frozen Pipe Guide', href: '/blog/prevent-frozen-pipes-colorado-winter' },
-  { label: 'Heat Pumps vs Furnaces', href: '/blog/heat-pumps-vs-furnaces-colorado-climate' },
-  { label: 'Water Heater Failure Signs', href: '/blog/warning-signs-water-heater-failure' },
-  { label: '24/7 Emergency Dispatch', href: '/contact' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Request Service', href: '/book-service' },
 ]
 
 export function Footer() {
@@ -102,13 +90,13 @@ export function Footer() {
             {/* Brand Statement */}
             <div>
               <p className="text-xs sm:text-sm font-mono font-bold uppercase tracking-widest text-brand-blue-lighter">
-                PLUMBING &bull; HVAC &bull; COLORADO
+                PLUMBING &bull; HVAC &bull; DENVER &amp; BOULDER
               </p>
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-white mt-2">
-                Reliable service for homes that work better.
+                Flowing Comfort. Built to Last.
               </h3>
               <p className="text-sm sm:text-base text-neutral-400 mt-2 max-w-xl mx-auto">
-                Denver Front Range licensed residential plumbing, heating, and cooling specialists.
+                Plumbing and HVAC help for homes in Denver and Boulder.
               </p>
             </div>
 
@@ -261,7 +249,6 @@ export function Footer() {
                 <p className="text-neutral-400">
                   {company.city}, {company.state} {company.zip}
                 </p>
-                <p className="text-2xs text-neutral-500 font-mono mt-0.5">{company.license}</p>
               </div>
 
               {/* Social Channels */}
@@ -312,22 +299,9 @@ export function Footer() {
       <div className="border-t border-navy-900 bg-[#050A12] py-6">
         <div className="container-site flex flex-col sm:flex-row items-center justify-between gap-4 text-2xs text-neutral-500">
           <p>
-            &copy; {year} PipeFlow Co. All Rights Reserved. Licensed Denver Master Plumbing &amp; HVAC Mechanical Services.
+            &copy; {year} PipeFlow Co. All Rights Reserved. 
           </p>
 
-          <div className="flex items-center gap-4">
-            <Link href="/contact" className="hover:text-neutral-300 transition-colors">
-              Privacy Policy
-            </Link>
-            <span>&bull;</span>
-            <Link href="/contact" className="hover:text-neutral-300 transition-colors">
-              Terms of Service
-            </Link>
-            <span>&bull;</span>
-            <Link href="/contact" className="hover:text-neutral-300 transition-colors">
-              Accessibility
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

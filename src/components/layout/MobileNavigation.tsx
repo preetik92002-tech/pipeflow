@@ -89,14 +89,14 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone, onBook
         {/* Service quick links */}
         <div className="flex gap-2 px-4 py-3 border-b border-neutral-100 flex-shrink-0">
           <Link
-            href="/services?category=plumbing"
+            href="/plumbing"
             className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-blue-50 border border-blue-100 py-2 text-xs font-semibold text-brand-blue"
           >
             <Droplets className="h-3.5 w-3.5" aria-hidden="true" />
             Plumbing
           </Link>
           <Link
-            href="/services?category=hvac"
+            href="/hvac"
             className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-orange-50 border border-orange-100 py-2 text-xs font-semibold text-orange-600"
           >
             <Wind className="h-3.5 w-3.5" aria-hidden="true" />
@@ -152,13 +152,6 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone, onBook
               {config.bookService.label}
             </Link>
           )}
-          <Link
-            href={config.getQuote.href}
-            className="btn-outline w-full justify-center"
-          >
-            <FileText className="h-4 w-4" aria-hidden="true" />
-            {config.getQuote.label}
-          </Link>
           <Link
             href={`tel:${phone}`}
             className="btn-secondary w-full justify-center"
