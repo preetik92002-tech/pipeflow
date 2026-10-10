@@ -194,7 +194,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <div className="container-site max-w-4xl mx-auto mb-12">
         <div className="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-xl bg-neutral-100 border border-neutral-200/60">
           <Image
-            src={post.featuredImage || '/assets/service-plumbing.jpg'}
+            src={post.featuredImage || '/art/hero-plumbing.svg'}
             alt={post.featuredImageAlt || post.title}
             fill
             priority

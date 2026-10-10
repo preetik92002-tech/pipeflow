@@ -186,7 +186,7 @@ export default function AdminLoginPage() {
       <div className="relative hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/assets/hero-about.jpg"
+            src="/art/home-pro.svg"
             alt="PipeFlow plumbing team at work"
             fill
             sizes="(min-width: 1024px) 60vw"

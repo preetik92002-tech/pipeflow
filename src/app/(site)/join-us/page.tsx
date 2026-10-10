@@ -54,7 +54,7 @@ export default function JoinUsPage() {
     <div className="bg-white min-h-screen">
       {/* Cinematic Hero */}
       <PageHero
-        imageSrc="/assets/hero-hvac.jpg"
+        imageSrc="/art/hero-hvac.svg"
         imageAlt="Master trade technician carrying manifold gauges overlooking Colorado skyline"
         eyebrow="Contractor &amp; Trade Careers"
         eyebrowIcon={HardHat}
@@ -83,7 +83,7 @@ export default function JoinUsPage() {
             <div className="lg:col-span-5 relative">
               <div className="relative rounded-3xl overflow-hidden aspect-[4/3] shadow-xl border border-neutral-200">
                 <Image
-                  src="/assets/service-detail-1.jpg"
+                  src="/art/home-pro.svg"
                   alt="PipeFlow technician working with high quality gloves and tools in Colorado"
                   fill
                   className="object-cover object-center"

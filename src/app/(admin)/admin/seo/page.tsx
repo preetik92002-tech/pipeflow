@@ -21,7 +21,7 @@ export default function AdminSEOPage() {
     'Denver’s trusted plumbing and HVAC experts. Emergency leak repairs, boiler installation, furnace maintenance, and AC service across Denver and Front Range communities.'
   )
   const [canonicalDomain, setCanonicalDomain] = useState('https://pipeflowco.com')
-  const [ogImage, setOgImage] = useState('/assets/hero-hvac-tech.jpg')
+  const [ogImage, setOgImage] = useState('/art/hero-hvac.svg')
   const [keywords, setKeywords] = useState<string[]>([
     'Denver plumber',
     'Denver HVAC repair',

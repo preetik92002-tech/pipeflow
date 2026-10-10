@@ -35,7 +35,7 @@ export function BlogEditor({ initialPost, isNew = false }: BlogEditorProps) {
   const [categoryId, setCategoryId] = useState(initialPost?.categorySlug || 'plumbing')
   const [status, setStatus] = useState<BlogStatus>(initialPost?.status || 'draft')
   const [featuredImage, setFeaturedImage] = useState(
-    initialPost?.featuredImage || '/assets/service-plumbing.jpg'
+    initialPost?.featuredImage || '/art/hero-plumbing.svg'
   )
   const [featuredImageAlt, setFeaturedImageAlt] = useState(initialPost?.featuredImageAlt || '')
   const [tagsString, setTagsString] = useState((initialPost?.tags || []).join(', '))

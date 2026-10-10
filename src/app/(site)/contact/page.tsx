@@ -78,7 +78,7 @@ export default function ContactPage() {
     <div className="bg-white min-h-screen">
       {/* Cinematic Hero */}
       <PageHero
-        imageSrc="/assets/hero-about.jpg"
+        imageSrc="/art/home-pro.svg"
         imageAlt="PipeFlow Denver headquarters and dispatch operations overlooking Colorado mountain range"
         eyebrow="Denver Headquarters &amp; Dispatch"
         eyebrowIcon={Phone}

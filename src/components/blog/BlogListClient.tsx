@@ -44,7 +44,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
     <div>
       {/* Cinematic Blog Hero */}
       <PageHero
-        imageSrc="/assets/hero-blog.jpg"
+        imageSrc="/art/hero-plumbing.svg"
         imageAlt="PipeFlow plumbing and HVAC research station with notebook, tools, and Denver skyline backdrop"
         eyebrow="PipeFlow Resources"
         eyebrowIcon={BookOpen}

@@ -30,7 +30,7 @@ export default async function BookServicePage({ searchParams }: BookServicePageP
     <div className="bg-neutral-50 min-h-screen">
       {/* Cinematic Image Hero */}
       <PageHero
-        imageSrc="/assets/hero-service-areas.jpg"
+        imageSrc="/art/denver.svg"
         imageAlt="PipeFlow service technician and van arriving at Colorado residence"
         eyebrow="On-Time Arrival Guarantee"
         eyebrowIcon={ShieldCheck}

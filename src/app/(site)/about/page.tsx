@@ -48,7 +48,7 @@ export default function AboutPage() {
     <div className="bg-white min-h-screen">
       {/* Cinematic Hero */}
       <PageHero
-        imageSrc="/assets/hero-about.jpg"
+        imageSrc="/art/home-pro.svg"
         imageAlt="PipeFlow master blueprints, precision mechanical tools, and Colorado mountain backdrop"
         eyebrow="Our Story &amp; Standards"
         eyebrowIcon={Compass}
@@ -104,7 +104,7 @@ export default function AboutPage() {
           <div className="lg:col-span-6 relative">
             <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-neutral-200">
               <Image
-                src="/assets/hero-hvac.jpg"
+                src="/art/hero-hvac.svg"
                 alt="PipeFlow technician inspecting HVAC rooftop mechanical unit against Colorado skyline"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

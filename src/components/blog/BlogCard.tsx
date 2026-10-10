@@ -22,7 +22,7 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
         aria-hidden="true"
       >
         <Image
-          src={post.featuredImage || '/assets/service-plumbing.jpg'}
+          src={post.featuredImage || '/art/hero-plumbing.svg'}
           alt={post.featuredImageAlt || post.title}
           fill
           priority={priority}

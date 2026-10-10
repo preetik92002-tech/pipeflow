@@ -30,7 +30,7 @@ export default async function GetAQuotePage({ searchParams }: GetAQuotePageProps
     <div className="bg-neutral-50 min-h-screen">
       {/* Cinematic Image Hero */}
       <PageHero
-        imageSrc="/assets/hero-services.jpg"
+        imageSrc="/art/hero-plumbing.svg"
         imageAlt="PipeFlow master mechanical systems and upfront transparent quotes"
         eyebrow="Upfront Honest Pricing"
         eyebrowIcon={FileText}
