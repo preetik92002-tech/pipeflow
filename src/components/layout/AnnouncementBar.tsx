@@ -32,9 +32,9 @@ export function AnnouncementBar({ messages, className }: AnnouncementBarProps) {
     <div
       role="region"
       aria-label="Announcements"
-      className={cn('bg-navy-900 text-white text-xs sm:text-sm', className)}
+      className={cn('bg-ink text-[0.8rem] tracking-wide text-white/85', className)}
     >
-      <div className="container-site flex items-center justify-between py-2 gap-4 min-h-[34px]">
+      <div className="container-wide flex min-h-[36px] items-center justify-between gap-4 py-2">
         <div className="flex-1 text-center">
           <span
             className={cn(

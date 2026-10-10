@@ -10,5 +10,8 @@ export default defineConfig({
     testTimeout: 30000,
     // Each database test file starts its own in-process Postgres; several at once can take a while.
     hookTimeout: 60000,
+    // Ek waqt mein ek file: kai in-process Postgres saath chalne par chhoti machines (6 GB RAM) par
+    // memory khatam ho jaati hai aur workers bina error ke mar jaate hain. Tests wahi hain, sirf order serial hai.
+    fileParallelism: false,
   },
 })

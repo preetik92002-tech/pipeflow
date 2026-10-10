@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { NextRequest } from 'next/server'
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { pgliteSupabase } from '../helpers/pglite-supabase'
 import { seedPages } from '../../supabase/seed/pages'
 
@@ -96,4 +96,8 @@ describe('water heater lead flow', () => {
     // Commercial: business request; the customer then picks repair, replacement or installation.
     expect(prefill(buttons.get('Request Commercial Water Heater Service')!)).toEqual({ category: 'plumbing', customerType: 'business', service: undefined })
   })
+})
+
+afterAll(async () => {
+  await db?.close()
 })

@@ -20,19 +20,18 @@ export default async function RequestServicePage({ searchParams }: { searchParam
   const phone = company.phone || siteConfig.company.phone
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <section className="bg-gradient-to-br from-navy-900 via-navy-800 to-navy-600 py-12 text-white sm:py-16">
-        <div className="container-site max-w-3xl text-center">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-100">
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" />Denver &amp; Boulder
-          </p>
-          <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Request Plumbing or HVAC Service</h1>
-          <p className="mt-4 text-lg text-neutral-200">Tell us what you need, add photos if you can, and we will match your request with professionals serving your area.</p>
+    <div className="bg-paper">
+      <section className="border-b border-line">
+        <div className="container-wide py-14 sm:py-20">
+          <div className="hero-enter max-w-3xl">
+            <p className="eyebrow">Denver &amp; Boulder</p>
+            <h1 className="mt-5 font-display text-display-xl font-bold text-ink">Request plumbing or HVAC service</h1>
+            <p className="mt-5 max-w-2xl text-lead text-neutral-700">Tell us what you need, add photos if you can, and we will match your request with professionals serving your area.</p>
+          </div>
         </div>
       </section>
-      <div className="container-site -mt-6 pb-16 sm:-mt-8">
+      <div className="container-wide py-10 sm:py-14 lg:pb-24">
         <RequestServiceFlow prefill={prefill} phone={hasRealPhone(phone) ? phone : undefined} />
       </div>
     </div>
-  )
-}
+

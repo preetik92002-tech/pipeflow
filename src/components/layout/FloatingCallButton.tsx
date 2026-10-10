@@ -1,46 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Phone } from 'lucide-react'
 import { useSiteSettings } from './SiteSettingsProvider'
 import { hasRealPhone } from '@/lib/config/contact'
 
+/** Desktop par scroll ke baad dikhne wala call button. Sirf asli phone number ho tab render hota hai. */
 export function FloatingCallButton() {
   const [visible, setVisible] = useState(false)
-  const { company, emergencyAvailable } = useSiteSettings()
+  const { company } = useSiteSettings()
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Show when scrolled down 300px
-      setVisible(window.scrollY > 300)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => setVisible(window.scrollY > 600)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   if (!visible || !hasRealPhone(company.phone)) return null
 
   return (
-    <aside
-      aria-label="Direct Phone Assistance"
-      className="hidden lg:block fixed bottom-6 left-6 z-40 animate-slide-up"
-    >
+    <aside aria-label="Call us" className="fixed bottom-6 left-6 z-40 hidden animate-rise lg:block">
       <a
         href={`tel:${company.phone}`}
-        className="group flex items-center gap-3 bg-navy-900 text-white rounded-full pl-3.5 pr-5 py-2.5 shadow-2xl border border-white/20 hover:bg-brand-red transition-all duration-300 hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+        className="group flex items-center gap-3 rounded-full bg-ink py-2 pl-2 pr-5 text-white shadow-[0_18px_40px_-16px_rgba(11,23,40,0.7)] transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
       >
-        <span className="w-8 h-8 rounded-full bg-brand-red group-hover:bg-white text-white group-hover:text-brand-red flex items-center justify-center transition-colors shadow-sm">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-red transition-colors group-hover:bg-white group-hover:text-brand-red">
           <Phone className="h-4 w-4" aria-hidden="true" />
         </span>
-        <div className="text-left">
-          <p className="text-2xs font-bold text-neutral-300 group-hover:text-white uppercase tracking-wider leading-none">
-            Call Us
-          </p>
-          <p className="text-sm font-bold text-white tracking-tight leading-snug">
-            {company.phone}
-          </p>
-        </div>
+        <span className="text-sm font-semibold">{company.phone}</span>
       </a>
     </aside>
   )

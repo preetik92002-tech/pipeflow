@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { NextRequest } from 'next/server'
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { pgliteSupabase } from '../helpers/pglite-supabase'
 
 // Real repository + API routes + SQL functions on an in-process Postgres.
@@ -214,4 +214,8 @@ describe('publishing', () => {
     expect((await publish(id, 1, 'https://evil.example')).status).toBe(403)
     expect((await row(id)).status).toBe('draft')
   })
+})
+
+afterAll(async () => {
+  await db?.close()
 })

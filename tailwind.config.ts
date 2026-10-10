@@ -25,6 +25,25 @@ const config: Config = {
           'red-dark': '#C41E1E',
           'red-light': '#EF4444',
         },
+        // Public site neutrals: warm "paper" bands and cool "mist" bands between white sections.
+        paper: '#F6F3EE',
+        mist: '#EDF2F7',
+        line: '#E3DED5',
+        ink: '#0B1728',
+      },
+      fontSize: {
+        // Fluid display scale: badi screens par bade, mobile par bina tootey headings.
+        'display-2xl': ['clamp(2.6rem, 1.4rem + 4.6vw, 5.4rem)', { lineHeight: '1.02', letterSpacing: '-0.035em' }],
+        'display-xl': ['clamp(2.2rem, 1.3rem + 3.2vw, 4rem)', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
+        'display-lg': ['clamp(1.85rem, 1.25rem + 2.1vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
+        'display-md': ['clamp(1.45rem, 1.15rem + 1.1vw, 2.1rem)', { lineHeight: '1.18', letterSpacing: '-0.02em' }],
+        lead: ['clamp(1.075rem, 1rem + 0.35vw, 1.3rem)', { lineHeight: '1.65' }],
+      },
+      transitionTimingFunction: {
+        'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
@@ -38,6 +57,10 @@ const config: Config = {
         'ken-burns': 'kenBurns 22s ease-in-out infinite alternate',
         'shimmer': 'shimmer 3s ease-in-out infinite',
         'pulse-subtle': 'pulseSubtle 3s ease-in-out infinite',
+        rise: 'rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
+        settle: 'settle 1.6s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'page-in': 'pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'logo-in': 'logoIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
       keyframes: {
         fadeIn: {
@@ -63,6 +86,22 @@ const config: Config = {
         pulseSubtle: {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
           '50%': { opacity: '0.85', transform: 'scale(1.02)' },
+        },
+        rise: {
+          '0%': { opacity: '0', transform: 'translateY(18px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        settle: {
+          '0%': { transform: 'scale(1.08)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        pageIn: {
+          '0%': { opacity: '0.01', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        logoIn: {
+          '0%': { opacity: '0', transform: 'translateY(-4px) scale(0.96)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
       },
       boxShadow: {

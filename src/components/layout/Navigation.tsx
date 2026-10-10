@@ -10,28 +10,29 @@ interface NavigationProps {
   className?: string
 }
 
+/** Active page: neeche laal line poori; baaki links par hover karne se line baayein se badhti hai. */
+export function isActivePath(pathname: string, href: string) {
+  return pathname === href || (href !== '/' && pathname.startsWith(`${href}/`))
+}
+
 export function Navigation({ items, className }: NavigationProps) {
   const pathname = usePathname()
 
   return (
-    <nav aria-label="Main navigation" className={cn('flex items-center gap-0.5', className)}>
+    <nav aria-label="Main navigation" className={cn('flex items-center gap-1 xl:gap-2', className)}>
       {items.map((item) => {
-        const isActive =
-          pathname === item.href ||
-          (item.href !== '/' && pathname.startsWith(item.href))
+        const isActive = isActivePath(pathname, item.href)
         return (
           <Link
             key={item.href}
             href={item.href}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 whitespace-nowrap',
-              isActive
-                ? 'bg-blue-50 text-brand-blue font-semibold'
-                : 'text-neutral-600 hover:text-navy-800 hover:bg-neutral-50'
+              'whitespace-nowrap rounded-md px-2.5 py-2 text-[0.92rem] font-medium transition-colors duration-200 xl:px-3',
+              isActive ? 'text-ink' : 'text-neutral-600 hover:text-ink'
             )}
           >
-            {item.label}
+            <span className="link-grow after:!bg-brand-red" data-active={isActive ? '' : undefined}>{item.label}</span>
           </Link>
         )
       })}

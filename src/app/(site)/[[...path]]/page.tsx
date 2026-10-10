@@ -3,9 +3,11 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { SectionRenderer } from '@/components/cms/SectionRenderer'
 import { faqJsonLd, serializeJsonLd } from '@/lib/cms-pages/jsonld'
+import { ancestorPaths, breadcrumbJsonLd, buildPageContext, serviceJsonLd } from '@/lib/cms-pages/page-context'
 import { validatePath, pathToUrl } from '@/lib/cms-pages/paths'
-import { getPublishedPage, getRedirect } from '@/lib/cms-pages/repository'
-import { generateMetadata as buildMetadata } from '@/lib/seo/metadata'
+import { getPublishedPage, getPublishedTitles, getRedirect } from '@/lib/cms-pages/repository'
+import { siteConfig } from '@/lib/config/site'
+import { generateMetadata as buildMetadata, getPublicCompanySettings, getPublicSeoSettings } from '@/lib/seo/metadata'
 
 /**
  * Every page the client creates is served here: /our-services, /hvac/ac-repair
@@ -60,11 +62,25 @@ export default async function CmsPage({ params }: Props) {
     notFound()
   }
 
-  const jsonLd = faqJsonLd(page.sections)
+  const [liveTitles, seo, company] = await Promise.all([getPublishedTitles(ancestorPaths(path)), getPublicSeoSettings(), getPublicCompanySettings()])
+  const ctx = buildPageContext(path, page.title, liveTitles)
+  const baseUrl = seo?.canonical_domain || process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
+  const url = `${baseUrl}${path === '' ? '' : pathToUrl(path)}`
+  // Structured data sirf indexable pages par, aur sirf wahi jo page par dikh raha hai.
+  const jsonLd = [
+    faqJsonLd(page.sections),
+    page.noindex ? null : breadcrumbJsonLd(ctx.crumbs, baseUrl, url),
+    !page.noindex && ctx.kind === 'service'
+      ? serviceJsonLd({ name: page.title, description: page.seoDescription || page.description, url, providerName: company.name || siteConfig.company.name, baseUrl })
+      : null,
+  ].filter(Boolean)
+
   return (
     <>
-      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />}
-      <SectionRenderer sections={page.sections} />
+      {jsonLd.map((ld, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(ld) }} />
+      ))}
+      <SectionRenderer sections={page.sections} ctx={ctx} />
     </>
   )
 }

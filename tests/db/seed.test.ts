@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { validatePath } from '@/lib/cms-pages/paths'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import { seedPages } from '../../supabase/seed/pages'
@@ -145,6 +145,9 @@ describe('seed migration', () => {
     await db.exec(read('20261009000000_cms_pages.sql'))
     await db.exec(read('20261009000100_seed_cms_pages.sql'))
   })
+  afterAll(async () => {
+    await db?.close()
+  })
 
   it('creates every page; all are live except the template and drafts', async () => {
     const r = await db.query<{ path: string; status: string; is_template: boolean }>('select path, status, is_template from cms_pages order by path')
@@ -187,6 +190,7 @@ describe('seed migration', () => {
     await fresh.query(`select cms_create_page('Old','water/water-heater-repair/denver',null,'[]'::jsonb,null,null,null,null,true,false,null)`)
     await fresh.exec(read('20261009000100_seed_cms_pages.sql'))
     const r = await fresh.query<{ path: string }>(`select path from cms_pages where path like '%water-heater-repair/denver'`)
+    await fresh.close()
     expect(r.rows).toEqual([{ path: 'water/water-heater-repair/denver' }])
   })
 })

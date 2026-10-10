@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const dir = path.join(__dirname, '../../supabase/migrations')
 const read = (f: string) => readFileSync(path.join(dir, f), 'utf8')
@@ -34,8 +34,14 @@ const seededButtons = () => [
   { id: crypto.randomUUID(), type: 'comparison', data: { buttons: [btn('Explore Water Heater Installation Options')] } },
 ]
 
+// Every test database is closed after its block, so many in-process Postgres instances never pile up.
+const open: PGlite[] = []
+afterAll(async () => {
+  await Promise.all(open.splice(0).map((d) => d.close()))
+})
 async function freshDb() {
   const db = new PGlite()
+  open.push(db)
   await db.exec(SCHEMA)
   return db
 }

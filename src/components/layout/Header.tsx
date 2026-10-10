@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Phone, Calendar, FileText, Menu } from 'lucide-react'
+import { ArrowRight, Menu, Phone } from 'lucide-react'
 import { Navigation } from './Navigation'
 import { MobileNavigation } from './MobileNavigation'
 import { AnnouncementBar } from './AnnouncementBar'
@@ -16,13 +16,21 @@ import { useSiteSettings } from './SiteSettingsProvider'
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const menuButton = useRef<HTMLButtonElement>(null)
   const { company, announcementMessages } = useSiteSettings()
   const nav = useNavigation()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16)
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const closeMenu = useCallback((restoreFocus: boolean) => {
+    setMobileMenuOpen(false)
+    // Menu band hone par keyboard focus wapas menu button par, taaki user page mein kho na jaye.
+    if (restoreFocus) menuButton.current?.focus()
   }, [])
 
   return (
@@ -30,73 +38,61 @@ export function Header() {
       {announcementMessages.length > 0 && <AnnouncementBar messages={announcementMessages} />}
       <header
         className={cn(
-          'sticky top-0 z-40 w-full bg-white transition-all duration-300',
-          isScrolled
-            ? 'shadow-nav border-b border-neutral-100'
-            : 'border-b border-neutral-100/50'
+          'sticky top-0 z-40 w-full transition-[background-color,box-shadow] duration-300',
+          isScrolled ? 'bg-white/90 shadow-[0_1px_0_rgba(11,23,40,0.06),0_12px_30px_-20px_rgba(11,23,40,0.45)] backdrop-blur-md' : 'bg-white'
         )}
         role="banner"
       >
-        {/* Skip to main content */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-brand-blue focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
         >
           Skip to main content
         </a>
 
-        <div className="container-site">
-          <div className="flex items-center justify-between h-16 lg:h-[72px] gap-3">
-
-            {/* Logo */}
-            <Link
-              href="/"
-              aria-label="PipeFlow Co. — Home"
-              className="flex-shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue rounded group"
-            >
+        <div className="container-wide">
+          <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-16' : 'h-[72px] lg:h-20')}>
+            <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="group flex-shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue">
               <Image
                 src="/assets/logo.png"
-                alt="PipeFlow Co. Plumbing & HVAC Services — Denver, Colorado"
-                width={200}
-                height={72}
-                className="w-[105px] sm:w-[125px] lg:w-[140px] h-auto object-contain group-hover:scale-[1.02] transition-transform duration-200"
+                alt=""
+                width={1024}
+                height={426}
+                sizes="170px"
+                className={cn(
+                  'h-auto animate-logo-in object-contain transition-[width,transform] duration-300 ease-out-expo group-hover:-translate-y-0.5 group-hover:-rotate-1',
+                  isScrolled ? 'w-[118px] lg:w-[132px]' : 'w-[124px] sm:w-[140px] lg:w-[160px]'
+                )}
                 priority
               />
             </Link>
 
-            {/* Desktop nav — hidden below lg */}
-            <Navigation items={nav.header} className="hidden lg:flex flex-1 justify-center" />
+            <Navigation items={nav.header} className="hidden flex-1 justify-center lg:flex" />
 
-            {/* Desktop CTA cluster */}
-            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+            <div className="hidden flex-shrink-0 items-center gap-3 lg:flex">
               {hasRealPhone(company.phone) && (
-              <Link
-                href={`tel:${company.phone}`}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-navy-700 hover:bg-neutral-100 transition-colors"
-                aria-label={`Call us: ${company.phone}`}
-              >
-                <Phone className="h-3.5 w-3.5 text-brand-red" aria-hidden="true" />
-                <span className="hidden xl:inline text-sm font-semibold">{company.phone}</span>
-                <span className="xl:hidden text-sm font-semibold">Call</span>
-              </Link>
+                <a href={`tel:${company.phone}`} className="group inline-flex items-center gap-2 px-2 text-sm font-semibold text-ink" aria-label={`Call ${company.phone}`}>
+                  <Phone className="h-4 w-4 text-brand-red" aria-hidden="true" />
+                  <span className="link-grow hidden xl:inline">{company.phone}</span>
+                  <span className="xl:hidden">Call</span>
+                </a>
               )}
-
-              <Link href={nav.cta.href} className="btn-primary !py-2 !px-4 !text-sm">
-                <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+              <Link href={nav.cta.href} className="cta cta-solid !min-h-[2.75rem] !px-5 !py-2.5 !text-sm">
                 {nav.cta.label}
+                <ArrowRight className="cta-arrow" aria-hidden="true" />
               </Link>
             </div>
 
-            {/* Mobile hamburger */}
             <button
+              ref={menuButton}
               type="button"
               aria-label="Open navigation menu"
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden flex items-center justify-center rounded-lg p-2 text-navy-800 hover:bg-neutral-100 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:hidden"
             >
-              <Menu className="h-6 w-6" aria-hidden="true" />
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -104,7 +100,7 @@ export function Header() {
 
       <MobileNavigation
         isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
+        onClose={closeMenu}
         items={nav.header}
         config={{ ...siteConfig.ctas, bookService: nav.cta }}
         phone={company.phone}

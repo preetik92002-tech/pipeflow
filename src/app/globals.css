@@ -134,27 +134,207 @@
 @layer components {
   /* Styles for rich text written in the page editor (no typography plugin in this project). */
   .cms-prose {
-    @apply text-neutral-700 leading-relaxed;
+    @apply text-[1.0625rem] leading-[1.75] text-neutral-700;
   }
   .cms-prose > * + * {
     @apply mt-4;
   }
   .cms-prose h2 {
-    @apply font-display text-2xl font-bold text-navy-800 mt-8;
+    @apply font-display text-display-md font-bold text-ink mt-10;
   }
   .cms-prose h3 {
-    @apply font-display text-xl font-semibold text-navy-800 mt-6;
+    @apply font-display text-xl font-semibold text-ink mt-8;
   }
   .cms-prose h4 {
-    @apply font-display text-lg font-semibold text-navy-800 mt-5;
+    @apply font-display text-lg font-semibold text-ink mt-6;
   }
+  .cms-prose a {
+    @apply font-semibold text-brand-blue underline decoration-brand-blue/30 underline-offset-4 transition-colors hover:decoration-brand-blue;
+  }
+  /* Lists: custom markers in the brand red instead of browser bullets. */
   .cms-prose ul {
-    @apply list-disc pl-6 space-y-1.5;
+    @apply space-y-2.5 pl-0;
+  }
+  .cms-prose ul > li {
+    @apply relative pl-7;
+  }
+  .cms-prose ul > li::before {
+    content: '';
+    @apply absolute left-0 top-[0.72em] h-[3px] w-3.5 rounded-full bg-brand-red;
   }
   .cms-prose ol {
-    @apply list-decimal pl-6 space-y-1.5;
+    @apply list-decimal space-y-2 pl-6 marker:font-semibold marker:text-brand-red;
   }
   .cms-prose blockquote {
-    @apply border-l-4 border-brand-blue pl-4 italic text-neutral-600;
+    @apply border-l-[3px] border-brand-red pl-5 font-display text-xl leading-snug text-ink;
+  }
+  .cms-prose-invert {
+    @apply text-white/80;
+  }
+  .cms-prose-invert h2,
+  .cms-prose-invert h3,
+  .cms-prose-invert h4 {
+    @apply text-white;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Public site design system                                           */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .container-wide {
+    @apply mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-10;
+  }
+
+  /* Chhota uppercase label har section heading ke upar, laal line ke saath. */
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-red;
+  }
+  .eyebrow::before {
+    content: '';
+    @apply h-px w-8 bg-current;
+  }
+  .eyebrow-light {
+    @apply text-white/75;
+  }
+
+  .heading-xl {
+    @apply font-display text-display-xl font-bold text-ink;
+  }
+  .heading-lg {
+    @apply font-display text-display-lg font-bold text-ink;
+  }
+
+  /* Public buttons. Admin purane .btn-* classes use karta hai, isliye ye alag naam hain. */
+  .cta {
+    @apply relative inline-flex min-h-[3rem] items-center justify-center gap-2.5 rounded-full px-6 py-3 text-[0.95rem] font-semibold transition-[background-color,color,box-shadow,transform,border-color] duration-300 ease-out-expo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .cta-solid {
+    @apply bg-brand-red text-white shadow-[0_10px_30px_-12px_rgba(220,38,38,0.7)] hover:bg-brand-red-dark hover:shadow-[0_14px_34px_-12px_rgba(220,38,38,0.8)] focus-visible:ring-brand-red;
+  }
+  .cta-line {
+    @apply border border-ink/20 bg-white/0 text-ink hover:border-ink hover:bg-ink hover:text-white focus-visible:ring-ink;
+  }
+  .cta-on-dark {
+    @apply border border-white/40 text-white backdrop-blur-sm hover:border-white hover:bg-white hover:text-ink focus-visible:ring-white focus-visible:ring-offset-ink;
+  }
+  .cta-arrow {
+    @apply h-4 w-4 transition-transform duration-300 ease-out-expo;
+  }
+  .cta:hover .cta-arrow {
+    @apply translate-x-1;
+  }
+
+  /* Text link with an underline that grows from the left on hover. */
+  .link-grow {
+    @apply relative;
+  }
+  .link-grow::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-current transition-transform duration-300 ease-out-expo;
+  }
+  .link-grow:hover::after,
+  a:hover > .link-grow::after,
+  .link-grow[data-active]::after {
+    @apply scale-x-100;
+  }
+
+  /* Photo frame: rounded crop with a soft inner edge. */
+  .photo-frame {
+    @apply relative overflow-hidden rounded-4xl bg-mist;
+  }
+  .photo-frame::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-black/5;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion system                                                       */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Scroll reveal. Content tabhi chhupta hai jab <html> par "js" class ho (head ka inline
+ * script lagata hai) aur user ne kam motion na maanga ho. JavaScript na chale to sab
+ * kuch normal dikhta hai. Observer element ko data-revealed deta hai jab woh screen par aata hai.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  html.js [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  html.js [data-reveal='fade']:not([data-revealed]) {
+    transform: none;
+  }
+  html.js [data-reveal='scale']:not([data-revealed]) {
+    transform: scale(0.96);
+  }
+
+  /* Hero entrance: page load par ek baar, CSS-only. */
+  .hero-enter > * {
+    animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-enter > *:nth-child(2) { animation-delay: 0.08s; }
+  .hero-enter > *:nth-child(3) { animation-delay: 0.16s; }
+  .hero-enter > *:nth-child(4) { animation-delay: 0.24s; }
+  .hero-enter > *:nth-child(5) { animation-delay: 0.32s; }
+  .hero-photo-settle {
+    animation: settle 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /*
+   * Halka parallax sirf un browsers mein jo scroll-driven animations support karte hain
+   * (koi JavaScript nahi, main thread par bojh nahi). Baaki browsers mein photo bas static rehti hai.
+   */
+  @supports (animation-timeline: view()) {
+    .parallax-y {
+      animation: parallaxY linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+
+  /* Client-side navigation par naya page halka sa fade-in, bina kuch block kiye. */
+  .page-enter {
+    animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/* Animations "transform: none" par khatam hoti hain: warna wrapper fixed-position children ko tod deta hai. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes settle {
+  from { transform: scale(1.08); }
+  to { transform: none; }
+}
+@keyframes pageIn {
+  from { opacity: 0.01; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes parallaxY {
+  from { transform: translateY(-6%) scale(1.12); }
+  to { transform: translateY(6%) scale(1.12); }
+}
+
+/* FAQ: smooth open where supported (::details-content), instant elsewhere. */
+@media (prefers-reduced-motion: no-preference) {
+  details.faq-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 0.35s cubic-bezier(0.16, 1, 0.3, 1), content-visibility 0.35s allow-discrete;
+  }
+  details.faq-item[open]::details-content {
+    block-size: auto;
+  }
+}
+@supports (interpolate-size: allow-keywords) {
+  :root {
+    interpolate-size: allow-keywords;
   }
 }

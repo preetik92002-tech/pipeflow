@@ -8,6 +8,7 @@ import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import { NavigationProvider } from '@/components/layout/NavigationProvider'
 import { getNavigation } from '@/lib/cms-pages/navigation'
 import { SiteSettingsProvider } from '@/components/layout/SiteSettingsProvider'
+import { RevealObserver, REVEAL_BOOT_SCRIPT } from '@/components/motion/RevealObserver'
 import { generateMetadata as genMeta, generateLocalBusinessSchema, getPublicSiteSettingsBundle } from '@/lib/seo/metadata'
 import '../globals.css'
 
@@ -36,9 +37,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   ])
 
   return (
-    <html lang="en" className={`${inter.variable} ${sora.variable}`}>
+    <html lang="en" className={`${inter.variable} ${sora.variable}`} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
+        {/* Reveal animations ke liye "js" class; script fail ho to 3s mein hat jaati hai (content kabhi chhupa nahi rehta). */}
+        <script dangerouslySetInnerHTML={{ __html: REVEAL_BOOT_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }}
@@ -48,6 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SiteSettingsProvider initialSettings={siteSettings}>
           <NavigationProvider navigation={navigation}>
             <AnalyticsProvider />
+            <RevealObserver />
             <Header />
             <main id="main-content" className="flex-1 pb-16 lg:pb-0" tabIndex={-1}>
               {children}

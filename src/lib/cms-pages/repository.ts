@@ -130,6 +130,23 @@ export async function getPublishedPage(path: string): Promise<PublicPage | null>
   return { id: page.id, path: page.path, publishedAt: page.published_at, ...content(rev as RevisionRow) }
 }
 
+/** Titles of the given paths that are live right now (for breadcrumbs: never link to a draft). */
+export async function getPublishedTitles(paths: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>()
+  if (!paths.length) return out
+  const db = createAdminClient()
+  const { data, error } = await db
+    .from('cms_pages')
+    .select('path,title')
+    .in('path', paths)
+    .eq('status', 'published')
+    .eq('is_template', false)
+    .is('deleted_at', null)
+  if (error) throw new Error(`Unable to load page titles: ${error.message}`)
+  for (const row of data ?? []) out.set(row.path, row.title)
+  return out
+}
+
 export async function getRedirect(path: string): Promise<{ to: string; permanent: boolean } | null> {
   const db = createAdminClient()
   const { data, error } = await db.from('cms_redirects').select('to_path,status_code').eq('from_path', path).maybeSingle()

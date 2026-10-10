@@ -1,264 +1,588 @@
-import Link from 'next/link'
-import { Phone, Mail, MapPin, Clock, Check } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Check, Clock, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
-import { CmsButtons } from './CmsButtons'
+import type { CmsButton } from '@/lib/cms-pages/links'
+import { PHOTOS, type Photo } from '@/lib/media/photos'
+import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
 import { RichTextRenderer } from './RichTextRenderer'
 
-const wrap = 'container-site'
-const h2 = 'font-display text-2xl font-bold tracking-tight text-navy-800 sm:text-3xl'
+/**
+ * Public page sections. Har CMS page inhi se banta hai, isliye design yahan badalne se
+ * poori site ek jaisi dikhti hai. Content (data) bilkul wahi rehta hai jo admin ne save kiya.
+ *
+ * - `tone`: light sections white/paper mein alternate hote hain (SectionRenderer decide karta hai).
+ * - `kind`: page ka type (home, location, service) — hero aur kuch layouts isse badalte hain.
+ */
+export type Tone = 'white' | 'paper'
+export type PageKind = 'home' | 'location' | 'service' | 'page'
+export interface Crumb { label: string; href?: string }
+export interface PageContext { kind: PageKind; crumbs: Crumb[]; cityPhoto?: Photo }
 
-export function HeroSection({ data, first }: { data: SectionData<'hero'>; first: boolean }) {
+const toneBg: Record<Tone, string> = { white: 'bg-white', paper: 'bg-paper' }
+const pad = 'py-20 sm:py-24 lg:py-28'
+
+function Band({ tone, children, className = '', labelledBy }: { tone: Tone; children: React.ReactNode; className?: string; labelledBy?: string }) {
+  return (
+    <section className={`${toneBg[tone]} ${pad} ${className}`} aria-labelledby={labelledBy}>
+      {children}
+    </section>
+  )
+}
+
+function SectionHeader({ eyebrow, heading, intro, light = false, center = false, id }: { eyebrow?: string; heading?: string; intro?: string; light?: boolean; center?: boolean; id?: string }) {
+  if (!heading && !intro) return null
+  return (
+    <div className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`} data-reveal>
+      {eyebrow && <p className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{eyebrow}</p>}
+      {heading && <h2 id={id} className={`font-display text-display-lg font-bold ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-4' : ''}`}>{heading}</h2>}
+      {intro && <p className={`mt-5 text-lead ${light ? 'text-white/75' : 'text-neutral-600'}`}>{intro}</p>}
+    </div>
+  )
+}
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
+
+// ------------------------------------------------------------------ hero
+
+function Breadcrumbs({ crumbs, light }: { crumbs: Crumb[]; light: boolean }) {
+  if (crumbs.length < 2) return null
+  return (
+    <nav aria-label="Breadcrumb" className="mb-6">
+      <ol className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-sm ${light ? 'text-white/70' : 'text-neutral-500'}`}>
+        {crumbs.map((c, i) => (
+          <li key={i} className="flex items-center gap-2">
+            {i > 0 && <span aria-hidden="true" className="opacity-50">/</span>}
+            {c.href && i < crumbs.length - 1 ? (
+              <SmartLink href={c.href} className={`link-grow ${light ? 'hover:text-white' : 'hover:text-ink'}`}>{c.label}</SmartLink>
+            ) : (
+              <span aria-current={i === crumbs.length - 1 ? 'page' : undefined} className={light ? 'text-white' : 'text-ink'}>{c.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+function HeroCopy({ data, first, light, center }: { data: SectionData<'hero'>; first: boolean; light: boolean; center: boolean }) {
+  return (
+    <>
+      {data.eyebrow && <p className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{data.eyebrow}</p>}
+      <h1 id={first ? 'page-title' : undefined} className={`mt-5 font-display text-display-2xl font-bold ${light ? 'text-white' : 'text-ink'}`}>
+        {data.heading}
+      </h1>
+      {data.subtitle && <p className={`mt-6 max-w-2xl text-lead ${center ? 'mx-auto' : ''} ${light ? 'text-white/85' : 'text-neutral-700'}`}>{data.subtitle}</p>}
+      {data.intro && (
+        <div className={`mt-5 max-w-2xl space-y-3 leading-relaxed ${center ? 'mx-auto' : ''} ${light ? 'text-white/70' : 'text-neutral-600'}`}>
+          {data.intro.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
+        </div>
+      )}
+      <CmsButtons buttons={data.buttons} onDark={light} center={center} />
+    </>
+  )
+}
+
+export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; first: boolean; ctx: PageContext }) {
   const center = data.align === 'center'
   const hasImage = data.image !== ''
-  const split = hasImage && !center
-  return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-600 text-white" aria-labelledby={first ? 'page-title' : undefined}>
-      <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden="true" />
-      <div className="pointer-events-none absolute -bottom-32 left-1/4 -z-10 h-80 w-80 rounded-full bg-brand-red/15 blur-3xl" aria-hidden="true" />
-      {hasImage && center && (
-        <>
-          <CmsImage src={data.image} alt="" priority={first} sizes="100vw" className="-z-10 object-cover" />
-          <div className="absolute inset-0 -z-10 bg-navy-900/75" aria-hidden="true" />
-        </>
-      )}
-      <div className={`${wrap} grid items-center gap-10 py-14 sm:py-20 lg:py-24 ${split ? 'lg:grid-cols-[1.15fr_0.85fr]' : ''} ${center ? 'text-center' : ''}`}>
-        <div className={center ? 'mx-auto max-w-3xl' : 'max-w-3xl'}>
-          {data.eyebrow && (
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-100">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-red" aria-hidden="true" />
-              {data.eyebrow}
-            </p>
-          )}
-          <h1 id={first ? 'page-title' : undefined} className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-            {data.heading}
-          </h1>
-          {data.subtitle && <p className="mt-5 text-lg leading-relaxed text-neutral-200">{data.subtitle}</p>}
-          {data.intro && (
-            <div className="mt-4 space-y-3 leading-relaxed text-neutral-300">
-              {data.intro.split(/\n{2,}/).map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          )}
-          <CmsButtons buttons={data.buttons} onDark center={center} />
+  // Home aur city pages: poori chaudai wali photo. Service pages: split layout lambi photo ke saath.
+  const fullBleed = hasImage && (center || ctx.kind === 'home' || ctx.kind === 'location')
+
+  if (fullBleed) {
+    return (
+      <section className="relative isolate flex min-h-[min(88svh,820px)] items-end overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
+        <div className="absolute inset-0 -z-20 hero-photo-settle">
+          <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="100vw" className="object-cover" />
         </div>
-        {split && (
-          <div className="relative mx-auto aspect-[3/2] w-full max-w-xl overflow-hidden rounded-3xl border border-white/15 shadow-2xl shadow-black/30 lg:mx-0">
-            <CmsImage src={data.image} alt="" priority={first} sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/55 to-ink/20" aria-hidden="true" />
+        {!center && <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/35 to-transparent" aria-hidden="true" />}
+        <div className={`container-wide w-full pb-16 pt-32 sm:pb-20 lg:pb-24 ${center ? 'text-center' : ''}`}>
+          <Breadcrumbs crumbs={ctx.crumbs} light />
+          <div className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
+            <HeroCopy data={data} first={first} light center={center} />
           </div>
-        )}
-      </div>
-    </section>
-  )
-}
+        </div>
+      </section>
+    )
+  }
 
-export function RichTextSection({ data }: { data: SectionData<'richText'> }) {
+  if (hasImage) {
+    return (
+      <section className="relative overflow-hidden bg-paper" aria-labelledby={first ? 'page-title' : undefined}>
+        <div className="container-wide grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-12 lg:gap-16 lg:py-24">
+          <div className="lg:col-span-7">
+            <Breadcrumbs crumbs={ctx.crumbs} light={false} />
+            <div className="hero-enter">
+              <HeroCopy data={data} first={first} light={false} center={false} />
+            </div>
+          </div>
+          <div className="lg:col-span-5">
+            <div className="photo-frame aspect-[4/3] w-full sm:aspect-[16/10] lg:aspect-[4/5]">
+              <div className="absolute inset-0 hero-photo-settle">
+                <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <section className="py-10 sm:py-12">
-      <div className={`${wrap}`}>
-        <RichTextRenderer doc={data.content} className="cms-prose max-w-3xl" />
+    <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
+      <div className="pointer-events-none absolute -right-32 -top-32 -z-10 h-[28rem] w-[28rem] rounded-full bg-brand-blue/25 blur-3xl" aria-hidden="true" />
+      <div className={`container-wide py-20 sm:py-24 lg:py-28 ${center ? 'text-center' : ''}`}>
+        <Breadcrumbs crumbs={ctx.crumbs} light />
+        <div className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
+          <HeroCopy data={data} first={first} light center={center} />
+        </div>
       </div>
     </section>
   )
 }
 
-export function ContentBlockSection({ data }: { data: SectionData<'contentBlock'> }) {
+// ------------------------------------------------------------------ text
+
+export function RichTextSection({ data, tone }: { data: SectionData<'richText'>; tone: Tone }) {
+  return (
+    <section className={`${toneBg[tone]} py-16 sm:py-20`}>
+      <div className="container-wide">
+        <div data-reveal className="max-w-3xl">
+          <RichTextRenderer doc={data.content} className="cms-prose text-lead [&>h2:first-child]:mt-0 [&>h2:first-child]:text-display-lg" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function ContentBlockSection({ data, tone }: { data: SectionData<'contentBlock'>; tone: Tone }) {
   const hasImage = data.image !== '' && data.imagePosition !== 'none'
-  return (
-    <section className="py-10 sm:py-14">
-      <div className={`${wrap} ${hasImage ? 'grid items-center gap-8 lg:grid-cols-2 lg:gap-12' : ''}`}>
-        {hasImage && (
-          <div className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100 ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
-            <CmsImage src={data.image} alt={data.imageAlt} className="object-cover" />
+  const number = /^\d{1,2}$/.test(data.label) ? pad2(Number(data.label)) : null
+  const id = `cb-${slug(data.heading)}`
+
+  if (hasImage) {
+    return (
+      <Band tone={tone} labelledBy={id}>
+        <div className="container-wide grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          <div data-reveal="scale" className={`photo-frame aspect-[4/3] lg:aspect-[4/5] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
+            <div className="absolute inset-0 parallax-y">
+              <CmsImage src={data.image} alt={data.imageAlt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+            </div>
           </div>
-        )}
-        <div className={hasImage ? '' : 'max-w-3xl'}>
-          {data.label && <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-red">{data.label}</p>}
-          <h2 className={h2}>{data.heading}</h2>
-          <RichTextRenderer doc={data.content} className="cms-prose mt-4" />
+          <div data-reveal>
+            {number ? <p className="font-display text-sm font-semibold tracking-[0.2em] text-brand-red">{number}</p> : data.label && <p className="eyebrow">{data.label}</p>}
+            <h2 id={id} className="mt-4 font-display text-display-lg font-bold text-ink">{data.heading}</h2>
+            <RichTextRenderer doc={data.content} className="cms-prose mt-6" />
+            {data.button && <CmsButtons buttons={[data.button]} />}
+          </div>
+        </div>
+      </Band>
+    )
+  }
+
+  // Bina image: editorial do-column layout — heading baayein (sticky), content daayein.
+  return (
+    <Band tone={tone} labelledBy={id}>
+      <div className="container-wide grid gap-x-16 gap-y-8 lg:grid-cols-12">
+        <div className="lg:col-span-5" data-reveal>
+          <div className="lg:sticky lg:top-32">
+            {number ? (
+              <p className="font-display text-[clamp(3.5rem,6vw,5.5rem)] font-bold leading-none tracking-tight text-transparent [-webkit-text-stroke:1.5px_theme(colors.brand.red)]" aria-hidden="true">{number}</p>
+            ) : (
+              data.label && <p className="eyebrow">{data.label}</p>
+            )}
+            <h2 id={id} className={`font-display text-display-lg font-bold text-ink ${number ? 'mt-5' : data.label ? 'mt-4' : ''}`}>
+              {number && <span className="sr-only">{`${Number(number)}. `}</span>}
+              {data.heading}
+            </h2>
+          </div>
+        </div>
+        <div className="lg:col-span-7" data-reveal style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
+          <RichTextRenderer doc={data.content} className="cms-prose max-w-2xl" />
           {data.button && <CmsButtons buttons={[data.button]} />}
         </div>
       </div>
+    </Band>
+  )
+}
+
+/** Kai chhote content blocks lagataar hon (jaise home par Residential / Commercial / Find a Pro) to ek row. */
+export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'contentBlock'>[]; tone: Tone }) {
+  return (
+    <section className={`${toneBg[tone]} py-16 sm:py-20`}>
+      <div className="container-wide">
+        {/* Dividers ek hairline ke roop mein: grid ka background line colour, cells apna tone. */}
+        <div className={`grid gap-px overflow-hidden rounded-4xl border border-line bg-line ${blocks.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+          {blocks.map((b, i) => (
+            <div key={i} className={`${tone === 'paper' ? 'bg-paper' : 'bg-white'} flex flex-col p-8 sm:p-10`} data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
+              {b.label && <p className="eyebrow">{b.label}</p>}
+              <h2 className="mt-4 font-display text-display-md font-bold text-ink">{b.heading}</h2>
+              <RichTextRenderer doc={b.content} className="cms-prose mt-4 flex-1 !text-base" />
+              {b.button && <CmsButtons buttons={[b.button]} asLinks className="mt-8" />}
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   )
 }
 
-export function GallerySection({ data }: { data: SectionData<'gallery'> }) {
-  if (!data.images.length) return null
-  const cols = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-2 lg:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4' }[data.columns]
+// ------------------------------------------------------------------ cards
+
+type Card = SectionData<'featureCards'>['cards'][number]
+
+function CardShell({ card, className, children }: { card: Card; className: string; children: React.ReactNode }) {
+  return card.href ? <SmartLink href={card.href} className={`group ${className}`}>{children}</SmartLink> : <div className={className}>{children}</div>
+}
+
+export function FeatureCardsSection({ data, tone }: { data: SectionData<'featureCards'>; tone: Tone }) {
+  const withImages = data.cards.some((c) => c.image)
+  const linked = data.cards.every((c) => c.href)
+  const id = data.heading ? `fc-${slug(data.heading)}` : undefined
+
+  // 2 photo cards: badi photo tiles (Plumbing / HVAC, Denver / Boulder).
+  if (withImages && data.cards.length === 2) {
+    return (
+      <Band tone={tone} labelledBy={id}>
+        <div className="container-wide">
+          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+          <ul className="mt-12 grid gap-5 md:grid-cols-2">
+            {data.cards.map((card, i) => (
+              <li key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties}>
+                <CardShell card={card} className="relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-4xl bg-ink p-7 text-white sm:aspect-[5/4] sm:p-10">
+                  {card.image && (
+                    <div className="absolute inset-0 -z-20 transition-transform duration-700 ease-out-expo group-hover:scale-105">
+                      <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent" aria-hidden="true" />
+                  <h3 className="font-display text-display-md font-bold">{card.title}</h3>
+                  {card.text && <p className="mt-3 max-w-md text-white/80">{card.text}</p>}
+                  {card.href && (
+                    <span className="mt-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-ink transition-all duration-300 ease-out-expo group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
+                      <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:rotate-45" />
+                    </span>
+                  )}
+                </CardShell>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Band>
+    )
+  }
+
+  // Photo cards (3+): pehla card bada, baaki chhote — ek "bento" layout.
+  if (withImages) {
+    const bento = data.cards.length === 5 || data.cards.length === 3
+    return (
+      <Band tone={tone} labelledBy={id}>
+        <div className="container-wide">
+          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+          <ul className={`mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 ${bento ? 'lg:auto-rows-[minmax(15rem,auto)]' : ''}`}>
+            {data.cards.map((card, i) => {
+              const big = bento && i === 0
+              return (
+                <li key={i} className={big ? 'sm:col-span-2 lg:col-span-1 lg:row-span-2' : ''} data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+                  <CardShell card={card} className="flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-white transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_24px_60px_-28px_rgba(11,23,40,0.35)]">
+                    {card.image && (
+                      <div className={`relative overflow-hidden bg-mist ${big ? 'aspect-[4/3] lg:aspect-auto lg:flex-1' : 'aspect-[16/10]'}`}>
+                        <div className="absolute inset-0 transition-transform duration-700 ease-out-expo group-hover:scale-105">
+                          <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-start justify-between gap-4 p-6 sm:p-7">
+                      <div>
+                        <h3 className={`font-display font-bold text-ink ${big ? 'text-display-md' : 'text-xl'}`}>{card.title}</h3>
+                        {card.text && <p className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{card.text}</p>}
+                      </div>
+                      {card.href && <ArrowUpRight className="mt-1 h-5 w-5 flex-shrink-0 text-brand-red transition-transform duration-300 group-hover:rotate-45" aria-hidden="true" />}
+                    </div>
+                  </CardShell>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </Band>
+    )
+  }
+
+  // Bina photo, sab linked: article/guide index (badi text rows).
+  if (linked && data.cards.length > 0) {
+    return (
+      <Band tone={tone} labelledBy={id}>
+        <div className="container-wide grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-4"><SectionHeader heading={data.heading} intro={data.intro} id={id} /></div>
+          <ul className="border-t border-line lg:col-span-8">
+            {data.cards.map((card, i) => (
+              <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
+                <SmartLink href={card.href} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-5 py-6 sm:gap-8">
+                  <span className="font-display text-sm font-semibold text-neutral-400">{pad2(i + 1)}</span>
+                  <span>
+                    <span className="block font-display text-xl font-bold text-ink transition-colors group-hover:text-brand-red sm:text-2xl">{card.title}</span>
+                    {card.text && <span className="mt-2 block text-neutral-600">{card.text}</span>}
+                  </span>
+                  <ArrowRight className="h-5 w-5 text-ink transition-transform duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-brand-red" aria-hidden="true" />
+                </SmartLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Band>
+    )
+  }
+
+  // Bina photo, bina link: numbered features grid.
   return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        {data.heading && <h2 className={`${h2} mb-6`}>{data.heading}</h2>}
-        <ul className={`grid gap-4 ${cols}`}>
-          {data.images.map((img, i) => (
-            <li key={i}>
-              <figure>
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-100">
-                  <CmsImage src={img.src} alt={img.alt} sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
-                </div>
-                {img.caption && <figcaption className="mt-2 text-sm text-neutral-600">{img.caption}</figcaption>}
-              </figure>
+    <Band tone={tone} labelledBy={id}>
+      <div className="container-wide">
+        <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+        <ul className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          {data.cards.map((card, i) => (
+            <li key={i} className="border-t border-ink/15 pt-6" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+              <CardShell card={card} className="block">
+                <span className="font-display text-sm font-semibold tracking-[0.2em] text-brand-red">{pad2(i + 1)}</span>
+                <h3 className="mt-3 font-display text-xl font-bold text-ink">{card.title}</h3>
+                {card.text && <p className="mt-3 leading-relaxed text-neutral-600">{card.text}</p>}
+              </CardShell>
             </li>
           ))}
         </ul>
       </div>
-    </section>
+    </Band>
   )
 }
 
-export function FeatureCardsSection({ data }: { data: SectionData<'featureCards'> }) {
+// ------------------------------------------------------------------ comparison, steps, faq
+
+export function ComparisonSection({ data, tone }: { data: SectionData<'comparison'>; tone: Tone }) {
+  const id = `cmp-${slug(data.heading)}`
   return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        {data.heading && <h2 className={h2}>{data.heading}</h2>}
-        {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {data.cards.map((card, i) => {
-            const inner = (
-              <>
-                {card.image && (
-                  <div className="relative mb-4 aspect-[16/9] overflow-hidden rounded-lg bg-neutral-100">
-                    <CmsImage src={card.image} alt="" sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover" />
-                  </div>
-                )}
-                <h3 className="font-display text-lg font-semibold text-navy-800">{card.title}</h3>
-                {card.text && <p className="mt-2 text-sm leading-relaxed text-neutral-600">{card.text}</p>}
-              </>
-            )
-            const cls = 'group block h-full overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm'
+    <Band tone={tone} labelledBy={id}>
+      <div className="container-wide">
+        <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+        <div className={`mt-12 grid gap-5 ${data.columns.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
+          {data.columns.map((col, i) => {
+            const dark = i % 2 === 1
             return (
-              <li key={i}>
-                {card.href ? (
-                  card.href.startsWith('/') ? (
-                    <Link href={card.href} className={`${cls} transition duration-200 hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg`}>{inner}</Link>
-                  ) : (
-                    <a href={card.href} className={`${cls} transition duration-200 hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg`}>{inner}</a>
-                  )
-                ) : (
-                  <div className={cls}>{inner}</div>
-                )}
-              </li>
+              <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`rounded-4xl p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'border border-line bg-white'}`}>
+                <h3 className={`font-display text-display-md font-bold ${dark ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
+                <ul className="mt-7 space-y-4">
+                  {col.items.map((item, j) => (
+                    <li key={j} className={`flex gap-3 ${dark ? 'text-white/80' : 'text-neutral-700'}`}>
+                      <span className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${dark ? 'bg-white/10' : 'bg-mist'}`}>
+                        <Check className={`h-3.5 w-3.5 ${dark ? 'text-white' : 'text-brand-blue'}`} aria-hidden="true" />
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )
           })}
-        </ul>
-      </div>
-    </section>
-  )
-}
-
-export function ComparisonSection({ data }: { data: SectionData<'comparison'> }) {
-  return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        <h2 className={h2}>{data.heading}</h2>
-        {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
-        <div className={`mt-8 grid gap-5 ${data.columns.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
-          {data.columns.map((col, i) => (
-            <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-              <h3 className="border-b-2 border-brand-red/70 pb-2 font-display text-lg font-semibold text-navy-800">{col.title}</h3>
-              <ul className="mt-4 space-y-2.5">
-                {col.items.map((item, j) => (
-                  <li key={j} className="flex gap-2.5 text-sm text-neutral-700">
-                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-blue" aria-hidden="true" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
         </div>
-        {data.outro && <p className="mt-6 max-w-3xl text-neutral-600">{data.outro}</p>}
+        {data.outro && <p className="mt-10 max-w-3xl text-lead text-neutral-600" data-reveal>{data.outro}</p>}
         <CmsButtons buttons={data.buttons} />
       </div>
-    </section>
+    </Band>
   )
 }
 
 export function StepsSection({ data }: { data: SectionData<'steps'> }) {
+  const id = `steps-${slug(data.heading)}`
+  const cols = data.steps.length === 4 ? 'lg:grid-cols-4' : data.steps.length >= 5 ? 'lg:grid-cols-3' : 'lg:grid-cols-3'
   return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        <h2 className={h2}>{data.heading}</h2>
-        {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
-        <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <section className={`relative isolate overflow-hidden bg-ink text-white ${pad}`} aria-labelledby={id}>
+      <div className="pointer-events-none absolute -left-40 bottom-0 -z-10 h-[30rem] w-[30rem] rounded-full bg-brand-blue/20 blur-3xl" aria-hidden="true" />
+      <div className="container-wide">
+        <SectionHeader heading={data.heading} intro={data.intro} light id={id} />
+        <ol className={`mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 ${cols}`}>
           {data.steps.map((step, i) => (
-            <li key={i} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-600 font-display text-sm font-bold text-white shadow" aria-hidden="true">
-                {i + 1}
-              </span>
-              <h3 className="mt-4 font-display text-lg font-semibold text-navy-800">{step.title}</h3>
-              {step.text && <p className="mt-2 text-sm leading-relaxed text-neutral-600">{step.text}</p>}
+            <li key={i} className="relative border-t border-white/15 pt-7" data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
+              <span className="absolute -top-px left-0 h-px w-12 bg-brand-red" aria-hidden="true" />
+              <span className="font-display text-sm font-semibold tracking-[0.2em] text-brand-red-light">Step {pad2(i + 1)}</span>
+              <h3 className="mt-3 font-display text-xl font-bold text-white">{step.title}</h3>
+              {step.text && <p className="mt-3 leading-relaxed text-white/70">{step.text}</p>}
             </li>
           ))}
         </ol>
-        <CmsButtons buttons={data.buttons} />
+        <CmsButtons buttons={data.buttons} onDark className="mt-14" />
       </div>
     </section>
   )
 }
 
-export function FaqSection({ data }: { data: SectionData<'faq'> }) {
+export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Tone }) {
   if (!data.items.length) return null
+  const id = `faq-${slug(data.heading)}`
   return (
-    <section className="py-10 sm:py-14">
-      <div className={`${wrap} max-w-4xl`}>
-        <h2 className={h2}>{data.heading}</h2>
-        <div className="mt-6 divide-y divide-neutral-200 rounded-2xl border border-neutral-200 bg-white">
+    <Band tone={tone} labelledBy={id}>
+      <div className="container-wide grid gap-12 lg:grid-cols-12">
+        <div className="lg:col-span-4">
+          <div className="lg:sticky lg:top-32"><SectionHeader eyebrow="FAQ" heading={data.heading} id={id} /></div>
+        </div>
+        <div className="border-t border-line lg:col-span-8" data-reveal>
           {data.items.map((item, i) => (
-            <details key={i} className="group p-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-navy-800">
+            <details key={i} className="faq-item group border-b border-line">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left font-display text-lg font-semibold text-ink transition-colors hover:text-brand-red sm:text-xl [&::-webkit-details-marker]:hidden">
                 {item.question}
-                <span className="text-brand-blue transition group-open:rotate-45" aria-hidden="true">+</span>
+                <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-line transition-all duration-300 ease-out-expo group-open:rotate-45 group-open:border-brand-red group-open:bg-brand-red group-open:text-white" aria-hidden="true">
+                  <Plus className="h-4 w-4" />
+                </span>
               </summary>
-              <div className="mt-3 space-y-2 text-sm leading-relaxed text-neutral-700">
-                {item.answer.split(/\n{2,}/).map((p, j) => (
-                  <p key={j}>{p}</p>
-                ))}
+              <div className="max-w-3xl space-y-3 pb-7 pr-14 leading-relaxed text-neutral-700">
+                {item.answer.split(/\n{2,}/).map((p, j) => <p key={j}>{p}</p>)}
               </div>
             </details>
           ))}
         </div>
       </div>
-    </section>
+    </Band>
   )
 }
 
-export function CtaSection({ data }: { data: SectionData<'cta'> }) {
-  const dark = data.tone === 'dark'
+// ------------------------------------------------------------------ calls to action
+
+const CTA_PHOTOS = [PHOTOS.plumberSinkTrap, PHOTOS.mechanicalPipes, PHOTOS.technicianToolBelt, PHOTOS.plumberUnderSink]
+
+export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Tone }) {
+  const id = `cta-${slug(data.heading)}`
+  if (data.tone === 'dark') {
+    // Background photo sirf sajawat hai (alt khaali); heading se chuni jaati hai taaki pages par alag dikhe.
+    const photo = CTA_PHOTOS[[...data.heading].reduce((a, c) => a + c.charCodeAt(0), 0) % CTA_PHOTOS.length]
+    return (
+      <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={id}>
+        <div className="absolute inset-0 -z-20 opacity-40">
+          <div className="absolute inset-0 parallax-y">
+            <CmsImage src={photo.src} decorative sizes="100vw" className="object-cover" />
+          </div>
+        </div>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/80 via-ink/70 to-ink" aria-hidden="true" />
+        <div className="container-wide py-24 text-center sm:py-28 lg:py-36">
+          <div className="mx-auto max-w-3xl" data-reveal>
+            <h2 id={id} className="font-display text-display-xl font-bold">{data.heading}</h2>
+            {data.text && (
+              <div className="mx-auto mt-6 max-w-2xl space-y-3 text-lead text-white/75">
+                {data.text.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            )}
+            <CmsButtons buttons={data.buttons} onDark center className="mt-10" />
+          </div>
+        </div>
+      </section>
+    )
+  }
   return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        <div className={`relative isolate overflow-hidden rounded-3xl px-6 py-12 text-center sm:px-12 ${dark ? 'bg-gradient-to-br from-navy-900 via-navy-800 to-navy-600 text-white' : 'border border-neutral-200 bg-neutral-50 text-navy-800'}`}>
-          {dark && <div className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 rounded-full bg-brand-red/20 blur-3xl" aria-hidden="true" />}
-          <h2 className="mx-auto max-w-2xl font-display text-2xl font-bold tracking-tight sm:text-3xl">{data.heading}</h2>
-          {data.text && (
-            <div className={`mx-auto mt-4 max-w-2xl space-y-2 leading-relaxed ${dark ? 'text-neutral-300' : 'text-neutral-600'}`}>
-              {data.text.split(/\n{2,}/).map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          )}
-          <CmsButtons buttons={data.buttons} onDark={dark} center />
+    <section className={`${toneBg[tone]} py-16 sm:py-20`} aria-labelledby={id}>
+      <div className="container-wide">
+        <div className="flex flex-col gap-8 rounded-4xl border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
+          <div className="max-w-2xl">
+            <h2 id={id} className="font-display text-display-lg font-bold text-ink">{data.heading}</h2>
+            {data.text && (
+              <div className="mt-4 space-y-2 text-lead text-neutral-600">
+                {data.text.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            )}
+          </div>
+          <CmsButtons buttons={data.buttons} className="mt-0 flex-shrink-0" />
         </div>
       </div>
     </section>
   )
 }
 
-export function TestimonialsSection({ data }: { data: SectionData<'testimonials'> }) {
+// ------------------------------------------------------------------ links, gallery, testimonials, contact
+
+function LinkRows({ links }: { links: { label: string; href: string }[] }) {
+  return (
+    <ul className="border-t border-line">
+      {links.map((l, i) => (
+        <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
+          <SmartLink href={l.href} className="group flex items-center justify-between gap-6 py-5">
+            <span className="font-display text-lg font-semibold text-ink transition-colors group-hover:text-brand-red sm:text-xl">{l.label}</span>
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-line transition-all duration-300 ease-out-expo group-hover:border-brand-red group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </SmartLink>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkList'>; tone: Tone; ctx: PageContext }) {
+  if (!data.links.length) return null
+  const id = `links-${slug(data.heading)}`
+  // City page: services ki list ke saath ek lambi city photo (Denver / Boulder).
+  if (ctx.kind === 'location' && ctx.cityPhoto) {
+    return (
+      <Band tone={tone} labelledBy={id}>
+        <div className="container-wide grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-6">
+            <SectionHeader heading={data.heading} id={id} />
+            <div className="mt-10"><LinkRows links={data.links} /></div>
+          </div>
+          <div className="lg:col-span-6" data-reveal="scale">
+            <div className="photo-frame aspect-[4/3] lg:aspect-[4/5]">
+              <div className="absolute inset-0 parallax-y">
+                <CmsImage src={ctx.cityPhoto.src} alt={ctx.cityPhoto.alt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Band>
+    )
+  }
+  return (
+    <Band tone={tone} labelledBy={id} className="!py-16 sm:!py-20">
+      <div className="container-wide grid gap-10 lg:grid-cols-12">
+        <div className="lg:col-span-4"><SectionHeader heading={data.heading} id={id} /></div>
+        <div className="lg:col-span-8"><LinkRows links={data.links} /></div>
+      </div>
+    </Band>
+  )
+}
+
+export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; tone: Tone }) {
+  if (!data.images.length) return null
+  const cols = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-2 lg:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4' }[data.columns]
+  return (
+    <Band tone={tone}>
+      <div className="container-wide">
+        {data.heading && <SectionHeader heading={data.heading} />}
+        <ul className={`mt-10 grid gap-5 ${cols}`}>
+          {data.images.map((img, i) => (
+            <li key={i} data-reveal style={{ '--reveal-delay': `${(i % 4) * 70}ms` } as React.CSSProperties}>
+              <figure>
+                <div className="photo-frame aspect-[4/3] !rounded-3xl">
+                  <CmsImage src={img.src} alt={img.alt} sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
+                </div>
+                {img.caption && <figcaption className="mt-3 text-sm text-neutral-600">{img.caption}</figcaption>}
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Band>
+  )
+}
+
+/** Sirf asli, admin dwara daale gaye reviews dikhte hain; khaali ho to section render hi nahi hota. */
+export function TestimonialsSection({ data, tone }: { data: SectionData<'testimonials'>; tone: Tone }) {
   if (!data.items.length) return null
   return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        <h2 className={h2}>{data.heading}</h2>
-        <ul className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <Band tone={tone}>
+      <div className="container-wide">
+        <SectionHeader heading={data.heading} />
+        <ul className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {data.items.map((t, i) => (
-            <li key={i} className="rounded-2xl border border-neutral-200 bg-white p-6">
-              {t.rating && <p className="text-sm text-amber-500" aria-label={`${t.rating} out of 5 stars`}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</p>}
-              <blockquote className="mt-2 text-neutral-700">“{t.quote}”</blockquote>
-              <p className="mt-4 text-sm font-semibold text-navy-800">
+            <li key={i} className="flex flex-col rounded-4xl border border-line bg-white p-8" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+              {t.rating && <p className="text-sm tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</p>}
+              <blockquote className="mt-4 flex-1 font-display text-lg leading-snug text-ink">“{t.quote}”</blockquote>
+              <p className="mt-6 text-sm font-semibold text-ink">
                 {t.name}
                 {t.location && <span className="font-normal text-neutral-500"> · {t.location}</span>}
               </p>
@@ -266,36 +590,11 @@ export function TestimonialsSection({ data }: { data: SectionData<'testimonials'
           ))}
         </ul>
       </div>
-    </section>
+    </Band>
   )
 }
 
-export function LinkListSection({ data }: { data: SectionData<'linkList'> }) {
-  if (!data.links.length) return null
-  return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        <h2 className={h2}>{data.heading}</h2>
-        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {data.links.map((l, i) => {
-            const cls = 'group flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-5 py-4 font-medium text-navy-800 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue hover:shadow-md'
-            return (
-              <li key={i}>
-                {l.href.startsWith('/') ? (
-                  <Link href={l.href} className={cls}>{l.label}<span aria-hidden="true">→</span></Link>
-                ) : (
-                  <a href={l.href} className={cls}>{l.label}<span aria-hidden="true">→</span></a>
-                )}
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-    </section>
-  )
-}
-
-export function ContactInfoSection({ data }: { data: SectionData<'contactInfo'> }) {
+export function ContactInfoSection({ data, tone }: { data: SectionData<'contactInfo'>; tone: Tone }) {
   const rows = [
     { icon: Phone, label: 'Phone', value: data.phone, href: data.phone ? `tel:${data.phone.replace(/[^+\d]/g, '')}` : '' },
     { icon: Mail, label: 'Email', value: data.email, href: data.email ? `mailto:${data.email}` : '' },
@@ -304,22 +603,22 @@ export function ContactInfoSection({ data }: { data: SectionData<'contactInfo'> 
   ].filter((r) => r.value)
   if (!rows.length) return null
   return (
-    <section className="py-10 sm:py-14">
-      <div className={wrap}>
-        <h2 className={h2}>{data.heading}</h2>
-        <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+    <Band tone={tone}>
+      <div className="container-wide">
+        <SectionHeader heading={data.heading} />
+        <dl className="mt-10 grid gap-5 sm:grid-cols-2">
           {rows.map((r) => (
-            <div key={r.label} className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-5">
-              <r.icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-brand-blue" aria-hidden="true" />
+            <div key={r.label} className="flex gap-4 rounded-3xl border border-line bg-white p-6" data-reveal>
+              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-mist"><r.icon className="h-5 w-5 text-brand-blue" aria-hidden="true" /></span>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{r.label}</dt>
-                <dd className="mt-1 text-navy-800">{r.href ? <a href={r.href} className="hover:text-brand-blue">{r.value}</a> : r.value}</dd>
+                <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{r.label}</dt>
+                <dd className="mt-1 text-lg text-ink">{r.href ? <a href={r.href} className="link-grow">{r.value}</a> : r.value}</dd>
               </div>
             </div>
           ))}
         </dl>
       </div>
-    </section>
+    </Band>
   )
 }
 
@@ -327,3 +626,5 @@ export function SpacerSection({ data }: { data: SectionData<'spacer'> }) {
   const h = { sm: 'h-6', md: 'h-12', lg: 'h-24' }[data.size]
   return <div className={h} aria-hidden="true" />
 }
+
+export type { CmsButton }

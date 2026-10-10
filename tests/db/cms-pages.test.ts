@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 // Runs the real migration against an in-process Postgres so constraints,
 // the partial unique index and the transactional functions are tested for real.
@@ -201,4 +201,8 @@ describe('path changes and redirects', () => {
     const r = await db.query('select * from cms_redirects')
     expect(r.rows).toHaveLength(0)
   })
+})
+
+afterAll(async () => {
+  await db?.close()
 })

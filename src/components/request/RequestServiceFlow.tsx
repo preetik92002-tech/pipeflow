@@ -217,8 +217,8 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
 
   return (
     <div ref={top} className="mx-auto max-w-2xl scroll-mt-24">
-      <div className="mb-6" aria-hidden="true">
-        <div className="h-2 overflow-hidden rounded-full bg-neutral-200"><div className="h-full rounded-full bg-brand-red transition-all" style={{ width: `${progress}%` }} /></div>
+      <div className="mb-6">
+        <div className="h-2 overflow-hidden rounded-full bg-neutral-200" role="progressbar" aria-label="Request progress" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={index + 1} aria-valuetext={`Step ${index + 1} of ${STEPS.length}`}><div className="h-full rounded-full bg-brand-red transition-all duration-500 ease-out-expo motion-reduce:transition-none" style={{ width: `${progress}%` }} /></div>
         <p className="mt-2 text-xs font-semibold text-neutral-500">Step {index + 1} of {STEPS.length}</p>
       </div>
 

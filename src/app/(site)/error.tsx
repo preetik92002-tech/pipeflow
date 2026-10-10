@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, RotateCcw, Home, Phone } from 'lucide-react'
-import { siteConfig } from '@/lib/config/site'
+import { ArrowRight, RotateCcw } from 'lucide-react'
 
 export default function GlobalError({
   error,
@@ -13,45 +12,32 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[GLOBAL ERROR LOGGED]', error)
+    // Sirf digest log hota hai: poora error object user ke browser console mein internals na dikhaye.
+    console.error('[site error]', error.digest ?? 'no-digest')
   }, [error])
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center bg-neutral-50 px-4 py-20">
-      <div className="max-w-md w-full text-center bg-white p-8 sm:p-12 rounded-3xl border border-neutral-200 shadow-xl animate-fade-in">
-        <div className="w-16 h-16 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center mx-auto mb-5 border border-red-100">
-          <AlertTriangle className="h-8 w-8" />
-        </div>
-
-        <h1 className="text-2xl font-bold font-display text-navy-900 mb-2">
-          Something Went Wrong
-        </h1>
-
-        <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed mb-6">
-          We hit an unexpected problem. Please try again. If you need plumbing or HVAC help, you can still send a service request.
-        </p>
-
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={() => reset()}
-            className="btn-primary w-full !py-3 text-xs flex items-center justify-center gap-2 shadow-sm"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Try Loading Again
-          </button>
-
-          <Link
-            href="/"
-            className="btn-outline w-full !py-3 text-xs flex items-center justify-center gap-2"
-          >
-            <Home className="h-4 w-4" />
-            Return to Homepage
-          </Link>
-
-          <Link href="/book-service" className="inline-flex items-center justify-center gap-2 pt-3 text-xs font-semibold text-brand-red hover:underline">Request Service</Link>
+    <section className="bg-paper">
+      <div className="container-wide py-24 sm:py-32 lg:py-40">
+        <div className="max-w-3xl" role="alert">
+          <p className="eyebrow">Something went wrong</p>
+          <h1 className="mt-5 font-display text-display-xl font-bold text-ink">We couldn&apos;t load this page.</h1>
+          <p className="mt-6 max-w-xl text-lead text-neutral-700">
+            Please try again. If the problem continues you can still send a service request and we&apos;ll take it from there.
+          </p>
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={() => reset()} className="cta cta-solid">
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+              Try again
+            </button>
+            <Link href="/book-service" className="cta cta-line">
+              Request Service
+              <ArrowRight className="cta-arrow" aria-hidden="true" />
+            </Link>
+            <Link href="/" className="cta cta-line">Back to the homepage</Link>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

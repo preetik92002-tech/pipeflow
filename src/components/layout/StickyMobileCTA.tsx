@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Phone, Calendar } from 'lucide-react'
+import { ArrowRight, Phone } from 'lucide-react'
 import { useSiteSettings } from './SiteSettingsProvider'
 import { useNavigation } from './NavigationProvider'
 import { hasRealPhone } from '@/lib/config/contact'
@@ -9,30 +9,25 @@ import { hasRealPhone } from '@/lib/config/contact'
 export function StickyMobileCTA() {
   const { company } = useSiteSettings()
   const nav = useNavigation()
+  const hasPhone = hasRealPhone(company.phone)
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-neutral-200 shadow-lg lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 backdrop-blur-md lg:hidden"
       role="navigation"
       aria-label="Quick actions"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className={`grid divide-x divide-neutral-200 ${hasRealPhone(company.phone) ? 'grid-cols-2' : 'grid-cols-1'}`} style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        {hasRealPhone(company.phone) && (
-          <Link
-            href={`tel:${company.phone}`}
-            className="flex items-center justify-center gap-2 py-3.5 text-navy-800 hover:bg-neutral-50 transition-colors active:bg-neutral-100"
-            aria-label={`Call ${company.phone}`}
-          >
-            <Phone className="h-5 w-5 text-brand-blue" aria-hidden="true" />
-            <span className="text-sm font-semibold">Call</span>
-          </Link>
+      <div className="flex gap-2 p-2.5">
+        {hasPhone && (
+          <a href={`tel:${company.phone}`} className="cta cta-line !min-h-[3rem] flex-none !px-5" aria-label={`Call ${company.phone}`}>
+            <Phone className="h-4 w-4" aria-hidden="true" />
+            Call
+          </a>
         )}
-        <Link
-          href={nav.cta.href}
-          className="flex w-full items-center justify-center gap-2 bg-brand-red py-3.5 text-white transition-colors hover:bg-brand-red-dark active:bg-brand-red-dark"
-        >
-          <Calendar className="h-5 w-5" aria-hidden="true" />
-          <span className="text-sm font-bold">{nav.cta.label}</span>
+        <Link href={nav.cta.href} className="cta cta-solid !min-h-[3rem] flex-1">
+          {nav.cta.label}
+          <ArrowRight className="cta-arrow" aria-hidden="true" />
         </Link>
       </div>
     </div>

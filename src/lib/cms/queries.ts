@@ -2,13 +2,14 @@ import { createPublicClient } from '@/lib/supabase/public'
 import type { BlogPost } from '@/lib/blog/types'
 import type { CmsBlog, CmsService, CmsServiceArea, HomepageContent } from './types'
 import type { Testimonial, Service, FAQ } from '@/types'
+import { resolveImage } from '@/lib/media/photos'
 
 export function toBlogPost(row: CmsBlog): BlogPost {
   const categoryName = row.category_name || 'Home Care'
   return {
     id: row.id, title: row.title, slug: row.slug, seoTitle: row.seo_title || undefined,
     seoDescription: row.seo_description || undefined, excerpt: row.excerpt || '', author: row.author,
-    featuredImage: row.featured_image || '/art/hero-plumbing.svg', featuredImageAlt: row.featured_image_alt || row.title,
+    featuredImage: resolveImage(row.featured_image || '/art/hero-plumbing.svg').src, featuredImageAlt: row.featured_image_alt || row.title,
     categoryId: row.category_slug || 'general', categoryName, categorySlug: row.category_slug || 'general',
     tags: [], publishedAt: row.published_at || row.created_at, updatedAt: row.updated_at, status: row.status,
     body: row.body, readingTimeMinutes: Math.max(1, Math.ceil(row.body.split(/\s+/).length / 200)),

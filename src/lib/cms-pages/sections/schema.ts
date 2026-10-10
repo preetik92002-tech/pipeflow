@@ -18,6 +18,8 @@ export const heroData = z.object({
   subtitle: text(500).default(''),
   intro: text(2000).default(''),
   image: imageSrcSchema.default(''),
+  // Khaali ho to built-in photo ka alt use hota hai; purane pages par default '' se kuch nahi tootta.
+  imageAlt: text(250).default(''),
   buttons: buttons.default([]),
   align: z.enum(['left', 'center']).default('left'),
 })
@@ -47,7 +49,7 @@ export const featureCardsData = z.object({
   heading: text(180).default(''),
   intro: text(1000).default(''),
   cards: z
-    .array(z.object({ title: heading(120), text: text(600).default(''), href: hrefSchema.or(z.literal('')).default(''), image: imageSrcSchema.default('') }))
+    .array(z.object({ title: heading(120), text: text(600).default(''), href: hrefSchema.or(z.literal('')).default(''), image: imageSrcSchema.default(''), imageAlt: text(250).default('') }))
     .max(12)
     .default([]),
 })

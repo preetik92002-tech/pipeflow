@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { cache } from 'react'
 import { siteConfig } from '@/lib/config/site'
 import { createPublicClient } from '@/lib/supabase/public'
+import { isPublishableMessage } from '@/lib/config/contact'
 
 export type PublicSeoSettings = {
   default_title: string
@@ -185,7 +186,7 @@ export const getPublicSiteSettingsBundle = cache(async (): Promise<PublicSiteSet
       : typeof banner.text === 'string' ? [banner.text] : []
     return {
       company: { ...siteConfig.company, ...company },
-      announcementMessages: banner.enabled && bannerMessages.length ? bannerMessages : [],
+      announcementMessages: banner.enabled ? bannerMessages.filter(isPublishableMessage) : [],
       emergencyAvailable: hours.emergency_available !== false,
       analytics: {
         gaMeasurementId: analytics.ga_measurement_id as string | null | undefined,

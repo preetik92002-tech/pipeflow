@@ -3,7 +3,7 @@ import path from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { renderToStaticMarkup } from 'react-dom/server'
 import type { ReactElement } from 'react'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { pgliteSupabase } from '../helpers/pglite-supabase'
 
 // The public catch-all page, its metadata, the sitemap and the admin preview, running on the
@@ -134,4 +134,8 @@ describe('admin preview', () => {
     expect(html).toContain('not visible to visitors')
     expect(html).toContain('AC Installation in Boulder, Colorado')
   })
+})
+
+afterAll(async () => {
+  await db?.close()
 })
