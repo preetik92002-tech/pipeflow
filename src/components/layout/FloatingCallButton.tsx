@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Phone } from 'lucide-react'
 import { useSiteSettings } from './SiteSettingsProvider'
+import { hasRealPhone } from '@/lib/config/contact'
 
 export function FloatingCallButton() {
   const [visible, setVisible] = useState(false)
@@ -18,7 +19,7 @@ export function FloatingCallButton() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  if (!visible) return null
+  if (!visible || !hasRealPhone(company.phone)) return null
 
   return (
     <aside
@@ -34,7 +35,7 @@ export function FloatingCallButton() {
         </span>
         <div className="text-left">
           <p className="text-2xs font-bold text-neutral-300 group-hover:text-white uppercase tracking-wider leading-none">
-            {emergencyAvailable ? '24/7 Dispatch' : 'Call Dispatch'}
+            Call Us
           </p>
           <p className="text-sm font-bold text-white tracking-tight leading-snug">
             {company.phone}

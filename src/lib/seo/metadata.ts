@@ -88,45 +88,50 @@ export const getPublicCompanySettings = cache(async (): Promise<Partial<typeof s
   return (data?.setting_value ?? {}) as Partial<typeof siteConfig.company>
 })
 
+/**
+ * Organization data for search engines. Only facts the business has entered in
+ * Settings are published: phone, email, street address and hours are left out
+ * until then, so placeholder values never reach Google.
+ */
 export async function generateLocalBusinessSchema() {
   const [company, seo, operatingHours] = await Promise.all([getPublicCompanySettings(), getPublicSeoSettings(), getPublicOperatingHours()])
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
+  const isReal = (v?: string) => !!v && !/placeholder|555-01|123 main/i.test(v)
   const weekdayHours = parseHours(operatingHours.weekday)
   const weekendHours = parseHours(operatingHours.weekend)
   return {
     '@context': 'https://schema.org',
-    '@type': 'Plumber',
+    '@type': 'Organization',
     name: company.name || siteConfig.company.name,
     description: seo?.default_description || siteConfig.seo.defaultDescription,
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com',
-    telephone: company.phone || siteConfig.company.phone,
-    email: company.email || siteConfig.company.email,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: company.address || siteConfig.company.address,
-      addressLocality: company.city || siteConfig.company.city,
-      addressRegion: company.state || siteConfig.company.state,
-      postalCode: company.zip || siteConfig.company.zip,
-      addressCountry: 'US',
-    },
-    openingHoursSpecification: weekdayHours || weekendHours ? [
-      ...(weekdayHours ? [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: weekdayHours.opens, closes: weekdayHours.closes }] : []),
-      ...(weekendHours ? [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Saturday', 'Sunday'], opens: weekendHours.opens, closes: weekendHours.closes }] : []),
-    ] : [
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        opens: '07:00',
-        closes: '19:00',
-      },
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Saturday'],
-        opens: '08:00',
-        closes: '17:00',
-      },
+    url: baseUrl,
+    logo: `${baseUrl}/assets/logo.png`,
+    areaServed: [
+      { '@type': 'City', name: 'Denver', address: { '@type': 'PostalAddress', addressRegion: 'CO', addressCountry: 'US' } },
+      { '@type': 'City', name: 'Boulder', address: { '@type': 'PostalAddress', addressRegion: 'CO', addressCountry: 'US' } },
     ],
-    priceRange: '$$',
-    logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'}/assets/logo.png`,
+    ...(isReal(company.phone) ? { telephone: company.phone } : {}),
+    ...(isReal(company.email) ? { email: company.email } : {}),
+    ...(isReal(company.address)
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: company.address,
+            addressLocality: company.city || siteConfig.company.city,
+            addressRegion: company.state || siteConfig.company.state,
+            postalCode: company.zip,
+            addressCountry: 'US',
+          },
+        }
+      : {}),
+    ...(weekdayHours || weekendHours
+      ? {
+          openingHoursSpecification: [
+            ...(weekdayHours ? [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: weekdayHours.opens, closes: weekdayHours.closes }] : []),
+            ...(weekendHours ? [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Saturday', 'Sunday'], opens: weekendHours.opens, closes: weekendHours.closes }] : []),
+          ],
+        }
+      : {}),
   }
 }
 

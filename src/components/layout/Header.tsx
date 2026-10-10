@@ -8,6 +8,7 @@ import { Navigation } from './Navigation'
 import { MobileNavigation } from './MobileNavigation'
 import { AnnouncementBar } from './AnnouncementBar'
 import { useBookingModal } from '@/components/booking/BookingModalProvider'
+import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
 import { cn } from '@/lib/cn'
 import { useSiteSettings } from './SiteSettingsProvider'
@@ -68,6 +69,7 @@ export function Header() {
 
             {/* Desktop CTA cluster */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+              {hasRealPhone(company.phone) && (
               <Link
                 href={`tel:${company.phone}`}
                 className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-navy-700 hover:bg-neutral-100 transition-colors"
@@ -77,6 +79,7 @@ export function Header() {
                 <span className="hidden xl:inline text-sm font-semibold">{company.phone}</span>
                 <span className="xl:hidden text-sm font-semibold">Call</span>
               </Link>
+              )}
 
               <button
                 type="button"

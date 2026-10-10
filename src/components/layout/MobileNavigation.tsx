@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { hasRealPhone } from '@/lib/config/contact'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -152,6 +153,7 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone, onBook
               {config.bookService.label}
             </Link>
           )}
+          {hasRealPhone(phone) && (
           <Link
             href={`tel:${phone}`}
             className="btn-secondary w-full justify-center"
@@ -159,6 +161,7 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone, onBook
             <Phone className="h-4 w-4" aria-hidden="true" />
             {phone}
           </Link>
+          )}
           <Link
             href={config.joinPro.href}
             className="flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-brand-blue hover:bg-blue-50 transition-colors"

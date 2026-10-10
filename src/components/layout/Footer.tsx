@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Droplets,
 } from 'lucide-react'
+import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
 import { ScrollReveal } from '@/components/motion/ScrollReveal'
 import { useSiteSettings } from './SiteSettingsProvider'
@@ -118,6 +119,7 @@ export function Footer() {
                 <span>{siteConfig.ctas.getQuote.label}</span>
               </Link>
 
+              {hasRealPhone(company.phone) && (
               <a
                 href={`tel:${company.phone}`}
                 className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-bold text-white hover:text-brand-blue-lighter transition-colors"
@@ -126,6 +128,7 @@ export function Footer() {
                 <Phone className="h-5 w-5 text-brand-red flex-shrink-0" />
                 <span>Call: {company.phone}</span>
               </a>
+              )}
             </div>
           </ScrollReveal>
         </div>
@@ -217,13 +220,14 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 5: Contact & Dispatch Headquarters */}
+          {/* Column 5: Contact & Dispatch Service Area */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4 border-b border-navy-800 pb-2 flex items-center gap-2">
               <Clock className="h-3.5 w-3.5 text-brand-blue" />
               <span>Contact &amp; Dispatch</span>
             </h4>
             <div className="space-y-3 text-neutral-300">
+              {hasRealPhone(company.phone) && (
               <div>
                 <span className="text-2xs uppercase tracking-wider text-neutral-500 block">{emergencyAvailable ? '24/7 Phone Line' : 'Phone Line'}</span>
                 <a
@@ -233,6 +237,7 @@ export function Footer() {
                   {company.phone}
                 </a>
               </div>
+              )}
 
               <div>
                 <span className="text-2xs uppercase tracking-wider text-neutral-500 block">Email Inquiries</span>
@@ -245,9 +250,9 @@ export function Footer() {
               </div>
 
               <div>
-                <span className="text-2xs uppercase tracking-wider text-neutral-500 block">Headquarters</span>
+                <span className="text-2xs uppercase tracking-wider text-neutral-500 block">Service Area</span>
                 <p className="text-neutral-400">
-                  {company.city}, {company.state} {company.zip}
+                  Denver &amp; Boulder, {company.state}
                 </p>
               </div>
 
