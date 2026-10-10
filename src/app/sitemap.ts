@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getPublishedBlogs } from '@/lib/cms/queries'
+import { getFallbackPaths } from '@/lib/cms-pages/fallback'
 import { listPublishedPaths } from '@/lib/cms-pages/repository'
 import { pathToUrl } from '@/lib/cms-pages/paths'
 import { getPublicSeoSettings } from '@/lib/seo/metadata'
@@ -8,7 +9,7 @@ import { getPublicSeoSettings } from '@/lib/seo/metadata'
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [pages, blogs, seo] = await Promise.all([listPublishedPaths(), getPublishedBlogs(), getPublicSeoSettings()])
+  const [pages, blogs, seo] = await Promise.all([listPublishedPaths().catch(() => getFallbackPaths()), getPublishedBlogs().catch(() => []), getPublicSeoSettings().catch(() => null)])
   const baseUrl = seo?.canonical_domain || process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
   return [
     // Drafts, unpublished pages, templates and noindex pages never appear here.

@@ -26,7 +26,10 @@ export async function getPublishedBlogs(): Promise<CmsBlog[]> {
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
     .order('published_at', { ascending: false })
-  if (error) throw new Error(`Unable to load published blogs: ${error.message}`)
+  if (error) {
+    console.error(`Blog posts unavailable: ${error.message}`)
+    return []
+  }
   return (data ?? []) as CmsBlog[]
 }
 
@@ -39,7 +42,10 @@ export async function getPublishedBlogBySlug(slug: string): Promise<CmsBlog | nu
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
     .maybeSingle()
-  if (error) throw new Error(`Unable to load blog post: ${error.message}`)
+  if (error) {
+    console.error(`Blog post unavailable: ${error.message}`)
+    return null
+  }
   return (data as CmsBlog | null) ?? null
 }
 

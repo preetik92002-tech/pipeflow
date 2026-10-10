@@ -24,7 +24,10 @@ export const getPublicSeoSettings = cache(async (): Promise<PublicSeoSettings | 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null
   const supabase = createPublicClient()
   const { data, error } = await supabase.from('seo_settings').select('default_title,title_template,default_description,keywords,default_og_image,canonical_domain,homepage_title,homepage_description,robots_txt_custom').limit(1).maybeSingle()
-  if (error) throw new Error(`Unable to load public SEO settings: ${error.message}`)
+  if (error) {
+    console.error(`Public SEO settings unavailable, using defaults: ${error.message}`)
+    return null
+  }
   return data as PublicSeoSettings | null
 })
 
@@ -84,7 +87,10 @@ export const getPublicCompanySettings = cache(async (): Promise<Partial<typeof s
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return {}
   const supabase = createPublicClient()
   const { data, error } = await supabase.from('site_settings').select('setting_value').eq('setting_key', 'company_info').maybeSingle()
-  if (error) throw new Error(`Unable to load public company settings: ${error.message}`)
+  if (error) {
+    console.error(`Public company settings unavailable, using defaults: ${error.message}`)
+    return {}
+  }
   return (data?.setting_value ?? {}) as Partial<typeof siteConfig.company>
 })
 
@@ -139,7 +145,10 @@ const getPublicOperatingHours = cache(async (): Promise<{ weekday?: string; week
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return {}
   const supabase = createPublicClient()
   const { data, error } = await supabase.from('site_settings').select('setting_value').eq('setting_key', 'operating_hours').maybeSingle()
-  if (error) throw new Error(`Unable to load public operating hours: ${error.message}`)
+  if (error) {
+    console.error(`Public operating hours unavailable, using defaults: ${error.message}`)
+    return {}
+  }
   return (data?.setting_value ?? {}) as { weekday?: string; weekend?: string }
 })
 
