@@ -14,6 +14,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
 import { redirect } from 'next/navigation'
 import { formatShortDate } from '@/lib/date'
+import { getPageStats, listPages } from '@/lib/cms-pages/repository'
+import { pathToUrl } from '@/lib/cms-pages/paths'
+import { StatusBadge } from '@/components/admin/pages/StatusBadge'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +28,7 @@ export default async function AdminDashboard() {
   const weekStart = new Date()
   weekStart.setHours(0, 0, 0, 0)
   weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7))
-  const [leadsCount, newLeadsCount, weekLeadsCount, bookingCount, quoteCount, applicationsCount, newApplicationsCount, blogsCount, servicesCount, areasCount, recent] = await Promise.all([
+  const [leadsCount, newLeadsCount, weekLeadsCount, bookingCount, quoteCount, applicationsCount, newApplicationsCount, blogsCount, recent, pageStats, recentPages] = await Promise.all([
     supabase.from('leads').select('id', { count: 'exact', head: true }),
     supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', weekStart.toISOString()),
@@ -34,11 +37,11 @@ export default async function AdminDashboard() {
     supabase.from('pro_applications').select('id', { count: 'exact', head: true }),
     supabase.from('pro_applications').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     supabase.from('blogs').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-    supabase.from('services').select('id', { count: 'exact', head: true }).eq('active', true),
-    supabase.from('service_areas').select('id', { count: 'exact', head: true }).eq('active', true),
     supabase.from('leads').select('id,name,phone,specific_service,service_area,zip_code,lead_type,status,created_at').order('created_at', { ascending: false }).limit(5),
+    getPageStats(),
+    listPages().then((pages) => pages.filter((p) => !p.isTemplate).slice(0, 5)),
   ])
-  const databaseError = [leadsCount, newLeadsCount, weekLeadsCount, bookingCount, quoteCount, applicationsCount, newApplicationsCount, blogsCount, servicesCount, areasCount, recent].find((result) => result.error)?.error
+  const databaseError = [leadsCount, newLeadsCount, weekLeadsCount, bookingCount, quoteCount, applicationsCount, newApplicationsCount, blogsCount, recent].find((result) => result.error)?.error
   if (databaseError) throw new Error(`Unable to load admin dashboard data: ${databaseError.message}`)
   const recentLeads = (recent.data ?? []).map((lead) => ({
     id: lead.id, name: lead.name, phone: lead.phone, service: lead.specific_service || 'General inquiry',
@@ -55,8 +58,6 @@ export default async function AdminDashboard() {
     { label: 'Pro Applications', value: String(applicationsCount.count ?? 0), change: 'All applications', icon: HardHat, color: 'text-purple-600 bg-purple-50' },
     { label: 'New Applications', value: String(newApplicationsCount.count ?? 0), change: 'Awaiting review', icon: HardHat, color: 'text-fuchsia-700 bg-fuchsia-50' },
     { label: 'Published Blogs', value: String(blogsCount.count ?? 0), change: 'Active in SEO', icon: BookOpen, color: 'text-indigo-600 bg-indigo-50' },
-    { label: 'Active Services', value: String(servicesCount.count ?? 0), change: 'Public catalog', icon: Wrench, color: 'text-emerald-700 bg-emerald-50' },
-    { label: 'Service Areas', value: String(areasCount.count ?? 0), change: 'Active locations', icon: Wrench, color: 'text-navy-900 bg-neutral-100' },
   ]
 
   return (
@@ -73,6 +74,10 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link href="/admin/pages" className="btn-outline !py-2 !px-3.5 text-xs inline-flex items-center gap-1.5">
+            <Plus className="h-3.5 w-3.5" />
+            New Page
+          </Link>
           <Link href="/admin/new-blog" className="btn-outline !py-2 !px-3.5 text-xs inline-flex items-center gap-1.5">
             <Plus className="h-3.5 w-3.5" />
             New Article
@@ -84,8 +89,36 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
+      {/* Website pages */}
+      <section aria-labelledby="pages-overview" className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4 mb-4">
+          <div>
+            <h2 id="pages-overview" className="text-base font-bold text-navy-900">Website pages</h2>
+            <p className="text-2xs text-neutral-400">
+              {pageStats.total} total · {pageStats.published} published · {pageStats.draft} drafts · {pageStats.unpublished} unpublished
+            </p>
+          </div>
+          <Link href="/admin/pages" className="text-xs font-bold text-brand-blue hover:underline">Manage pages &rarr;</Link>
+        </div>
+        {recentPages.length === 0 ? (
+          <p className="text-sm text-neutral-500">No pages yet. <Link href="/admin/pages" className="font-semibold text-brand-blue">Create your first page</Link>.</p>
+        ) : (
+          <ul className="divide-y divide-neutral-100">
+            {recentPages.map((page) => (
+              <li key={page.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+                <div className="min-w-0">
+                  <Link href={`/admin/pages/${page.id}`} className="text-sm font-semibold text-navy-900 hover:text-brand-blue">{page.title}</Link>
+                  <p className="text-2xs text-neutral-400">{pathToUrl(page.path)} · edited {formatShortDate(page.updatedAt)}</p>
+                </div>
+                <StatusBadge status={page.status} unpublishedChanges={page.hasUnpublishedChanges} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
@@ -177,12 +210,11 @@ export default async function AdminDashboard() {
             </h3>
             <div className="space-y-2">
               {[
-                { label: 'Homepage Content', href: '/admin/home', desc: 'Edit hero, services, reviews, FAQs & CTAs' },
+                { label: 'Pages', href: '/admin/pages', desc: 'Create, edit, preview, publish and duplicate pages' },
                 { label: 'Leads & Marketing Attribution', href: '/admin/leads', desc: 'Track GCLID, UTMs & dispatch' },
                 { label: 'Trade Contractor Applications', href: '/admin/pro-applications', desc: 'Review pro plumbers & HVAC mechanics' },
                 { label: 'Blog & Editorial Engine', href: '/admin/blogs', desc: 'Manage articles, SEO & FAQs' },
-                { label: 'Service Catalog', href: '/admin/services', desc: 'Edit pricing notes & descriptions' },
-                { label: 'Service Areas & ZIP Codes', href: '/admin/service-areas', desc: 'Control Colorado territory routes' },
+                { label: 'Media Library', href: '/admin/media', desc: 'Upload and manage images' },
                 { label: 'Global Business Settings', href: '/admin/settings', desc: 'Phone, email, hours, analytics' },
               ].map((link) => (
                 <Link

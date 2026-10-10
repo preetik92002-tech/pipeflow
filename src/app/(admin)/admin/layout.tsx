@@ -17,6 +17,7 @@ import {
   Settings,
   ExternalLink,
   Menu,
+  FileText,
   X,
   ShieldCheck,
   LogOut,
@@ -28,7 +29,7 @@ import { createClient } from '@/lib/supabase/client'
 
 const adminNav = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { label: 'Homepage', href: '/admin/home', icon: Home },
+  { label: 'Pages', href: '/admin/pages', icon: FileText },
   { label: 'Leads & Inquiries', href: '/admin/leads', icon: Users },
   { label: 'Pro Applications', href: '/admin/pro-applications', icon: HardHat },
   { label: 'Blog Engine', href: '/admin/blogs', icon: BookOpen },
