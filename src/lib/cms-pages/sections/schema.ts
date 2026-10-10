@@ -54,15 +54,20 @@ export const featureCardsData = z.object({
 
 export const comparisonData = z.object({
   heading: heading(),
+  intro: text(1000).default(''),
   columns: z
     .array(z.object({ title: heading(120), items: z.array(text(300).min(1)).max(20).default([]) }))
     .min(2)
     .max(3),
+  outro: text(2000).default(''),
+  buttons: z.array(buttonSchema).max(1).default([]),
 })
 
 export const stepsData = z.object({
   heading: heading(),
+  intro: text(1000).default(''),
   steps: z.array(z.object({ title: heading(120), text: text(600).default('') })).max(12).default([]),
+  buttons: z.array(buttonSchema).max(1).default([]),
 })
 
 export const faqData = z.object({

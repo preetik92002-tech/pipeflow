@@ -138,6 +138,7 @@ function ComparisonForm({ data, onChange, errors }: FormProps) {
   return (
     <div className="space-y-4">
       <TextField label="Heading" value={str(data.heading)} onChange={(heading) => set({ heading })} max={180} error={errors.heading} />
+      <TextField label="Text above the columns (optional)" value={str(data.intro)} onChange={(intro) => set({ intro })} max={1000} multiline rows={2} />
       <ListEditor
         items={list<{ title: string; items: string[] }>(data.columns)}
         onChange={(columns) => set({ columns })}
@@ -153,6 +154,8 @@ function ComparisonForm({ data, onChange, errors }: FormProps) {
         )}
       />
       {errors.columns && <p role="alert" className="text-xs font-medium text-red-700">{errors.columns}</p>}
+      <TextField label="Text below the columns (optional)" value={str(data.outro)} onChange={(outro) => set({ outro })} max={2000} multiline rows={3} />
+      <ButtonsField buttons={list<Btn>(data.buttons)} max={1} onChange={(buttons) => set({ buttons })} errors={errors} />
     </div>
   )
 }
@@ -162,6 +165,7 @@ function StepsForm({ data, onChange, errors }: FormProps) {
   return (
     <div className="space-y-4">
       <TextField label="Heading" value={str(data.heading)} onChange={(heading) => set({ heading })} max={180} error={errors.heading} />
+      <TextField label="Text above the steps (optional)" value={str(data.intro)} onChange={(intro) => set({ intro })} max={1000} multiline rows={2} />
       <ListEditor
         items={list<{ title: string; text: string }>(data.steps)}
         onChange={(steps) => set({ steps })}
@@ -176,6 +180,7 @@ function StepsForm({ data, onChange, errors }: FormProps) {
           </>
         )}
       />
+      <ButtonsField buttons={list<Btn>(data.buttons)} max={1} onChange={(buttons) => set({ buttons })} errors={errors} />
     </div>
   )
 }

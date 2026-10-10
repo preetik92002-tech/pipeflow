@@ -140,6 +140,7 @@ export function ComparisonSection({ data }: { data: SectionData<'comparison'> })
     <section className="py-10 sm:py-14">
       <div className={wrap}>
         <h2 className={h2}>{data.heading}</h2>
+        {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
         <div className={`mt-8 grid gap-5 ${data.columns.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
           {data.columns.map((col, i) => (
             <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-6">
@@ -155,6 +156,8 @@ export function ComparisonSection({ data }: { data: SectionData<'comparison'> })
             </div>
           ))}
         </div>
+        {data.outro && <p className="mt-6 max-w-3xl text-neutral-600">{data.outro}</p>}
+        <CmsButtons buttons={data.buttons} />
       </div>
     </section>
   )
@@ -165,6 +168,7 @@ export function StepsSection({ data }: { data: SectionData<'steps'> }) {
     <section className="py-10 sm:py-14">
       <div className={wrap}>
         <h2 className={h2}>{data.heading}</h2>
+        {data.intro && <p className="mt-3 max-w-3xl text-neutral-600">{data.intro}</p>}
         <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {data.steps.map((step, i) => (
             <li key={i} className="rounded-2xl border border-neutral-200 bg-white p-6">
@@ -176,6 +180,7 @@ export function StepsSection({ data }: { data: SectionData<'steps'> }) {
             </li>
           ))}
         </ol>
+        <CmsButtons buttons={data.buttons} />
       </div>
     </section>
   )
