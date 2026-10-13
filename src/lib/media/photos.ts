@@ -105,3 +105,22 @@ export const MARQUEE_PHOTOS: Photo[] = [
   PHOTOS.denverAerial, PHOTOS.plumberSinkPipes, PHOTOS.acUnitsWall, PHOTOS.boulderMeadow,
   PHOTOS.faucet, PHOTOS.denverCityView, PHOTOS.technicianEquipment, PHOTOS.boulderAutumn,
 ]
+
+/**
+ * Hero banners (wide, dark navy fade on the left where the text sits). Picked at render time from the
+ * hero's own wording, so no stored page data changes.
+ */
+export const HERO_BANNERS = {
+  hvac: '/images/hero/hvac.jpg',
+  plumbing: '/images/hero/plumbing.jpg',
+  blog: '/images/hero/blog.jpg',
+  van: '/images/hero/van.jpg',
+} as const
+
+export function heroBanner(...texts: (string | undefined)[]): string {
+  const t = texts.filter(Boolean).join(' ').toLowerCase()
+  if (/(hvac|ac|a\/c|air condition\w*|heating|furnace|cooling|heat pump|thermostat)/.test(t)) return HERO_BANNERS.hvac
+  if (/plumb|water heater|pipe|drain|faucet|leak|sewer/.test(t)) return HERO_BANNERS.plumbing
+  if (/(blog|guide|tips|resources?|articles?)/.test(t)) return HERO_BANNERS.blog
+  return HERO_BANNERS.van
+}

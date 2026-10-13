@@ -42,7 +42,7 @@ export function BlogListClient({ initialPosts, categories }: BlogListClientProps
     <div>
       {/* Cinematic Blog Hero */}
       <PageHero
-        imageSrc="/images/photos/plumbing-tools.jpg"
+        imageSrc="/images/hero/blog.jpg"
         imageAlt=""
         eyebrow="PipeFlow Resources"
         eyebrowIcon={BookOpen}

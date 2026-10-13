@@ -289,7 +289,7 @@
   .hero-enter > *:nth-child(4) { animation-delay: 0.24s; }
   .hero-enter > *:nth-child(5) { animation-delay: 0.32s; }
   .hero-photo-settle {
-    animation: settle 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: settle 1s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   /*
@@ -361,18 +361,18 @@
 @media (prefers-reduced-motion: no-preference) {
   /* Hero: photo ek chhote frame se poori screen tak khulti hai, phir headline ke words, phir copy aur buttons. Sab CSS: JavaScript ka intezaar nahi. */
   .hero-clip-reveal {
-    animation: clipIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: clipIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .word {
-    animation: wordUp 1.05s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(0.2s + var(--i, 0) * 70ms);
+    animation: wordUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(0.05s + var(--i, 0) * 40ms);
   }
   .hero-enter > .hero-h1 {
     animation: none;
   }
-  .hero-enter > *:nth-child(3) { animation-delay: 0.75s; }
-  .hero-enter > *:nth-child(4) { animation-delay: 0.85s; }
-  .hero-enter > *:nth-child(5) { animation-delay: 0.95s; }
+  .hero-enter > *:nth-child(3) { animation-delay: 0.3s; }
+  .hero-enter > *:nth-child(4) { animation-delay: 0.4s; }
+  .hero-enter > *:nth-child(5) { animation-delay: 0.5s; }
 
   /* Section headings: JS line-split hone tak chhupe (script fail ho to html.js class hat jaati hai). */
   html.js [data-lines]:not([data-split]) {
@@ -406,16 +406,36 @@
 /* Public site: focus ring that is visible on both light and dark       */
 /* ------------------------------------------------------------------ */
 html.site *:focus-visible {
-  outline: 2px solid #B54A3A;
+  outline: 2px solid #C41E1E;
   outline-offset: 3px;
   border-radius: 0;
 }
 html.site .bg-ink :focus-visible,
 html.site [data-dark] :focus-visible {
-  outline-color: #EBA897;
+  outline-color: #F4A3A3;
 }
 
 /* Admin login: chhota CSS-only entrance; reduced-motion mein koi animation nahi. */
 @media (prefers-reduced-motion: no-preference) {
   .login-in { animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+}
+
+/* Admin: soft blue canvas, consistent buttons and file picker. */
+.admin-shell {
+  background: #eaf0f9;
+}
+.admin-shell input[type='file']::file-selector-button {
+  margin-right: 0.75rem;
+  cursor: pointer;
+  border: 0;
+  border-radius: 0.5rem;
+  background: #0f2040;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+.admin-shell input[type='file']::file-selector-button:hover {
+  background: #1a3566;
 }

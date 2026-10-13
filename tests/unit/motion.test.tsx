@@ -46,10 +46,10 @@ describe('hero markup contract', () => {
     const html = render([hero()], ctx('home'))
     for (const hook of ['data-hero', 'data-hero-media', 'data-hero-content', 'hero-clip-reveal', 'hero-photo-settle']) expect(html, hook).toContain(hook)
   })
-  it('split hero (service pages) parallaxes its photo inside the frame', () => {
+  it('service pages use the same banner hero as the home page', () => {
     const html = render([hero()], ctx('service'))
-    expect(html).toContain('data-parallax="5"')
-    expect(html).not.toContain('data-hero-media')
+    expect(html).toContain('data-hero-media')
+    expect(html).toContain('images%2Fhero')
   })
   it('the settle/clip animations sit on different elements than the scroll transform', () => {
     // CSS animation (fill both) overrides inline transforms, so GSAP must move an inner element.
@@ -121,7 +121,7 @@ describe('photo marquee and service tiles', () => {
   })
   it('the hero image is fetched with high priority; other images are not', () => {
     const html = render([hero()], ctx('home'))
-    expect(html).toMatch(/<img[^>]*fetchPriority="high"[^>]*plumber-bathroom|<img[^>]*plumber-bathroom[^>]*fetchPriority="high"/)
+    expect(html).toMatch(/<img[^>]*fetchPriority="high"[^>]*images%2Fhero|<img[^>]*images%2Fhero[^>]*fetchPriority="high"/)
     expect(render([cards(true)], ctx('home'))).not.toContain('fetchPriority="high"')
   })
   it('two photo cards become big tiles that link to their pages and move their photo inside', () => {

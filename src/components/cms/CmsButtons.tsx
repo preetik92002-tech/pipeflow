@@ -52,11 +52,14 @@ export function CmsButtons({
     <div className={`${className} flex flex-col gap-3 sm:flex-row sm:flex-wrap ${center ? 'sm:justify-center' : ''}`}>
       {buttons.map((b, i) => {
         const primary = b.variant !== 'secondary'
-        const cls = `cta ${primary ? 'cta-solid' : onDark ? 'cta-on-dark' : 'cta-line'}`
+        const cls = primary
+          ? 'btn-primary !px-6 !py-3'
+          : onDark
+            ? 'inline-flex items-center justify-center rounded-lg border-2 border-white/70 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-navy-800 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-900'
+            : 'btn-outline !px-6 !py-3'
         return (
           <SmartLink key={i} href={b.href} className={cls}>
             {b.label}
-            {primary && <ArrowRight className="cta-arrow" aria-hidden="true" />}
           </SmartLink>
         )
       })}

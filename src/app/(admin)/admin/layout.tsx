@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100 flex flex-col md:flex-row">
+    <div className="admin-shell min-h-screen flex flex-col md:flex-row">
       {/* Mobile Header Bar */}
       <div className="md:hidden bg-navy-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <Link href="/admin/dashboard" className="flex items-center gap-2">

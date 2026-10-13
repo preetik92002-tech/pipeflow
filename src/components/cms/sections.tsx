@@ -1,10 +1,11 @@
 import { ArrowRight, ArrowUpRight, Check, Clock, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
 import type { CmsButton } from '@/lib/cms-pages/links'
-import { MARQUEE_PHOTOS, PHOTOS, PROCESS_PHOTOS, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
+import { MARQUEE_PHOTOS, PHOTOS, PROCESS_PHOTOS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
 import { SplitWords } from '@/components/motion/SplitWords'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
+import { HeroCarousel } from './HeroCarousel'
 import { RichTextRenderer } from './RichTextRenderer'
 
 /**
@@ -136,63 +137,41 @@ function HeroCopy({ data, first, light, center }: { data: SectionData<'hero'>; f
 
 export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; first: boolean; ctx: PageContext }) {
   const center = data.align === 'center'
-  const hasImage = data.image !== ''
-  // Home aur city pages: poori chaudai wali photo. Service pages: split layout lambi photo ke saath.
-  const fullBleed = hasImage && (center || ctx.kind === 'home' || ctx.kind === 'location')
-
-  if (fullBleed) {
-    return (
-      <section data-hero className="relative isolate flex min-h-[min(88svh,820px)] items-end overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
-        <div className="absolute inset-0 -z-20 hero-clip-reveal">
+  // The banner is chosen from the hero's wording; the page's stored image is left untouched.
+  const banner = heroBanner(data.heading, data.eyebrow, ...ctx.crumbs.map((c) => c.href ?? c.label))
+  if (ctx.kind === 'home') return <HeroCarousel heading={data.heading} buttons={data.buttons} labelId={first ? 'page-title' : undefined} />
+  return (
+    <section data-hero className="relative isolate flex min-h-[460px] items-center overflow-hidden bg-navy-900 text-white lg:min-h-[560px]" aria-labelledby={first ? 'page-title' : undefined}>
+      <div className="absolute inset-0 -z-20 select-none">
+        <div className="absolute inset-0 hero-clip-reveal">
           <div className="absolute inset-0 hero-photo-settle">
             <div data-hero-media className="absolute inset-0">
-              <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="100vw" className="object-cover" />
+              <CmsImage src={banner} alt={data.imageAlt || 'Denver skyline and the Rocky Mountains behind a PipeFlow technician'} priority={first} sizes="100vw" className="object-cover object-[75%_center] sm:object-center" />
             </div>
           </div>
         </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/55 to-ink/20" aria-hidden="true" />
-        {!center && <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/35 to-transparent" aria-hidden="true" />}
-        <div className={`container-wide w-full pb-16 pt-32 sm:pb-20 lg:pb-24 ${center ? 'text-center' : ''}`}>
-          <Breadcrumbs crumbs={ctx.crumbs} light />
-          <div data-hero-content className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
-            <HeroCopy data={data} first={first} light center={center} />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  if (hasImage) {
-    return (
-      <section className="relative overflow-hidden bg-paper" aria-labelledby={first ? 'page-title' : undefined}>
-        <div className="container-wide grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-12 lg:gap-16 lg:py-24">
-          <div className="lg:col-span-7">
-            <Breadcrumbs crumbs={ctx.crumbs} light={false} />
-            <div className="hero-enter">
-              <HeroCopy data={data} first={first} light={false} center={false} />
-            </div>
-          </div>
-          <div className="lg:col-span-5">
-            <div className="photo-frame hero-clip-reveal aspect-[4/3] w-full sm:aspect-[16/10] lg:aspect-[4/5]">
-              <div className="absolute inset-0 hero-photo-settle">
-                <div data-parallax="5" className="absolute inset-0">
-                  <CmsImage src={data.image} alt={data.imageAlt} priority={first} sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  return (
-    <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={first ? 'page-title' : undefined}>
-      <div className="pointer-events-none absolute -right-32 -top-32 -z-10 h-[28rem] w-[28rem] bg-terra/25 blur-3xl" aria-hidden="true" />
-      <div className={`container-wide py-20 sm:py-24 lg:py-28 ${center ? 'text-center' : ''}`}>
+      </div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy-900/90 via-navy-900/60 to-navy-900/10 sm:via-navy-900/30 sm:to-transparent" aria-hidden="true" />
+      <div className={`container-wide w-full py-16 sm:py-20 lg:py-24 ${center ? 'text-center' : ''}`}>
         <Breadcrumbs crumbs={ctx.crumbs} light />
-        <div className={`hero-enter ${center ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}>
-          <HeroCopy data={data} first={first} light center={center} />
+        <div data-hero-content className={`hero-enter ${center ? 'mx-auto max-w-3xl' : 'max-w-2xl'}`}>
+          {data.eyebrow && (
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-blue-light/40 bg-brand-blue/30 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-brand-blue-lighter backdrop-blur-md">
+              {data.eyebrow}
+            </p>
+          )}
+          <h1 id={first ? 'page-title' : undefined} className="hero-h1 font-display text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-6xl">
+            <SplitWords text={data.heading} />
+          </h1>
+          {data.subtitle && <p className={`mt-5 text-base leading-relaxed text-neutral-200 lg:text-lg ${center ? 'mx-auto' : ''}`}>{data.subtitle}</p>}
+          {data.intro && (
+            <div className={`mt-4 space-y-3 leading-relaxed text-neutral-300 ${center ? 'mx-auto' : ''}`}>
+              {data.intro.split(/\n{2,}/).map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
+          <CmsButtons buttons={data.buttons} onDark center={center} className="mt-8" />
         </div>
       </div>
     </section>

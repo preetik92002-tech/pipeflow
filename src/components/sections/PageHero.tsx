@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, LucideIcon } from 'lucide-react'
+import { LucideIcon } from 'lucide-react'
 import { CmsImage } from '@/components/cms/CmsImage'
 
 export interface PageHeroCTA {
@@ -27,11 +27,12 @@ export interface PageHeroProps {
 }
 
 function HeroLink({ cta, primary }: { cta: PageHeroCTA; primary: boolean }) {
-  const cls = `cta ${primary ? 'cta-solid' : 'cta-on-dark'}`
+  const cls = primary
+    ? 'inline-flex items-center justify-center gap-2 rounded-xl bg-brand-red px-6 py-3.5 text-xs font-bold tracking-wide text-white shadow-lg shadow-brand-red/20 transition-all duration-200 hover:bg-brand-red-dark sm:text-sm'
+    : 'inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-xs font-bold tracking-wide text-white backdrop-blur-md transition-all duration-200 hover:bg-white/20 sm:text-sm'
   const inner = (
     <>
       {cta.label}
-      {primary && <ArrowRight className="cta-arrow" aria-hidden="true" />}
     </>
   )
   return cta.isExternal || cta.href.startsWith('tel:') ? (

@@ -62,10 +62,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'The image could not be stored. Please try again.' }, { status: 503 })
   }
   const url = admin.storage.from('site-media').getPublicUrl(path).data.publicUrl
-  const { data, error } = await admin.from('media').insert({ filename: file.name.slice(0, 250), url, bucket: 'site-media', alt_text: typeof altText === 'string' ? altText.slice(0, 250) : null, media_type: kind, size_bytes: bytes.length, uploaded_by: auth.user?.id || null }).select('*').single()
+  // uploaded_by points at public.profiles. An admin created by hand in Supabase Auth has no profile row, which made every insert fail the foreign key.
+  let uploadedBy: string | null = null
+  if (auth.user?.id) {
+    const { data: profile } = await admin.from('profiles').select('id').eq('id', auth.user.id).maybeSingle()
+    uploadedBy = profile?.id ?? null
+  }
+  const { data, error } = await admin.from('media').insert({ filename: file.name.slice(0, 250), url, bucket: 'site-media', alt_text: typeof altText === 'string' ? altText.slice(0, 250) : null, media_type: kind, size_bytes: bytes.length, uploaded_by: uploadedBy }).select('*').single()
   if (error) {
     await admin.storage.from('site-media').remove([path])
-    console.error('[admin/media] media record failed', error.message)
+    console.error('[admin/media] media record failed', error.code, error.message, error.details)
     return NextResponse.json({ error: 'The image could not be saved. Please try again.' }, { status: 503 })
   }
   return NextResponse.json({ item: data }, { status: 201 })

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Menu, Phone } from 'lucide-react'
+import { Menu, Phone } from 'lucide-react'
 import { Navigation } from './Navigation'
 import { MobileNavigation } from './MobileNavigation'
 import { AnnouncementBar } from './AnnouncementBar'
@@ -77,9 +77,8 @@ export function Header() {
                   <span className="xl:hidden">Call</span>
                 </a>
               )}
-              <Link href={nav.cta.href} className="cta cta-solid !min-h-[2.75rem] !px-5 !py-2.5 !text-sm">
+              <Link href={nav.cta.href} className="btn-primary !px-5 !py-2.5">
                 {nav.cta.label}
-                <ArrowRight className="cta-arrow" aria-hidden="true" />
               </Link>
             </div>
 
@@ -96,6 +95,7 @@ export function Header() {
             </button>
           </div>
         </div>
+        <div className="h-[3px] w-full bg-gradient-to-r from-brand-blue via-navy-700 to-brand-red" aria-hidden="true" />
       </header>
 
       <MobileNavigation isOpen={mobileMenuOpen} onClose={closeMenu} items={nav.header} config={{ ...siteConfig.ctas, bookService: nav.cta }} phone={company.phone} />

@@ -6,17 +6,17 @@
  * restrained accent aur important action ke liye. Koi bright blue, neon ya glossy gradient nahi.
  */
 export const palette = {
-  ivory: '#F7F4EE',
-  ink: '#142536',
-  terra: '#B54A3A',
+  ivory: '#EEF3FA',
+  ink: '#0F2040',
+  terra: '#C41E1E',
   /** Hover/pressed state of terra. */
-  terraDark: '#9A3E30',
+  terraDark: '#A31818',
   /** Terracotta ka halka roop: sirf gehre (ink) background par chhote labels/numbers ke liye. terra khud ink par 2.97:1 hai (fail). */
-  terraLight: '#EBA897',
-  stone: '#D9D1C5',
+  terraLight: '#F4A3A3',
+  stone: '#CBD7E8',
   white: '#FFFFFF',
   /** Warm stone ka halka tint: photo placeholder aur dividers. */
-  mist: '#EDE8DF',
+  mist: '#E1EAF6',
   /** Form field ka border: stone border white par sirf 1.5:1 hai, fields ko kam se kam 3:1 chahiye. */
   field: '#7D766A',
   error: { bg: '#FBEDEB', border: '#E3B2A9', text: '#8C2F22' },
