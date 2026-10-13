@@ -20,7 +20,7 @@ vi.mock('@/lib/supabase/admin', () => ({
         remove: async () => ({ error: null }),
       }),
     },
-    from: () => ({ insert: (row: Record<string, unknown>) => ({ select: () => ({ single: async () => (state.rows.push(row), { data: row, error: null }) }) }) }),
+    from: (table: string) => table === 'profiles' ? { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { id: 'admin-1' }, error: null }) }) }) } : ({ insert: (row: Record<string, unknown>) => ({ select: () => ({ single: async () => (state.rows.push(row), { data: row, error: null }) }) }) }),
   }),
 }))
 

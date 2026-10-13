@@ -35,15 +35,22 @@ describe('SplitWords (hero headline)', () => {
     expect(renderToStaticMarkup(<SplitWords text="" />)).toBe('')
   })
   it('is what the hero heading uses, so the h1 is still one heading with its words', () => {
-    const html = render([hero()], ctx('home'))
+    const html = render([hero()], ctx('service'))
     expect(count(html, '<h1')).toBe(1)
     expect(html).toContain('class="word"')
   })
 })
 
 describe('hero markup contract', () => {
+  it('home hero is a three-slide carousel with one heading and the buttons', () => {
+    const html = render([hero({ buttons: [{ label: 'Request Service', href: '/book-service', variant: 'primary' }] })], ctx('home'))
+    expect(html).toContain('aria-roledescription="carousel"')
+    expect(count(html, '<h1')).toBe(1)
+    expect(count(html, 'aria-roledescription="slide"')).toBe(3)
+    expect(html).toContain('Request Service')
+  })
   it('photo hero exposes the hooks the scroll timeline needs', () => {
-    const html = render([hero()], ctx('home'))
+    const html = render([hero()], ctx('service'))
     for (const hook of ['data-hero', 'data-hero-media', 'data-hero-content', 'hero-clip-reveal', 'hero-photo-settle']) expect(html, hook).toContain(hook)
   })
   it('service pages use the same banner hero as the home page', () => {
@@ -53,12 +60,12 @@ describe('hero markup contract', () => {
   })
   it('the settle/clip animations sit on different elements than the scroll transform', () => {
     // CSS animation (fill both) overrides inline transforms, so GSAP must move an inner element.
-    const html = render([hero()], ctx('home'))
+    const html = render([hero()], ctx('service'))
     expect(html).toMatch(/hero-photo-settle[^>]*>\s*<div data-hero-media/)
   })
   it('uses alt text from the section, and empty alt only when none is given', () => {
-    expect(render([hero({ imageAlt: 'A plumber at work' })], ctx('home'))).toContain('alt="A plumber at work"')
-    expect(render([hero()], ctx('home'))).toMatch(/alt="[^"]+"/) // falls back to the built-in photo's description
+    expect(render([hero({ imageAlt: 'A plumber at work' })], ctx('service'))).toContain('alt="A plumber at work"')
+    expect(render([hero()], ctx('service'))).toMatch(/alt="[^"]+"/) // falls back to the built-in photo's description
   })
 })
 
@@ -120,7 +127,7 @@ describe('photo marquee and service tiles', () => {
     for (const p of onScreenElsewhere) expect(MARQUEE_PHOTOS.map((m) => m.src), p.src).not.toContain(p.src)
   })
   it('the hero image is fetched with high priority; other images are not', () => {
-    const html = render([hero()], ctx('home'))
+    const html = render([hero()], ctx('service'))
     expect(html).toMatch(/<img[^>]*fetchPriority="high"[^>]*images%2Fhero|<img[^>]*images%2Fhero[^>]*fetchPriority="high"/)
     expect(render([cards(true)], ctx('home'))).not.toContain('fetchPriority="high"')
   })
@@ -170,7 +177,7 @@ describe('motion hooks used by the scroll engine all exist in the markup', () =>
   })
   it('renders every one of them somewhere in the section components', () => {
     const imageBlock = { id: uuid(), type: 'contentBlock', data: { heading: 'With photo', content: doc('x'), image: '/art/hero-plumbing.svg', imagePosition: 'left' } }
-    const html = [render([hero(), imageBlock, steps(4), cards(true)], ctx('home')), render([steps(4)], ctx('service'))].join('')
+    const html = [render([hero(), imageBlock, steps(4), cards(true)], ctx('service')), render([steps(4), cards(true)], ctx('home'))].join('')
     for (const hook of used) expect(html, hook).toContain(hook)
   })
 })
