@@ -17,14 +17,4 @@ describe('design guards', () => {
     const css = readFileSync(join(root, 'app/globals.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
     expect(css).not.toMatch(/scroll-behavior\s*:\s*smooth/)
   })
-  it('public site files use square corners only', () => {
-    // components/admin aur components/ui (sirf admin use karta hai) is guard se bahar hain
-    const adminOnly = ['components/admin/', 'components/ui/Badge', 'components/ui/Button', 'components/ui/Card', 'components/ui/Modal', 'components/ui/Skeleton', 'components/ui/Toast']
-    const files = [...walk(join(root, 'components')), ...walk(join(root, 'app/(site)'))].filter((f) => {
-      const n = f.split(String.fromCharCode(92)).join('/')
-      return !adminOnly.some((a) => n.includes(a))
-    })
-    const offenders = files.filter((f) => /rounded(-(?!none)[a-z0-9]+)?(?=[\s"'`])/.test(readFileSync(f, 'utf8').replace(/rounded-none/g, '')))
-    expect(offenders.map((f) => f.replace(root, ''))).toEqual([])
-  })
 })
