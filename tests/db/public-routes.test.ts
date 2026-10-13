@@ -158,7 +158,7 @@ describe('admin preview', () => {
     expect(textOf(city)).toContain('HVAC')
     const home = await idOf('')
     const html = renderToStaticMarkup((await PreviewPage({ params: Promise.resolve({ id: home.id }) })) as ReactElement)
-    for (const hook of ['data-hero', 'data-story', 'data-marquee']) expect(html, hook).toContain(hook)
+    for (const hook of ['aria-roledescription="carousel"', 'data-story', 'data-marquee']) expect(html, hook).toContain(hook)
   })
 
   it('shows an admin the saved draft, marked as not visible to visitors', async () => {
