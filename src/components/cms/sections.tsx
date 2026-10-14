@@ -1,7 +1,7 @@
-import { ArrowRight, ArrowUpRight, Award, BadgeCheck, Check, Clock, Droplets, Fan, Flame, Home, Mail, MapPin, Phone, Plus, ShieldCheck, Snowflake, ThermometerSun, ThumbsUp, Users, Wrench, type LucideIcon } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Award, CalendarCheck, BadgeCheck, Check, Clock, Droplets, Fan, Flame, Home, Mail, MapPin, Phone, Plus, ShieldCheck, Snowflake, ThermometerSun, ThumbsUp, Users, Wrench, type LucideIcon } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
 import type { CmsButton } from '@/lib/cms-pages/links'
-import { PHOTOS, PROCESS_PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
+import { PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
 import { SplitWords } from '@/components/motion/SplitWords'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
@@ -38,10 +38,24 @@ export interface PageContext {
   reviews?: ReviewItem[]
 }
 
+/** Optional look for a section: dark navy band with slanted (criss-cross) top and bottom edges, optionally ending with the "Questions?" bar. */
+export interface Look {
+  dark: boolean
+  slant: 'a' | 'b' | 'c' // c = straight top edge (right under the hero), slanted bottom
+  bar?: boolean
+}
+
 const toneBg: Record<Tone, string> = { white: 'bg-white', paper: 'bg-paper' }
 const pad = 'py-20 sm:py-24 lg:py-28'
 
-function Band({ tone, children, className = '', labelledBy }: { tone: Tone; children: React.ReactNode; className?: string; labelledBy?: string }) {
+function Band({ tone, children, className = '', labelledBy, look }: { tone: Tone; children: React.ReactNode; className?: string; labelledBy?: string; look?: Look }) {
+  if (look?.dark) {
+    return (
+      <section className={`slant-band slant-${look.slant} soft-texture text-ink ${className}`} aria-labelledby={labelledBy}>
+        {children}
+      </section>
+    )
+  }
   return (
     <section className={`${toneBg[tone]} ${pad} ${className}`} aria-labelledby={labelledBy}>
       {children}
@@ -193,8 +207,9 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
 
 export function RichTextSection({ data, tone }: { data: SectionData<'richText'>; tone: Tone }) {
   return (
-    <section className={`${toneBg[tone]} py-16 sm:py-20`}>
-      <div className="container-wide">
+    <section className={`${toneBg[tone]} relative overflow-hidden py-16 sm:py-20`}>
+      <Avatar pose={3} className="pointer-events-none absolute -bottom-4 right-6 hidden h-72 w-auto opacity-[0.1] lg:block" />
+      <div className="container-wide relative">
         <div data-reveal className="max-w-3xl">
           <RichTextRenderer doc={data.content} className="cms-prose text-lead [&>h2:first-child]:mt-0 [&>h2:first-child]:text-display-lg" />
         </div>
@@ -212,7 +227,7 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
     return (
       <Band tone={tone} labelledBy={id}>
         <div className="container-wide grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div data-clip className={`photo-frame aspect-[4/3] lg:aspect-[4/5] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
+          <div data-clip className={`photo-frame aspect-[4/3] !rounded-[2.5rem] !rounded-br-[5rem] lg:aspect-[5/4] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
             <div data-parallax="6" className="absolute inset-0">
               <CmsImage src={data.image} alt={data.imageAlt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
             </div>
@@ -232,8 +247,9 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
 
   // Bina image: editorial do-column layout — heading baayein (sticky), content daayein.
   return (
-    <Band tone={tone} labelledBy={id}>
-      <div className="container-wide grid gap-x-16 gap-y-8 lg:grid-cols-12">
+    <Band tone={tone} labelledBy={id} className="relative overflow-hidden">
+      <Avatar pose={(data.heading.length % 2 === 0 ? 2 : 4) as 2 | 4} className="pointer-events-none absolute -bottom-6 right-4 hidden h-72 w-auto opacity-[0.1] lg:block" />
+      <div className="container-wide relative grid gap-x-16 gap-y-8 lg:grid-cols-12">
         <div className="lg:col-span-5" data-reveal>
           <div className="lg:sticky lg:top-32">
             {number ? (
@@ -285,6 +301,145 @@ export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'conte
 
 type Card = SectionData<'featureCards'>['cards'][number]
 
+/** The PipeFlow mascot (transparent PNG), used in a few places on the home page. */
+const POSES: Record<number, { src: string; w: number; h: number }> = {
+  1: { src: '/images/mascot/pose-1.webp', w: 385, h: 402 }, // worried, pliers
+  2: { src: '/images/mascot/pose-2.webp', w: 404, h: 503 }, // fixing a pipe
+  3: { src: '/images/mascot/pose-3.webp', w: 385, h: 595 }, // pointing, holding a fitting
+  4: { src: '/images/mascot/pose-4.webp', w: 350, h: 458 }, // waving from above
+}
+
+/** Mascot. Without `pose` it is the logo mascot; poses 1-4 are the four cut-outs. */
+export function Avatar({ className = '', pose }: { className?: string; pose?: 1 | 2 | 3 | 4 }) {
+  const img = pose ? POSES[pose] : { src: '/images/avatar.webp', w: 640, h: 802 }
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={img.src} alt="" width={img.w} height={img.h} loading="lazy" decoding="async" className={className} aria-hidden="true" />
+}
+
+/** Google-Maps-style map of the Denver / Boulder area with a faint photo behind it. Illustrative, not to scale. */
+export function FrontRangeMap({ className = '' }: { className?: string }) {
+  const cities: [string, number, number][] = [
+    ['Longmont', 228, 70], ['Lafayette', 262, 150], ['Broomfield', 236, 196], ['Brighton', 392, 150], ['Arvada', 214, 240],
+    ['Westminster', 292, 206], ['Thornton', 368, 214], ['Golden', 170, 292], ['Lakewood', 232, 310], ['Aurora', 400, 292],
+    ['Littleton', 262, 372], ['Centennial', 356, 360], ['Parker', 430, 398], ['Castle Rock', 330, 456],
+  ]
+  const label = { fontFamily: 'Roboto, Inter, system-ui, sans-serif', paintOrder: 'stroke', stroke: '#fff', strokeWidth: 3.5, strokeLinejoin: 'round' } as const
+  return (
+    <div className={`relative overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10 ${className}`}>
+      <div className="absolute inset-0" aria-hidden="true">
+        <CmsImage src={PHOTOS.denverAerial.src} decorative sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
+      </div>
+      <svg viewBox="0 0 600 520" className="relative block h-auto w-full" role="img" aria-label="Map of the Denver and Boulder service area">
+        {/* land (slightly see-through so the photo behind shows faintly) */}
+        <rect width="600" height="520" fill="#EEF0F2" fillOpacity="0.88" />
+        {/* parks and water */}
+        <g fillOpacity="0.9">
+          <ellipse cx="96" cy="330" rx="86" ry="130" fill="#CFE8CB" />
+          <ellipse cx="500" cy="170" rx="70" ry="48" fill="#D9EDD5" />
+          <ellipse cx="196" cy="452" rx="74" ry="38" fill="#D9EDD5" />
+          <ellipse cx="420" cy="320" rx="26" ry="14" fill="#A8D4F5" />
+          <ellipse cx="128" cy="96" rx="34" ry="16" fill="#A8D4F5" />
+        </g>
+        <path d="M250 20 C268 120 292 210 286 300 S262 440 280 510" fill="none" stroke="#A8D4F5" strokeWidth="7" strokeLinecap="round" />
+        {/* local streets */}
+        <g stroke="#fff" strokeWidth="2.2" fill="none">
+          {Array.from({ length: 12 }, (_, i) => <path key={`h${i}`} d={`M0 ${36 + i * 42} H600`} />)}
+          {Array.from({ length: 14 }, (_, i) => <path key={`v${i}`} d={`M${16 + i * 44} 0 V520`} />)}
+        </g>
+        {/* highways: outline then fill, like a road map */}
+        <g fill="none" strokeLinecap="round">
+          {[
+            'M312 20 C310 140 306 250 304 330 S300 470 296 510',
+            'M20 292 C140 286 240 282 330 284 S520 282 590 288',
+            'M306 270 C282 220 220 170 156 130',
+          ].map((d) => (
+            <g key={d}>
+              <path d={d} stroke="#E0A82E" strokeWidth="9" />
+              <path d={d} stroke="#F9D26B" strokeWidth="6" />
+            </g>
+          ))}
+          <path d="M420 110 C486 220 486 340 410 440" stroke="#fff" strokeWidth="6" />
+          <path d="M420 110 C486 220 486 340 410 440" stroke="#C9CDD2" strokeWidth="2" strokeDasharray="1 7" />
+        </g>
+        {/* service area */}
+        <circle cx="306" cy="270" r="214" fill="#1F5FAD" fillOpacity="0.1" stroke="#1F5FAD" strokeWidth="4" />
+        {/* labels */}
+        <g fill="#3C4043" fontSize="12.5" fontWeight="500">
+          {cities.map(([name, x, y]) => (
+            <g key={name}>
+              <circle cx={x} cy={y} r="3.5" fill="#70757A" stroke="#fff" strokeWidth="1.5" />
+              <text x={x + 8} y={y + 4} style={label}>{name}</text>
+            </g>
+          ))}
+          <text x="124" y="206" style={{ ...label, fontStyle: 'italic' }} fill="#5F6368" fontSize="12">Front Range foothills</text>
+        </g>
+        {/* Boulder and Denver markers */}
+        {([['Boulder', 182, 152], ['Denver', 306, 272]] as const).map(([name, x, y]) => (
+          <g key={name} transform={`translate(${x} ${y})`}>
+            <path d="M0 0 C-14 -16 -16 -34 0 -38 C16 -34 14 -16 0 0Z" fill="#EA4335" stroke="#B3261E" strokeWidth="1.5" />
+            <circle cx="0" cy="-24" r="5" fill="#fff" />
+            <text x="16" y="-12" style={label} fill="#202124" fontSize="16" fontWeight="700">{name}</text>
+          </g>
+        ))}
+        {/* map controls */}
+        <g transform="translate(548 20)" fontFamily="Roboto, Inter, sans-serif" fontSize="22" fill="#5F6368">
+          <rect width="34" height="68" rx="4" fill="#fff" stroke="#DADCE0" />
+          <line x1="4" y1="34" x2="30" y2="34" stroke="#DADCE0" />
+          <text x="17" y="24" textAnchor="middle">+</text>
+          <text x="17" y="58" textAnchor="middle">−</text>
+        </g>
+        <text x="590" y="508" textAnchor="end" fontSize="9" fill="#5F6368" fontFamily="Roboto, Inter, sans-serif">Illustrative map · not to scale</text>
+      </svg>
+    </div>
+  )
+}
+
+/** Mascot standing on the seam between two sections, with a big Book Appointment button. Sits in a zero-height row so no section clips it. */
+export function JunctionAvatar({ flip = false, pose }: { flip?: boolean; pose?: 1 | 2 | 3 | 4 }) {
+  return (
+    <div className="pointer-events-none relative z-20 h-0" aria-hidden={false}>
+      <div className={`flex w-full px-2 sm:px-6 lg:px-10 ${flip ? 'justify-start' : 'justify-end'}`}>
+        <div className={`pointer-events-auto relative -translate-y-[calc(100%-5.5rem)] ${flip ? 'flex-row-reverse' : ''} flex items-end gap-3 sm:gap-6`}>
+          <SmartLink
+            href="/book-service"
+            className="mb-8 inline-flex items-center gap-2 rounded-2xl bg-brand-red px-5 py-3 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/25 ring-4 ring-white transition hover:-translate-y-1 hover:bg-brand-red-dark sm:mb-12 sm:px-8 sm:py-4 sm:text-lg"
+          >
+            <CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+            Book Appointment
+          </SmartLink>
+          <Avatar pose={pose} className={`h-40 w-auto flex-none drop-shadow-xl sm:h-56 lg:h-72 ${flip && pose !== 2 ? '-scale-x-100' : ''}`} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** Angled seam between two sections: a triangle of the next section's colour on top of the previous one's. */
+export function SlantDivider({ from, to, flip }: { from: string; to: string; flip: boolean }) {
+  return (
+    <div className={`relative h-8 sm:h-14 ${from}`} aria-hidden="true">
+      <div className={`absolute inset-0 ${to}`} style={{ clipPath: flip ? 'polygon(0 0, 100% 100%, 0 100%)' : 'polygon(100% 0, 100% 100%, 0 100%)' }} />
+    </div>
+  )
+}
+
+/** "Questions? Contact us today!" bar with the mascot standing on its edge. */
+function QuestionsBar() {
+  return (
+    <div className="container-wide mt-14">
+      <div className="relative flex flex-col items-start gap-5 rounded-3xl bg-gradient-to-r from-navy-900 to-navy-700 px-6 py-6 shadow-xl sm:flex-row sm:items-center sm:px-10" data-reveal>
+        <p className="font-display text-2xl font-bold text-white sm:text-3xl">
+          <span className="text-brand-red">Questions?</span> Contact Us Today!
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <SmartLink href="/book-service" className="btn-primary !px-6 !py-3">Request Service</SmartLink>
+          <SmartLink href="/find-a-pro" className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-sm font-bold text-navy-800 transition-colors hover:bg-neutral-100">Find a Professional</SmartLink>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /** Round icon for a service, picked from its name. */
 function serviceIcon(text: string): LucideIcon {
   const t = text.toLowerCase()
@@ -299,19 +454,24 @@ function serviceIcon(text: string): LucideIcon {
 }
 
 /** A service as a white rounded card: round icon badge, bold title, red "Learn More" button. The whole card is the link. */
-function ServiceButtonCard({ href, title, text, index }: { href: string; title: string; text?: string; index: number }) {
+function ServiceButtonCard({ href, title, text, index, image, imageAlt }: { href: string; title: string; text?: string; index: number; image?: string; imageAlt?: string }) {
   const Icon = serviceIcon(title)
   return (
     <li className={`${text ? 'w-full' : 'w-[calc(50%-0.625rem)]'} sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]`} data-reveal style={{ '--reveal-delay': `${(index % 3) * 70}ms` } as React.CSSProperties}>
       <SmartLink
         href={href}
-        className="group relative flex h-full flex-col items-center rounded-3xl border border-line bg-white px-3 pb-5 pt-11 text-center shadow-md sm:px-6 sm:pb-7 sm:pt-12 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl focus-visible:-translate-y-1.5 focus-visible:shadow-2xl motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+        className={`group relative flex h-full flex-col items-center rounded-3xl border border-line bg-white text-center shadow-md transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl focus-visible:-translate-y-1.5 focus-visible:shadow-2xl motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${image ? 'overflow-hidden pb-5 sm:pb-7' : 'px-3 pb-5 pt-11 sm:px-6 sm:pb-7 sm:pt-12'}`}
       >
-        <span className="absolute -top-7 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white shadow-lg ring-4 ring-white transition-transform duration-300 group-hover:scale-110 motion-reduce:transition-none">
+        {image && (
+          <span className="relative block aspect-[16/9] w-full overflow-hidden bg-mist">
+            <CmsImage src={image} alt={imageAlt} decorative={!imageAlt} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none" />
+          </span>
+        )}
+        <span className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white shadow-lg ring-4 ring-white transition-transform duration-300 group-hover:scale-110 motion-reduce:transition-none ${image ? 'relative -mt-7' : 'absolute -top-7'}`}>
           <Icon className="h-7 w-7" aria-hidden="true" />
         </span>
-        <span className="font-display text-base font-bold leading-snug text-ink sm:text-2xl">{title}</span>
-        {text && <span className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{text}</span>}
+        <span className={`font-display text-base font-bold leading-snug text-ink sm:text-2xl ${image ? 'mt-3 px-4' : ''}`}>{title}</span>
+        {text && <span className="mt-2 px-4 text-[0.95rem] leading-relaxed text-neutral-600">{text}</span>}
         <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-red px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors group-hover:bg-brand-red-dark sm:px-6 sm:py-2.5 sm:text-sm">
           Learn More
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
@@ -331,23 +491,63 @@ function CardShell({ card, className, children }: { card: Card; className: strin
   )
 }
 
-export function FeatureCardsSection({ data, tone }: { data: SectionData<'featureCards'>; tone: Tone }) {
+export function FeatureCardsSection({ data, tone, look }: { data: SectionData<'featureCards'>; tone: Tone; look?: Look }) {
   const withImages = data.cards.some((c) => c.image)
   const linked = data.cards.every((c) => c.href)
   const id = data.heading ? `fc-${slug(data.heading)}` : undefined
+  const n = data.cards.length
 
-  // Cards that used photos: no images, each service is an icon card with a button.
-  if (withImages && linked) {
+  // "Serving Denver & Boulder": area cards beside a map of the service area.
+  if (withImages && linked && /serving|service areas?|denver|boulder|locations?/i.test(data.heading) && n <= 3) {
     return (
       <Band tone={tone} labelledBy={id} className="!py-14 sm:!py-20">
+        <div className="container-wide">
+          <div className="grid gap-8 overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 to-navy-700 p-6 text-white sm:p-10 lg:grid-cols-12 lg:items-center lg:gap-12" data-reveal>
+            <div className="lg:col-span-6">
+              <p className="text-sm font-semibold uppercase tracking-widest text-white/70">Service areas</p>
+              <h2 id={id} className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">{data.heading}</h2>
+              {data.intro && <p className="mt-3 text-white/80">{data.intro}</p>}
+              <ul className="mt-8 space-y-4">
+                {data.cards.map((card, i) => (
+                  <li key={i}>
+                    <SmartLink href={card.href} className="group flex items-center gap-4 rounded-2xl bg-white p-3 text-ink shadow-lg transition hover:-translate-y-1 hover:shadow-2xl">
+                      <span className="relative block h-20 w-24 flex-none overflow-hidden rounded-xl bg-mist sm:h-24 sm:w-32">
+                        {card.image && <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="128px" className="object-cover" />}
+                      </span>
+                      <span className="flex-1">
+                        <span className="block font-display text-xl font-bold">{card.title}</span>
+                        {card.text && <span className="mt-1 block text-sm leading-snug text-neutral-600">{card.text}</span>}
+                      </span>
+                      <span className="mr-1 inline-flex flex-none items-center gap-1 rounded-lg bg-brand-red px-3 py-2 text-xs font-bold text-white">
+                        Learn More <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                    </SmartLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="lg:col-span-6">
+              <FrontRangeMap className="mx-auto w-full max-w-lg" />
+            </div>
+          </div>
+        </div>
+      </Band>
+    )
+  }
+
+  // Photo cards: the photo on top, the icon badge overlapping it, then title, text and a button.
+  if (withImages && linked) {
+    return (
+      <Band tone={tone} labelledBy={id} look={look} className={look?.dark ? (look.slant === 'c' ? 'slant-pad-c' : 'slant-pad') : '!py-14 sm:!py-20'}>
         <div className="container-wide">
           <SectionHeader heading={data.heading} intro={data.intro} id={id} center />
           <ul className="mt-14 flex flex-wrap justify-center gap-x-5 gap-y-12 sm:gap-x-6">
             {data.cards.map((card, i) => (
-              <ServiceButtonCard key={i} href={card.href} title={card.title} text={card.text} index={i} />
+              <ServiceButtonCard key={i} href={card.href} title={card.title} text={card.text} index={i} image={card.image || undefined} imageAlt={card.imageAlt} />
             ))}
           </ul>
         </div>
+        {look?.bar && <QuestionsBar />}
       </Band>
     )
   }
@@ -415,7 +615,10 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
   return (
     <Band tone={tone} labelledBy={id}>
       <div className="container-wide">
-        <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+        <div className="relative">
+          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+          <Avatar pose={3} className="pointer-events-none absolute -top-6 right-0 hidden h-44 w-auto lg:block" />
+        </div>
         <div className={`mt-12 grid gap-5 ${data.columns.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
           {data.columns.map((col, i) => {
             const dark = i % 2 === 1
@@ -450,50 +653,48 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
 export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: PageContext }) {
   const id = `steps-${slug(data.heading)}`
   const n = data.steps.length
-  // Pinned story sirf home par aur 3-6 steps ke liye. Baaki pages par steps seedhi list rehti hain (hairline scroll se bharti hai).
+  // Home page, 3-6 steps: a flow chart (illustrated nodes joined by arrows). Other pages keep the plain step grid below.
   if (ctx.kind === 'home' && n >= 3 && n <= 6) {
+    const poses = [1, 3, 2, 4] as const
     return (
-      <section data-story className="relative isolate bg-ink text-white" aria-labelledby={id}>
-        <div data-story-pin className="relative flex items-center py-20 lg:min-h-screen lg:py-0 lg:pb-10 lg:pt-28">
-          <div className="container-wide grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
-            <div className="lg:col-span-6 xl:col-span-5">
-              <SectionHeader eyebrow="How it works" heading={data.heading} intro={data.intro} light compact id={id} />
-              <ol className="mt-9 space-y-6">
-                {data.steps.map((step, i) => (
-                  <li key={i} data-story-step className="grid grid-cols-[auto_1fr] gap-x-5">
-                    <span className="pt-1 font-display text-sm font-medium tracking-[0.2em] text-terra-light">{pad2(i + 1)}</span>
-                    <div>
-                      <h3 className="font-display text-[clamp(1.35rem,1.1rem+0.9vw,1.85rem)] font-normal leading-tight text-white">{step.title}</h3>
-                      {step.text && <p className="mt-2 max-w-md leading-relaxed text-white/70">{step.text}</p>}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <div className="mt-10 flex items-center gap-5" aria-hidden="true">
-                <div className="h-px flex-1 bg-white/15">
-                  <div data-story-progress className="h-px origin-left bg-terra-light" />
+      <section data-flow className="relative isolate overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 py-16 text-white sm:py-24" aria-labelledby={id}>
+        {/* background: dotted texture, soft blue glows and dashed rings instead of a photo */}
+        <div className="pointer-events-none absolute inset-0 -z-10 opacity-70" aria-hidden="true" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1.2px)', backgroundSize: '9px 9px' }} />
+        <div className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-20 bottom-0 -z-10 h-80 w-80 rounded-full bg-brand-red/20 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[28rem] w-[28rem] rounded-full border border-dashed border-white/15" aria-hidden="true" />
+        <div className="container-wide">
+          <div className="mx-auto max-w-3xl text-center" data-reveal>
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white/90">How it works</p>
+            <h2 id={id} className="mt-5 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              {data.heading}
+            </h2>
+            <p className="mt-4 text-lead text-white/80">{data.intro || `${n} simple steps from your first request to a scheduled visit.`}</p>
+          </div>
+          <ol className="mt-14 flex flex-col items-stretch gap-2 lg:flex-row lg:items-start lg:gap-0">
+            {data.steps.map((step, i) => (
+              <li key={i} className="relative flex flex-1 flex-col items-center lg:flex-row lg:items-start" data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties}>
+                <div className="flex w-full max-w-sm flex-col items-center rounded-3xl bg-white/10 px-6 pb-7 pt-6 text-center ring-1 ring-white/20 backdrop-blur-sm lg:max-w-none lg:flex-1">
+                  <span className="relative flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-xl ring-8 ring-white/10">
+                    <Avatar pose={poses[i % poses.length]} className="h-24 w-auto max-w-[5.5rem] object-contain" />
+                    <span className="absolute -right-1 -top-1 flex h-9 w-9 items-center justify-center rounded-full bg-brand-red text-base font-extrabold text-white ring-4 ring-navy-800">{i + 1}</span>
+                  </span>
+                  <h3 className="mt-5 font-display text-xl font-bold">{step.title}</h3>
+                  {step.text && <p className="mt-2 leading-relaxed text-white/75">{step.text}</p>}
                 </div>
-                <span data-story-count className="font-display text-sm tabular-nums text-white/60">
-                  01 / {pad2(n)}
-                </span>
-              </div>
-            </div>
-            <div className="hidden lg:col-span-6 lg:block xl:col-span-7" aria-hidden="true">
-              <div className="photo-frame relative mx-auto aspect-[4/5] max-h-[76vh] w-full max-w-xl bg-ink">
-                {data.steps.map((_, i) => (
-                  <div key={i} data-story-photo className="absolute inset-0" style={i === 0 ? undefined : { clipPath: 'inset(100% 0% 0% 0%)' }}>
-                    <CmsImage src={PROCESS_PHOTOS[i % PROCESS_PHOTOS.length].src} decorative sizes="(min-width: 1024px) 40vw, 0px" className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                {i < n - 1 && (
+                  <span className="flex flex-none items-center justify-center py-3 text-white/70 lg:px-2 lg:py-0 lg:pt-20" aria-hidden="true">
+                    <ArrowRight className="h-8 w-8 rotate-90 lg:rotate-0" />
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+          <p className="mx-auto mt-10 max-w-2xl text-center text-white/75" data-reveal>
+            Describe your project once and we help match you with local plumbing and HVAC professionals in Denver and Boulder.
+          </p>
+          <CmsButtons buttons={data.buttons} onDark center className="mt-8" />
         </div>
-        {data.buttons.length > 0 && (
-          <div className="container-wide pb-20 pt-2 lg:pb-24">
-            <CmsButtons buttons={data.buttons} onDark className="mt-0" />
-          </div>
-        )}
       </section>
     )
   }
@@ -501,7 +702,10 @@ export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: P
   return (
     <section className={`relative isolate overflow-hidden bg-ink text-white ${pad}`} aria-labelledby={id}>
       <div className="container-wide">
-        <SectionHeader heading={data.heading} intro={data.intro} light id={id} />
+        <div className="relative">
+          <SectionHeader heading={data.heading} intro={data.intro} light id={id} />
+          <Avatar pose={2} className="pointer-events-none absolute -top-2 right-0 hidden h-36 w-auto xl:block" />
+        </div>
         <ol className={`mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 ${cols}`}>
           {data.steps.map((step, i) => (
             <li key={i} className="relative border-t border-white/15 pt-7" data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
@@ -527,6 +731,7 @@ export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Ton
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-32">
             <SectionHeader eyebrow="FAQ" heading={data.heading} id={id} />
+            <Avatar pose={1} className="mt-8 hidden h-44 w-auto lg:block" />
           </div>
         </div>
         <div className="border-t border-line lg:col-span-8" data-reveal>
@@ -642,7 +847,7 @@ function LinkRows({ links }: { links: { label: string; href: string }[] }) {
   )
 }
 
-export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkList'>; tone: Tone; ctx: PageContext }) {
+export function LinkListSection({ data, tone, ctx, look }: { data: SectionData<'linkList'>; tone: Tone; ctx: PageContext; look?: Look }) {
   if (!data.links.length) return null
   const id = `links-${slug(data.heading)}`
   // City page: services ki list ke saath ek lambi city photo (Denver / Boulder).
@@ -703,7 +908,7 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
   }
   // Service list: icon button cards, no photos.
   return (
-    <Band tone={tone} labelledBy={id} className="!py-12 sm:!py-16">
+    <Band tone={tone} labelledBy={id} look={look} className={look?.dark ? (look.slant === 'c' ? 'slant-pad-c' : 'slant-pad') : '!py-12 sm:!py-16'}>
       <div className="container-wide">
         <SectionHeader heading={data.heading} id={id} center />
         <ul className="mt-12 flex flex-wrap justify-center gap-x-5 gap-y-12 sm:gap-x-6">
@@ -712,6 +917,7 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
           ))}
         </ul>
       </div>
+      {look?.bar && <QuestionsBar />}
     </Band>
   )
 }
@@ -813,8 +1019,12 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
   return (
     <Band tone={tone}>
       <div className="container-wide">
-        <SectionHeader heading={data.heading} />
-        <dl className="mt-10 grid gap-5 sm:grid-cols-2">
+        <div className="relative">
+          <SectionHeader heading={data.heading} />
+          <Avatar pose={4} className="pointer-events-none absolute -top-4 right-0 hidden h-32 w-auto md:block lg:h-40" />
+        </div>
+        <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-center">
+        <dl className="grid gap-5 sm:grid-cols-2 lg:col-span-7">
           {rows.map((r) => (
             <div key={r.label} className="flex gap-4 rounded-2xl border border-line bg-white p-6" data-reveal>
               <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center bg-mist">
@@ -835,6 +1045,10 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
             </div>
           ))}
         </dl>
+        <div className="rounded-3xl bg-gradient-to-br from-navy-900 to-navy-700 p-5 lg:col-span-5">
+          <FrontRangeMap className="mx-auto w-full max-w-md" />
+        </div>
+        </div>
       </div>
     </Band>
   )
@@ -868,10 +1082,55 @@ export function TextMarquee() {
     </ul>
   )
   return (
-    <section data-text-marquee className="overflow-hidden bg-brand-red text-white" aria-label="What we do">
+    <section data-text-marquee className="relative z-[2] overflow-hidden bg-brand-red text-white" aria-label="What we do">
       <div className="text-marquee-track flex w-max items-center py-5 font-display text-2xl font-extrabold uppercase tracking-tight sm:py-7 sm:text-3xl lg:py-8 lg:text-[2.5rem]">
         {run('a', false)}
         {run('b', true)}
+      </div>
+    </section>
+  )
+}
+
+/** About-style block: copy and icon tiles on the left, a big pill-shaped photo on the right. */
+export function AboutBlock() {
+  const tiles: [LucideIcon, string, string][] = [
+    [Users, 'Local', 'Professionals'],
+    [CalendarCheck, 'Easy Online', 'Service Requests'],
+    [Wrench, 'Plumbing', '& HVAC'],
+    [Home, 'Residential', '& Commercial'],
+    [MapPin, 'Denver', '& Boulder'],
+    [Clock, 'Same-Day', 'Service'],
+  ]
+  return (
+    <section className="bg-white py-16 sm:py-24" aria-labelledby="about-pipeflow">
+      <div className="container-wide grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+        <div data-reveal>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-terra">About PipeFlow</p>
+          <h2 id="about-pipeflow" className="mt-3 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+            Plumbing &amp; HVAC Help, Made Simple
+          </h2>
+          <p className="mt-5 max-w-xl text-lead text-neutral-600">Tell us what you need and we&apos;ll help you find the right local professional serving Denver and Boulder.</p>
+          <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+            {tiles.map(([Icon, a, b]) => (
+              <li key={a} className="flex items-center gap-3 rounded-2xl bg-brand-blue/10 p-3.5 sm:gap-4 sm:p-5">
+                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white sm:h-12 sm:w-12">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                </span>
+                <span className="text-sm leading-tight text-neutral-700 sm:text-base">
+                  <span className="block font-bold text-ink">{a}</span>
+                  {b}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <SmartLink href="/book-service" className="btn-primary !px-6 !py-3">Request Service</SmartLink>
+            <SmartLink href="/find-a-pro" className="btn-outline !px-6 !py-3">Find a Professional</SmartLink>
+          </div>
+        </div>
+        <div className="relative aspect-[12/7] w-full overflow-hidden rounded-[2.5rem] rounded-br-[6rem] rounded-tl-[6rem] shadow-2xl" data-reveal="scale">
+          <CmsImage src="/images/about-handshake.jpg" alt="A PipeFlow professional shaking hands with a customer in front of the PipeFlow van" sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+        </div>
       </div>
     </section>
   )
@@ -888,7 +1147,8 @@ export function ReviewsSection({ reviews, tone }: { reviews: ReviewItem[]; tone:
   return (
     <Band tone={tone} labelledBy="home-reviews" className="!py-14 sm:!py-20">
       <div className="container-wide">
-        <div className="mx-auto max-w-2xl text-center" data-reveal>
+        <div className="relative mx-auto max-w-2xl text-center" data-reveal>
+          <Avatar pose={4} className="pointer-events-none absolute -top-2 right-0 hidden h-32 w-auto xl:-right-24 xl:block" />
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-terra">Customer Reviews</p>
           <h2 id="home-reviews" className="mt-3 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl">
             What Our Customers Say

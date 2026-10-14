@@ -10,7 +10,6 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
  *   [data-parallax="6"]                                     photo apne frame mein scrub hoti hai
  *   [data-clip]                                             frame ek chhote mask se poora khulta hai
  *   [data-lines]                                            heading line-by-line (SplitText)
- *   [data-story] (pinned process)                           desktop par pin, step-by-step
  *   [data-step-line]                                        steps ki hairline scroll se bharti hai
  *
  * Rules: sab kuch scrub hai, isliye upar scroll karne par animation ulti chalti hai (atakti nahi).
@@ -28,11 +27,9 @@ export function initMotion(): () => void {
     {
       motion: '(prefers-reduced-motion: no-preference)',
       desktop: '(min-width: 1024px)',
-      // Pin tabhi jab pinned content (header ke neeche) screen mein poora aaye; chhoti height par normal list.
-      pinnable: '(min-width: 1024px) and (min-height: 780px)',
     },
     (context) => {
-      const { motion, desktop, pinnable } = context.conditions as { motion: boolean; desktop: boolean; pinnable: boolean }
+      const { motion, desktop } = context.conditions as { motion: boolean; desktop: boolean }
       if (!motion) return
       const all = <T extends HTMLElement>(selector: string) => Array.from(document.querySelectorAll<T>(selector))
       // Mobile par chhota movement: kam GPU kaam, aur chhoti screen par jhatka kam lagta hai.
@@ -110,57 +107,6 @@ export function initMotion(): () => void {
           { scaleX: 0.16 },
           { scaleX: 1, ease: 'none', scrollTrigger: { trigger: line.parentElement ?? line, start: 'top 88%', end: 'top 46%', scrub: true } }
         )
-      }
-
-      // ---- pinned process story: sirf bade, ooche desktop par. Mobile aur chhoti height par steps normal list rehte hain.
-      if (pinnable) {
-        for (const section of all('[data-story]')) {
-          const pin = section.querySelector<HTMLElement>('[data-story-pin]')
-          const steps = Array.from(section.querySelectorAll<HTMLElement>('[data-story-step]'))
-          const photos = Array.from(section.querySelectorAll<HTMLElement>('[data-story-photo]'))
-          const bar = section.querySelector<HTMLElement>('[data-story-progress]')
-          const count = section.querySelector<HTMLElement>('[data-story-count]')
-          const n = steps.length
-          if (!pin || n < 2) continue
-
-          const DIM = 0.38
-          gsap.set(steps, { opacity: DIM })
-          gsap.set(steps[0], { opacity: 1 })
-          gsap.set(photos, { clipPath: (i: number) => (i === 0 ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)') })
-          if (bar) gsap.set(bar, { scaleX: 0 })
-
-          let active = 0
-          const setActive = (i: number) => {
-            if (i === active) return
-            active = i
-            steps.forEach((s, k) => (k === i ? s.setAttribute('aria-current', 'step') : s.removeAttribute('aria-current')))
-            if (count) count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`
-          }
-          steps[0].setAttribute('aria-current', 'step')
-
-          const tl = gsap.timeline({
-            defaults: { ease: 'none' },
-            scrollTrigger: {
-              trigger: section,
-              start: 'top top',
-              // Har step ~65% viewport; kul pin chhota rehta hai aur phir page apne aap chhod deta hai.
-              end: () => `+=${Math.round(window.innerHeight * n * 0.65)}`,
-              pin,
-              scrub: 0.6,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => setActive(Math.min(n - 1, Math.floor(self.progress * n * 0.999))),
-            },
-          })
-          for (let i = 1; i < n; i++) {
-            const at = i - 0.35
-            tl.to(steps[i - 1], { opacity: DIM, duration: 0.35 }, at)
-            tl.to(steps[i], { opacity: 1, duration: 0.35 }, at)
-            if (photos[i]) tl.to(photos[i], { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.6, ease: 'power2.inOut' }, at - 0.1)
-          }
-          if (bar) tl.to(bar, { scaleX: 1, duration: n - 1 }, 0)
-          tl.to({}, { duration: 1 }, n - 1) // aakhri step ko ruk kar padhne ka waqt
-        }
       }
     }
   )

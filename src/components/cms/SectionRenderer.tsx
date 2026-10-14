@@ -2,8 +2,8 @@ import type { Section, SectionData } from '@/lib/cms-pages/sections/schema'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import {
   HeroSection, RichTextSection, ContentBlockSection, ContentBlockGroup, GallerySection, FeatureCardsSection, ComparisonSection,
-  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection,
-  type PageContext, type Tone,
+  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection, SlantDivider, JunctionAvatar, AboutBlock,
+  type PageContext, type Tone, type Look,
 } from './sections'
 
 const DEFAULT_CTX: PageContext = { kind: 'page', crumbs: [] }
@@ -38,19 +38,19 @@ export function layoutSections(sections: Section[]): Item[] {
 
 const isDark = (s: Section) => s.type === 'hero' || s.type === 'steps' || (s.type === 'cta' && s.data.tone === 'dark') || s.type === 'spacer'
 
-function renderSection(section: Section, index: number, tone: Tone, ctx: PageContext) {
+function renderSection(section: Section, index: number, tone: Tone, ctx: PageContext, look?: Look) {
   switch (section.type) {
     case 'hero': return <HeroSection data={section.data} first={index === 0} ctx={ctx} />
     case 'richText': return <RichTextSection data={section.data} tone={tone} />
     case 'contentBlock': return <ContentBlockSection data={section.data} tone={tone} />
     case 'gallery': return <GallerySection data={section.data} tone={tone} />
-    case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} />
+    case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} look={look} />
     case 'comparison': return <ComparisonSection data={section.data} tone={tone} />
     case 'steps': return <StepsSection data={section.data} ctx={ctx} />
     case 'faq': return <FaqSection data={section.data} tone={tone} />
     case 'cta': return <CtaSection data={section.data} tone={tone} />
     case 'testimonials': return <TestimonialsSection data={section.data} tone={tone} />
-    case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} />
+    case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} look={look} />
     case 'contactInfo': return <ContactInfoSection data={section.data} tone={tone} />
     case 'spacer': return <SpacerSection data={section.data} />
   }
@@ -83,21 +83,54 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
   let marqueeShown = false
   const items = layoutSections(valid)
   // Reviews go right after the last service list (Plumbing, then HVAC), home page only.
+  // Home service sections (photo cards, Plumbing, HVAC) alternate dark navy / light, with slanted edges that criss-cross.
+  const isServiceBlock = (it: (typeof items)[number]) =>
+    it.kind === 'one' && ((it.section.type === 'featureCards' && it.section.data.cards.some((c) => c.image) && it.section.data.cards.every((c) => c.href)) || it.section.type === 'linkList')
+  const serviceBlocks = ctx.kind === 'home' ? items.map((it, i) => (isServiceBlock(it) ? i : -1)).filter((i) => i >= 0) : []
   const lastLinkList = ctx.kind === 'home' ? items.reduce((n, it, i) => (it.kind === 'one' && it.section.type === 'linkList' ? i : n), -1) : -1
   const nextTone = (): Tone => (light++ % 2 === 0 ? 'white' : 'paper')
+  const lookFor = (i: number): Look | undefined => {
+    const n = serviceBlocks.indexOf(i)
+    if (n < 0 || n % 2 !== 0) return undefined
+    return { dark: true, slant: n === 0 ? 'c' : (n / 2) % 2 === 0 ? 'a' : 'b', bar: n === serviceBlocks.length - 1 }
+  }
+  // Angled seams between every pair of sections that meet on a flat edge. Hero, spacers and the slanted home bands keep their own edges.
+  const bgOf = (it: (typeof items)[number], tone: Tone, look?: Look): string | null => {
+    if (look?.dark) return null
+    if (it.kind === 'group') return tone === 'white' ? 'bg-white' : 'bg-paper'
+    const t = it.section.type
+    if (t === 'hero' || t === 'spacer') return null
+    if (t === 'steps' || t === 'testimonials' || (t === 'cta' && it.section.data.tone === 'dark')) return 'bg-navy-900'
+    return tone === 'white' ? 'bg-white' : 'bg-paper'
+  }
+  let prevBg: string | null = null
+  let seams = 0
+  // Mascot pose by page: plumbing pages fixing a pipe, contact pages waving, everything else pointing at a fitting.
+  const trail = ctx.crumbs.map((c) => `${c.href ?? ''} ${c.label}`).join(' ').toLowerCase()
+  const pose: 1 | 2 | 3 | 4 = /plumb|water|pipe|drain/.test(trail) ? 2 : /contact|join|about/.test(trail) ? 4 : 3
+  const avatarAfter = ctx.kind === 'home' ? lastLinkList : items.length > 3 ? 1 : -1
   return (
     <>
       {items.map((item, itemIndex) => {
-        if (item.kind === 'group') return <div key={item.id}><ContentBlockGroup blocks={item.blocks} tone={nextTone()} /></div>
-        const tone = isDark(item.section) ? 'white' : nextTone()
+        const look = lookFor(itemIndex)
+        const tone: Tone = item.kind === 'group' ? nextTone() : isDark(item.section) ? 'white' : nextTone()
+        const bg = bgOf(item, tone, look)
+        const divider = bg && prevBg && bg !== prevBg ? <SlantDivider from={prevBg} to={bg} flip={seams++ % 2 === 1} /> : null
+        prevBg = bg
+        if (item.kind === 'group') return <div key={item.id}>{divider}<ContentBlockGroup blocks={item.blocks} tone={tone} /></div>
         // Home par pehli photo-tiles wali section ke baad photo strip: ek hi scroll-journey ka hissa, naya content nahi.
         const marqueeAfter = ctx.kind === 'home' && item.section.type === 'featureCards' && !marqueeShown && item.section.data.cards.some((c) => c.image)
         if (marqueeAfter) marqueeShown = true
+        if (marqueeAfter) prevBg = null
         return (
           <div key={item.section.id}>
-            {renderSection(item.section, item.index, tone, ctx)}
+            {divider}
+            {renderSection(item.section, item.index, tone, ctx, look)}
             {marqueeAfter && <TextMarquee />}
+            {itemIndex === avatarAfter && ctx.kind !== 'home' && <JunctionAvatar flip={itemIndex % 2 === 0} pose={pose} />}
+            {itemIndex === lastLinkList && <JunctionAvatar />}
             {itemIndex === lastLinkList && <ReviewsSection reviews={ctx.reviews ?? []} tone={nextTone()} />}
+            {itemIndex === lastLinkList && <AboutBlock />}
           </div>
         )
       })}

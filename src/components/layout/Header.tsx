@@ -51,7 +51,7 @@ export function Header() {
         </a>
 
         <div className="container-wide">
-          <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-14' : 'h-16 lg:h-[84px]')}>
+          <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-12 lg:h-14' : 'h-14 lg:h-[84px]')}>
             <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="group flex-shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terra">
               <Image
                 src="/assets/logo.png"

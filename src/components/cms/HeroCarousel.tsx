@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const SLIDES = [
   { src: '/images/hero/slide-1.jpg', alt: 'PipeFlow technician heading to a Colorado home: Comfort starts here' },
@@ -21,7 +22,7 @@ export function HeroCarousel({ heading, labelId }: { heading: string; labelId?: 
 
   return (
     <section
-      className="relative bg-navy-900"
+      className="relative z-[2] bg-navy-900"
       aria-roledescription="carousel"
       aria-labelledby={labelId}
       onMouseEnter={() => setPaused(true)}
@@ -37,11 +38,19 @@ export function HeroCarousel({ heading, labelId }: { heading: string; labelId?: 
           {SLIDES.map((s, i) => (
             <div key={s.src} className="relative aspect-[1600/587] w-full shrink-0" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${SLIDES.length}`} aria-hidden={i !== index}>
               <div className={`absolute inset-0 ${i === index ? 'hero-kenburns' : ''}`}>
-                <Image src={s.src} alt={s.alt} fill priority={i === 0} sizes="100vw" quality={70} className="object-contain sm:object-cover" />
+                <Image src={s.src} alt={s.alt} fill priority={i === 0} sizes="100vw" className="object-contain sm:object-cover" />
               </div>
             </div>
           ))}
         </div>
+      </div>
+      <div className="absolute inset-x-0 bottom-9 flex flex-col items-start gap-2 px-3 sm:bottom-14 sm:gap-3 sm:px-10">
+        <Link href="/book-service" className="btn-primary !min-w-[8.5rem] !px-6 !py-2 text-xs shadow-xl sm:!min-w-[14rem] sm:!px-10 sm:!py-3.5 sm:text-base">
+          Book Now
+        </Link>
+        <Link href="/contact" className="inline-flex min-w-[8.5rem] items-center justify-center rounded-lg border-2 border-white bg-navy-900/70 px-6 py-2 text-xs font-bold text-white shadow-xl backdrop-blur transition-colors hover:bg-white hover:text-navy-900 sm:min-w-[14rem] sm:px-10 sm:py-3.5 sm:text-base">
+          Get in Touch
+        </Link>
       </div>
       <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
         {SLIDES.map((s, i) => (

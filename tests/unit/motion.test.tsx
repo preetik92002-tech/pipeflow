@@ -69,40 +69,31 @@ describe('hero markup contract', () => {
   })
 })
 
-describe('pinned process story', () => {
+describe('home "How it works" flow chart', () => {
   const home = ctx('home')
-  it('puts every step in the DOM, in order, as a real ordered list', () => {
+  it('puts every step in the DOM, in order, as a real ordered list with arrows between them', () => {
     const html = render([steps(4)], home)
-    expect(count(html, 'data-story-step')).toBe(4)
+    expect(html).toContain('data-flow')
     const order = [1, 2, 3, 4].map((n) => html.indexOf(`Step title ${n}`))
     expect(order).toEqual([...order].sort((a, b) => a - b))
     expect(html).toContain('<ol')
     expect(html).toContain('Step text 3')
+    expect(count(html, '<svg')).toBe(3) // an arrow between each pair of the 4 steps
   })
-  it('shows only the first photo before JavaScript runs, hides the rest, and keeps photos decorative', () => {
+  it('uses the mascot illustrations, decorative, and keeps the button reachable after the list', () => {
     const html = render([steps(4)], home)
-    expect(count(html, 'data-story-photo')).toBe(4)
-    expect(count(html, 'clip-path:inset(100% 0% 0% 0%)')).toBe(3)
-    const photos = html.slice(html.indexOf('data-story-photo'))
-    expect(photos).not.toMatch(/<img[^>]+alt="[^"]+"/)
-    expect(html).toMatch(/aria-hidden="true"[^>]*><div class="photo-frame/)
-  })
-  it('uses a different photo for every step', () => {
-    expect(new Set(PROCESS_PHOTOS.map((p) => p.src)).size).toBe(PROCESS_PHOTOS.length)
-  })
-  it('keeps the progress readout out of the accessibility tree and the button reachable after the pin', () => {
-    const html = render([steps(4)], home)
-    expect(html).toMatch(/aria-hidden="true"><div class="h-px flex-1[^>]*><div data-story-progress/)
+    expect(count(html, '/images/mascot/')).toBe(4)
+    expect(html).not.toMatch(/<img[^>]+alt="[^"]+"/)
     expect(html.indexOf('Request Service')).toBeGreaterThan(html.indexOf('</ol>'))
   })
   it('is only used on the home page with 3 to 6 steps; everywhere else steps are a plain list with a filling hairline', () => {
     for (const c of [ctx('service'), ctx('page'), ctx('location')]) {
       const html = render([steps(4)], c)
-      expect(html).not.toContain('data-story')
+      expect(html).not.toContain('data-flow')
       expect(count(html, 'data-step-line')).toBe(4)
     }
-    expect(render([steps(2)], home)).not.toContain('data-story')
-    expect(render([steps(7)], home)).not.toContain('data-story')
+    expect(render([steps(2)], home)).not.toContain('data-flow')
+    expect(render([steps(7)], home)).not.toContain('data-flow')
   })
 })
 
@@ -137,11 +128,11 @@ describe('photo marquee and service tiles', () => {
     expect(html).toMatch(/<img[^>]*fetchPriority="high"[^>]*images%2Fhero|<img[^>]*images%2Fhero[^>]*fetchPriority="high"/)
     expect(render([cards(true)], ctx('home'))).not.toContain('fetchPriority="high"')
   })
-  it('photo cards become icon cards with a Learn More button and no photos', () => {
+  it('photo cards keep their photo, with an icon badge and a Learn More button', () => {
     const html = render([cards(true)], ctx('home'))
     expect(count(html, 'href="/plumbing"')).toBe(2)
     expect(count(html, 'Learn More')).toBe(2)
-    expect(html).not.toMatch(/<img/)
+    expect(count(html, '<img')).toBeGreaterThanOrEqual(2)
   })
 })
 
@@ -182,7 +173,7 @@ describe('motion hooks used by the scroll engine all exist in the markup', () =>
   const engine = readFileSync(path.join(root, 'src/components/motion/init-motion.ts'), 'utf8')
   const used = [...new Set([...engine.matchAll(/\[(data-[a-z-]+)(?:[=\]])/g)].map((m) => m[1]))]
   it('finds the hooks in the engine', () => {
-    expect(used.sort()).toEqual(['data-clip', 'data-hero', 'data-hero-content', 'data-hero-media', 'data-lines', 'data-parallax', 'data-step-line', 'data-story', 'data-story-count', 'data-story-photo', 'data-story-pin', 'data-story-progress', 'data-story-step'])
+    expect(used.sort()).toEqual(['data-clip', 'data-hero', 'data-hero-content', 'data-hero-media', 'data-lines', 'data-parallax', 'data-step-line'])
   })
   it('renders every one of them somewhere in the section components', () => {
     const imageBlock = { id: uuid(), type: 'contentBlock', data: { heading: 'With photo', content: doc('x'), image: '/art/hero-plumbing.svg', imagePosition: 'left' } }
