@@ -311,7 +311,17 @@ export async function createPage(input: PageInput, userId: string | null, isTemp
 }
 
 /** Returns the page's new version. */
+/**
+ * Stale versions are rejected here first. The database also checks, but it signals the clash with SQLSTATE 40001
+ * (serialization failure), which Supabase's API retries until it times out: a stale save used to hang for about a minute and then fail.
+ */
+async function assertVersion(id: string, expected: number): Promise<void> {
+  const { data } = await createAdminClient().from('cms_pages').select('version').eq('id', id).maybeSingle()
+  if (data && data.version !== expected) throw new CmsError('conflict', 'This page was changed by someone else. Reload to see their changes.')
+}
+
 export async function saveDraft(id: string, expectedVersion: number, input: PageInput, userId: string | null): Promise<number> {
+  await assertVersion(id, expectedVersion)
   const { data, error } = await createAdminClient().rpc('cms_save_draft', {
     p_page_id: id,
     p_expected_version: expectedVersion,
@@ -331,12 +341,14 @@ export async function saveDraft(id: string, expectedVersion: number, input: Page
 }
 
 export async function publishPage(id: string, expectedVersion: number, userId: string | null): Promise<number> {
+  await assertVersion(id, expectedVersion)
   const { data, error } = await createAdminClient().rpc('cms_publish', { p_page_id: id, p_expected_version: expectedVersion, p_user: userId })
   if (error) throw toCmsError(error)
   return data as number
 }
 
 export async function unpublishPage(id: string, expectedVersion: number, userId: string | null): Promise<number> {
+  await assertVersion(id, expectedVersion)
   const { data, error } = await createAdminClient().rpc('cms_unpublish', { p_page_id: id, p_expected_version: expectedVersion, p_user: userId })
   if (error) throw toCmsError(error)
   return data as number

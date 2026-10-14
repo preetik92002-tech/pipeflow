@@ -65,7 +65,11 @@ export default async function CmsPage({ params }: Props) {
 
   const [liveTitles, seo, company] = await Promise.all([getPublishedTitles(ancestorPaths(path)), getPublicSeoSettings(), getPublicCompanySettings()])
   const ctx = buildPageContext(path, page.title, liveTitles)
-  if (ctx.kind === 'home') ctx.reviews = await getActiveReviews()
+  if (ctx.kind === 'home' || ctx.kind === 'service') {
+    const r = await getActiveReviews(6, ctx.kind === 'service' ? { path: path, title: page.title } : undefined)
+    ctx.reviews = r.items
+    ctx.reviewStats = { count: r.count, average: r.average }
+  }
   const baseUrl = seo?.canonical_domain || process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
   const url = `${baseUrl}${path === '' ? '' : pathToUrl(path)}`
   // Structured data sirf indexable pages par, aur sirf wahi jo page par dikh raha hai.

@@ -25,7 +25,11 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   if (!page) notFound()
   // Public page jaisa hi context (hero ka type, pinned story, marquee, breadcrumbs): warna preview aur live alag dikhte.
   const ctx = buildPageContext(page.path, page.title, await getPublishedTitles(ancestorPaths(page.path)))
-  if (ctx.kind === 'home') ctx.reviews = await getActiveReviews()
+  if (ctx.kind === 'home' || ctx.kind === 'service') {
+    const r = await getActiveReviews(6, ctx.kind === 'service' ? { path: page.path, title: page.title } : undefined)
+    ctx.reviews = r.items
+    ctx.reviewStats = { count: r.count, average: r.average }
+  }
   return (
     <>
       <div role="status" className="sticky top-0 z-50 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-navy-900">

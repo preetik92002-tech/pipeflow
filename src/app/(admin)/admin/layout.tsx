@@ -35,6 +35,7 @@ const adminNav = [
   { label: 'Pro Applications', href: '/admin/pro-applications', icon: HardHat },
   { label: 'Blog Engine', href: '/admin/blogs', icon: BookOpen },
   { label: 'Services', href: '/admin/services', icon: Wrench },
+  { label: 'Customer Reviews', href: '/admin/testimonials', icon: MessageSquare },
   { label: 'Service Areas', href: '/admin/service-areas', icon: MapPin },
   { label: 'Media Library', href: '/admin/media', icon: ImageIcon },
   { label: 'SEO Manager', href: '/admin/seo', icon: Globe },

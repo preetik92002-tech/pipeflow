@@ -15,7 +15,7 @@ vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://pipeflowco.com')
 const state = vi.hoisted(() => ({ client: null as unknown, auth: { authenticated: false, authorized: false, user: null, role: null } as Record<string, unknown> }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => state.client }))
 vi.mock('@/lib/supabase/auth', () => ({ verifyAdminAuth: async () => state.auth }))
-vi.mock('@/lib/cms/queries', () => ({ getPublishedBlogs: async () => [], getActiveReviews: async () => [] }))
+vi.mock('@/lib/cms/queries', () => ({ getPublishedBlogs: async () => [], getActiveReviews: async () => ({ items: [], count: 0, average: null }) }))
 
 import CmsPage, { generateMetadata } from '@/app/(site)/[[...path]]/page'
 import PreviewPage from '@/app/(site)/preview/[id]/page'

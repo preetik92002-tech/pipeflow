@@ -130,13 +130,19 @@ export function toSiteServiceArea(area: CmsServiceArea): import('@/types').Servi
   return { id: area.id, name: area.name, slug: area.slug, state: area.state, zipCodes: area.zip_codes, description: area.description || undefined, active: area.active, primary: Boolean(area.primary_area) }
 }
 
-/** Active customer reviews for the home page, newest first. Empty on any error: the page must still render. */
-export async function getActiveReviews(limit = 6) {
+export interface ReviewRow { name: string; city?: string; rating: number; text: string; service?: string; date?: string; verified: boolean; source?: string }
+
+/**
+ * Active customer reviews, newest first (the admin Testimonials list). Home page: the latest few. Service page: reviews for that
+ * service, else its category. `count` and `average` come from the same eligible set; any error yields an empty result so the page still renders.
+ */
+export async function getActiveReviews(limit = 6, forPath?: { path: string; title: string }): Promise<{ items: ReviewRow[]; count: number; average: number | null }> {
   try {
     const supabase = createPublicClient()
-    const { data, error } = await supabase.from('testimonials').select('*').eq('active', true).order('created_at', { ascending: false }).limit(limit)
-    if (error) return []
-    return (data ?? []).map((row) => ({
+    const { data, error } = await supabase.from('testimonials').select('*').eq('active', true).order('created_at', { ascending: false }).limit(200)
+    if (error) return { items: [], count: 0, average: null }
+    const rows = forPath ? relevantRows(data ?? [], forPath) : data ?? []
+    const items: ReviewRow[] = rows.slice(0, limit).map((row) => ({
       name: row.reviewer_name as string,
       city: (row.reviewer_city as string | null) || undefined,
       rating: Math.min(5, Math.max(1, Number(row.rating ?? 5))),
@@ -144,8 +150,21 @@ export async function getActiveReviews(limit = 6) {
       service: (row.service_name as string | null) || undefined,
       date: (row.date as string | null) || undefined,
       verified: Boolean(row.verified),
+      source: (row.source as string | null) || undefined,
     }))
+    const rated = rows.map((r) => Number(r.rating)).filter((n) => Number.isFinite(n) && n >= 1 && n <= 5)
+    return { items, count: rows.length, average: rated.length ? rated.reduce((a, n) => a + n, 0) / rated.length : null }
   } catch {
-    return []
+    return { items: [], count: 0, average: null }
   }
+}
+
+/** Reviews for a service page: same service name first, else the same category (plumbing / hvac). Nothing else is claimed to be relevant. */
+function relevantRows<T extends { service_name?: string | null }>(rows: T[], { path, title }: { path: string; title: string }): T[] {
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+  const t = norm(title)
+  const exact = rows.filter((r) => r.service_name && norm(r.service_name) === t)
+  if (exact.length) return exact
+  const cat = path.startsWith('hvac') ? /hvac|\bac\b|air cond|heat(?!er)|cool|furnace/ : path.startsWith('plumbing') ? /plumb|water|pipe|drain|faucet|leak/ : null
+  return cat ? rows.filter((r) => r.service_name && cat.test(norm(r.service_name))) : []
 }

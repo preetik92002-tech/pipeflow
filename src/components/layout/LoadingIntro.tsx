@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-const FRAMES = ['/images/hero/intro-1.jpg', '/images/hero/intro-2.jpg', '/images/hero/intro-3.jpg', '/images/hero/intro-4.jpg']
+const FRAMES = ['/images/hero/intro-1.jpg', '/images/hero/intro-2.jpg']
 
 /** Inline in <head>: skips the animation for visitors who already saw it in this tab. */
 export const LOADING_INTRO_BOOT_SCRIPT = "try{if(sessionStorage.getItem('pipeflow-intro-seen'))document.documentElement.classList.add('no-intro')}catch(e){}"
@@ -18,7 +18,7 @@ export function LoadingIntro() {
       sessionStorage.setItem('pipeflow-intro-seen', '1')
     } catch {}
     // Safety net: remove the overlay from the page even if the CSS fade never finishes.
-    const t = setTimeout(() => setDone(true), 2300)
+    const t = setTimeout(() => setDone(true), 1700)
     return () => clearTimeout(t)
   }, [])
   if (done) return null

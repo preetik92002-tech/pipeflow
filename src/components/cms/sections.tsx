@@ -30,12 +30,19 @@ export interface ReviewItem {
   service?: string
   date?: string
   verified?: boolean
+  source?: string
+}
+export interface ReviewStats {
+  count: number
+  /** Average of the valid ratings, or null when there is none. */
+  average: number | null
 }
 export interface PageContext {
   kind: PageKind
   crumbs: Crumb[]
   cityPhoto?: Photo
   reviews?: ReviewItem[]
+  reviewStats?: ReviewStats
 }
 
 /** Optional look for a section: dark navy band with slanted (criss-cross) top and bottom edges, optionally ending with the "Questions?" bar. */
@@ -1137,47 +1144,89 @@ export function AboutBlock() {
 }
 
 /** Customer reviews after the services. Real reviews only; a clearly labelled sample set shows in development builds when there are none. */
-export function ReviewsSection({ reviews, tone }: { reviews: ReviewItem[]; tone: Tone }) {
-  const isDev = process.env.NODE_ENV !== 'production'
-  const sample = reviews.length === 0 && isDev
-  if (reviews.length === 0 && !isDev) return null
-  const items: ReviewItem[] = sample
-    ? [1, 2, 3].map((n) => ({ name: `Sample reviewer ${n}`, rating: 5, text: 'Development placeholder: this card shows the layout only. Real customer reviews from the admin Testimonials list appear here.', service: 'Plumbing' }))
-    : reviews
+const SOURCE_LABEL: Record<string, string> = { google: 'Google', yelp: 'Yelp', bbb: 'BBB' }
+
+/**
+ * Customer reviews (home page and service pages). Always renders; with no active reviews it shows a small empty state.
+ * Cards show only fields that exist; the count and average come from the same real reviews, and nothing else is claimed.
+ */
+export function ReviewsSection({ reviews, stats }: { reviews: ReviewItem[]; stats?: ReviewStats; tone?: Tone }) {
+  const has = reviews.length > 0
+  const average = stats?.average ?? null
   return (
-    <Band tone={tone} labelledBy="home-reviews" className="!py-14 sm:!py-20">
-      <div className="container-wide">
-        <div className="relative mx-auto max-w-2xl text-center" data-reveal>
-          <Avatar pose={4} className="pointer-events-none absolute -top-2 right-0 hidden h-32 w-auto xl:-right-24 xl:block" />
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-terra">Customer Reviews</p>
-          <h2 id="home-reviews" className="mt-3 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            What Our Customers Say
-          </h2>
-          <p className="mt-4 text-lead text-neutral-600">See why homeowners and businesses choose PipeFlow for their plumbing and HVAC needs.</p>
-          {sample && <p className="mt-3 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Development placeholders, hidden in production</p>}
+    <section className="bg-gradient-to-b from-navy-800 to-navy-900 pb-14 text-white sm:pb-20" aria-labelledby="home-reviews" data-reviews>
+      <div className={`relative isolate overflow-hidden bg-gradient-to-br from-brand-blue to-navy-700 pt-12 sm:pt-16 ${has ? 'pb-28 lg:pb-32' : 'pb-12 sm:pb-16'}`}>
+        <div className="absolute inset-y-0 right-0 -z-10 hidden w-[52%] [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)] md:block" aria-hidden="true">
+          <CmsImage src={HERO_BANNERS.van} decorative sizes="55vw" className="object-cover object-right" />
+          <div className="absolute inset-0 bg-navy-900/35" />
         </div>
-        <ul className="mt-10 flex flex-wrap justify-center gap-5">
-          {items.map((r, i) => (
-            <li key={i} className="w-full md:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.85rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-              <figure className="flex h-full flex-col rounded-2xl border border-line bg-white p-6 shadow-sm sm:p-8">
-                <p className="text-xl tracking-widest text-amber-500" aria-label={`${r.rating} out of 5 stars`}>
-                  {'★'.repeat(r.rating)}
-                  {'☆'.repeat(5 - r.rating)}
-                </p>
-                <blockquote className="mt-4 flex-1 leading-relaxed text-neutral-700">“{r.text}”</blockquote>
-                <figcaption className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
-                  <span className="text-sm font-bold text-ink">
-                    {r.name}
-                    {r.city && <span className="font-normal text-neutral-600"> · {r.city}</span>}
-                  </span>
-                  {r.service && <span className="rounded-full bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">{r.service}</span>}
-                </figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>
+        <div className="container-wide">
+          <div className="max-w-xl" data-reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/80">Customer Reviews</p>
+            <h2 id="home-reviews" className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              What Customers Are Saying
+            </h2>
+            <p className="mt-4 text-lead text-white/85">Authentic customer reviews collected through the platform or verified sources.</p>
+            {!has && (
+              <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm font-semibold ring-1 ring-white/25">
+                <Clock className="h-4 w-4 flex-none" aria-hidden="true" />
+                Customer reviews will appear here as they become available.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
-    </Band>
+      {has && (
+        <div className="container-wide -mt-20 lg:-mt-24">
+          <ul className="flex flex-wrap justify-center gap-5">
+            {reviews.map((r, i) => (
+              <li key={i} className="w-full md:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.85rem)]">
+                <figure className="flex h-full flex-col overflow-hidden rounded-3xl bg-white text-ink shadow-2xl shadow-black/25">
+                  <div className="flex flex-1 flex-col p-6 sm:p-8">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-2xl tracking-wider text-amber-500" aria-label={`${r.rating} out of 5 stars`}>
+                        {'★'.repeat(r.rating)}
+                        <span className="text-neutral-300">{'★'.repeat(5 - r.rating)}</span>
+                      </p>
+                      {r.source && SOURCE_LABEL[r.source] && (
+                        <span className="rounded-full bg-mist px-3 py-1 text-xs font-bold text-neutral-700">{SOURCE_LABEL[r.source]}</span>
+                      )}
+                    </div>
+                    <blockquote className="mt-4 flex-1 text-[0.98rem] leading-relaxed text-neutral-700">“{r.text}”</blockquote>
+                  </div>
+                  <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-line bg-paper px-6 py-4 sm:px-8">
+                    <span className="text-sm font-bold">
+                      {r.name}
+                      {r.city && <span className="font-normal text-neutral-600"> · {r.city}</span>}
+                    </span>
+                    <span className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
+                      {r.service && <span className="rounded-full bg-brand-blue/10 px-3 py-1 font-semibold text-brand-blue">{r.service}</span>}
+                      {r.date && <span>{r.date}</span>}
+                    </span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+          {stats && stats.count > 0 && (
+            <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-center gap-6 rounded-3xl bg-white/10 px-6 py-6 text-center ring-1 ring-white/20 backdrop-blur sm:flex-row sm:gap-12">
+              <p>
+                <span className="block font-display text-4xl font-bold">{stats.count}</span>
+                <span className="text-sm text-white/80">customer review{stats.count === 1 ? '' : 's'}</span>
+              </p>
+              {average !== null && (
+                <p>
+                  <span className="block font-display text-4xl font-bold">{average.toFixed(1)}</span>
+                  <span className="text-sm text-white/80">
+                    <span className="text-amber-400" aria-hidden="true">★★★★★</span> average rating
+                  </span>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </section>
   )
 }
 

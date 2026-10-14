@@ -64,6 +64,8 @@ interface Service {
   include: string[]
   faqs: [string, string][]
   trade: 'plumbing' | 'hvac'
+  /** Optional extra sections, placed after "What to Include in Your Request". */
+  extra?: SeedSection[]
 }
 
 const SERVICES: Service[] = [
@@ -97,6 +99,36 @@ const SERVICES: Service[] = [
       ['How do I know whether to repair or replace?', 'A leaking tank, repeated repairs or an older unit that no longer keeps up are common reasons to consider replacement. A professional can assess the unit and explain the options. See our water heater repair page for more.'],
       ['Should I choose a tank or a tankless water heater?', 'It depends on your household, space, fuel and budget. Ask the professional to explain the differences for your property.'],
       ['Is a leaking water heater an emergency?', 'It can be. If water is coming from the tank, turn off the water supply to the unit and the power or gas if you can do so safely, then request service.'],
+      ['When should I replace my water heater instead of repairing it?', 'Replacement may be appropriate when the tank is leaking from corrosion, the system needs frequent repairs, or repair costs are no longer economical. A professional can assess the unit and explain the options.'],
+      ['Can I request tankless water heater installation?', 'Yes. Mention that you are interested in a tankless system when you submit your request. The professional can assess capacity, utility requirements and installation feasibility.'],
+      ['Do you handle commercial water heater replacement?', 'You can submit requests for commercial water heater replacement. Include your business type and property details so your request can be matched appropriately.'],
+      ['Can I upload a photo of my water heater?', 'Yes. If photo upload is enabled in the service request form, you can attach pictures of the unit, its model label or the visible issue. Photos give context but do not replace an on-site inspection.'],
+    ],
+    extra: [
+      block('Repair or replace', 'When Should You Repair or Replace a Water Heater?', doc(
+        para('The right decision depends on the source of the problem and the condition of the equipment.'),
+        para('Repair may be suitable when the issue is limited to a replaceable component and the system is otherwise in good condition.'),
+        para('Replacement may be worth considering when the tank is leaking due to corrosion, repairs are recurring, the system cannot meet your hot water needs, or the estimated repair cost is high relative to a new unit.'),
+        para('A leaking tank often requires replacement rather than a simple repair. If you notice water around your unit, have the source assessed promptly. If you suspect a gas leak, leave the area and contact the appropriate emergency service or gas utility from a safe location.'),
+      )),
+      {
+        type: 'comparison',
+        data: {
+          heading: 'Tank vs. Tankless Water Heaters: Which Is Right for You?',
+          intro: 'Choosing between a traditional tank water heater and a tankless system depends on your hot water usage, budget, installation conditions, and energy source.',
+          columns: [
+            { title: 'Traditional tank water heaters', items: ['Store heated water for use when needed', 'Are available in different tank capacities', 'May be suitable for households with predictable hot water requirements', 'Require enough space for the tank and associated connections'] },
+            { title: 'Tankless water heaters', items: ['Heat water on demand', 'Generally take up less space than traditional tank systems', 'Can provide continuous hot water within their rated capacity', 'May require upgrades to gas supply, electrical service, or venting, depending on the model'] },
+          ],
+          outro: "A qualified professional can assess your property's requirements and explain the costs, capacity, and installation considerations of each option.",
+          buttons: [],
+        },
+      },
+      block('Homes and businesses', 'Residential and Commercial Replacement', doc(
+        para('For homes, a replacement can be planned around your hot water demand, available space, fuel type and budget. A plumbing professional can evaluate your current system and discuss suitable options.'),
+        para('Commercial properties may have higher or more consistent hot water demands than residential buildings, and a malfunctioning unit can disrupt restaurants, offices, apartment buildings, hotels and retail spaces. Share your business type, property location and system details so your request can be matched with professionals offering the appropriate services.'),
+        para('Proper installation matters for performance, safety and reliability. Gas, electrical, venting and plumbing work should be handled by appropriately qualified professionals in line with applicable codes and permit requirements.'),
+      ), btn('Request Water Heater Replacement', '/book-service?category=plumbing&service=water-heater-replacement')),
     ],
   },
   {
@@ -223,6 +255,7 @@ function servicePage(s: Service): SeedPage {
       block('', `About ${s.name} in Denver & Boulder`, doc(para(s.overview[0]), para(s.overview[1])), btn('Request Service', REQUEST)),
       block('Common reasons to request service', `When to Request ${s.name}`, doc(bullets(s.problems))),
       block('Get a faster, better match', 'What to Include in Your Request', doc(para('The more detail you share, the easier it is for a professional to understand the job:'), bullets(s.include))),
+      ...(s.extra ?? []),
       steps(),
       faq(s.faqs),
       links(`${s.name} in Denver & Boulder`, [[`${s.name} in Denver`, '/denver'], [`${s.name} in Boulder`, '/boulder'], [hubName, hubPath]]),

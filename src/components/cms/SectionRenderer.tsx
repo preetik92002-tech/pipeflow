@@ -108,6 +108,11 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
   // Mascot pose by page: plumbing pages fixing a pipe, contact pages waving, everything else pointing at a fitting.
   const trail = ctx.crumbs.map((c) => `${c.href ?? ''} ${c.label}`).join(' ').toLowerCase()
   const pose: 1 | 2 | 3 | 4 = /plumb|water|pipe|drain/.test(trail) ? 2 : /contact|join|about/.test(trail) ? 4 : 3
+  // Service pages: reviews for this service (or its category), before the closing call-to-action.
+  const lastIdx = items.length - 1
+  const lastIsCta = lastIdx >= 0 && items[lastIdx].kind === 'one' && (items[lastIdx] as { section: Section }).section.type === 'cta'
+  const reviewsBefore = ctx.kind === 'service' ? (lastIsCta ? lastIdx : -1) : -1
+  const reviewsAfterLast = ctx.kind === 'service' && !lastIsCta
   const avatarAfter = ctx.kind === 'home' ? lastLinkList : items.length > 3 ? 1 : -1
   return (
     <>
@@ -125,12 +130,14 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
         return (
           <div key={item.section.id}>
             {divider}
+            {itemIndex === reviewsBefore && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} />}
             {renderSection(item.section, item.index, tone, ctx, look)}
             {marqueeAfter && <TextMarquee />}
             {itemIndex === avatarAfter && ctx.kind !== 'home' && <JunctionAvatar flip={itemIndex % 2 === 0} pose={pose} />}
             {itemIndex === lastLinkList && <JunctionAvatar />}
-            {itemIndex === lastLinkList && <ReviewsSection reviews={ctx.reviews ?? []} tone={nextTone()} />}
+            {itemIndex === lastLinkList && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} />}
             {itemIndex === lastLinkList && <AboutBlock />}
+            {reviewsAfterLast && itemIndex === lastIdx && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} />}
           </div>
         )
       })}

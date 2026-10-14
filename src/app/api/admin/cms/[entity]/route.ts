@@ -48,6 +48,12 @@ const schemas = {
 
 const tableFor = { blog: 'blogs', service: 'services', service_area: 'service_areas', testimonial: 'testimonials', faq: 'faqs' } as const
 type Entity = keyof typeof schemas
+/** Reviews and FAQs have no slug column: asking for one made every edit and delete of them fail. */
+const hasSlug = (entity: string) => entity === 'blog' || entity === 'service' || entity === 'service_area'
+/** Reviews and FAQs have no updated_at column either. */
+const hasUpdatedAt = (entity: string) => entity === 'blog' || entity === 'service' || entity === 'service_area'
+const slugOf = (row: unknown) => (row as { slug?: string } | null)?.slug
+const messageOf = (error: unknown, fallback: string) => (error instanceof Error ? error.message : typeof error === 'object' && error && 'message' in error ? String((error as { message: unknown }).message) : fallback)
 
 async function authorized() {
   const auth = await verifyAdminAuth()
@@ -56,7 +62,8 @@ async function authorized() {
 }
 
 function invalidate(entity: Entity, slug?: string) {
-  if (entity === 'homepage' || entity === 'testimonial' || entity === 'faq') revalidatePath('/')
+  if (entity === 'testimonial') revalidatePath('/', 'layout') // reviews show on the home page and every service page
+  if (entity === 'homepage' || entity === 'faq') revalidatePath('/')
   if (entity === 'blog') { revalidatePath('/blog'); if (slug) revalidatePath(`/blog/${slug}`) }
   if (entity === 'service') {
     revalidatePath('/services'); revalidatePath('/services/plumbing'); revalidatePath('/services/hvac')
@@ -108,14 +115,14 @@ async function save(request: NextRequest, entity: Entity, id?: string) {
       const { error } = await admin.from('homepage_content').upsert({ id: 'home', content: parsed.data, updated_at: new Date().toISOString() })
       if (error) throw error
     } else if (id) {
-      const payload: Record<string, unknown> = { ...parsed.data, updated_at: new Date().toISOString() }
+      const payload: Record<string, unknown> = hasUpdatedAt(entity) ? { ...parsed.data, updated_at: new Date().toISOString() } : { ...parsed.data }
       if (entity === 'service' && typeof payload.category === 'string') {
         const { data: category, error: categoryError } = await admin.from('service_categories').select('id').eq('slug', payload.category).maybeSingle()
         if (categoryError) throw categoryError
         payload.category_id = category?.id ?? null
       }
       if (entity === 'service_area') delete (payload as Record<string, unknown>).zip_codes
-      const { data, error } = await admin.from(tableFor[entity]).update(payload).eq('id', id).select('id,slug').maybeSingle()
+      const { data, error } = await admin.from(tableFor[entity]).update(payload).eq('id', id).select(hasSlug(entity) ? 'id,slug' : 'id').maybeSingle()
       if (error) throw error
       if (!data) return NextResponse.json({ error: 'Content record was not found.' }, { status: 404 })
       if (entity === 'service_area' && 'zip_codes' in parsed.data) {
@@ -170,14 +177,14 @@ async function updateCmsEntity(request: NextRequest, entityName: string, id: str
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Invalid content.' }, { status: 400 })
   try {
     const admin = createAdminClient()
-    const payload: Record<string, unknown> = { ...parsed.data, updated_at: new Date().toISOString() }
+    const payload: Record<string, unknown> = hasUpdatedAt(entityName) ? { ...parsed.data, updated_at: new Date().toISOString() } : { ...parsed.data }
     if (target === 'service' && typeof payload.category === 'string') {
       const { data: category, error: categoryError } = await admin.from('service_categories').select('id').eq('slug', payload.category).maybeSingle()
       if (categoryError) throw categoryError
       payload.category_id = category?.id ?? null
     }
     if (target === 'service_area') delete (payload as Record<string, unknown>).zip_codes
-    const { data, error } = await admin.from(tableFor[target]).update(payload).eq('id', id).select('id,slug').maybeSingle()
+    const { data, error } = await admin.from(tableFor[target]).update(payload).eq('id', id).select(hasSlug(target) ? 'id,slug' : 'id').maybeSingle()
     if (error) throw error
     if (!data) return NextResponse.json({ error: 'Content record was not found.' }, { status: 404 })
     if (target === 'service_area' && 'zip_codes' in parsed.data) {
@@ -186,10 +193,10 @@ async function updateCmsEntity(request: NextRequest, entityName: string, id: str
       const zips = parsed.data.zip_codes || []
       if (zips.length) { const { error: insertError } = await admin.from('service_area_zips').insert(zips.map((zip_code) => ({ service_area_id: id, zip_code }))); if (insertError) throw insertError }
     }
-    invalidate(target, data.slug)
+    invalidate(target, slugOf(data))
     return NextResponse.json({ success: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database mutation failed.'
+    const message = messageOf(error, 'Database mutation failed.')
     return NextResponse.json({ error: /duplicate key|unique constraint/i.test(message) ? 'That slug is already in use.' : message }, { status: /duplicate key|unique constraint/i.test(message) ? 409 : 503 })
   }
 }
@@ -206,14 +213,14 @@ async function deleteCmsEntity(entityName: string, id: string) {
       if (!data) return NextResponse.json({ error: 'Content record was not found.' }, { status: 404 })
       invalidate('blog', data.slug)
     } else {
-      const { data, error } = await admin.from(tableFor[target]).delete().eq('id', id).select('slug').maybeSingle()
+      const { data, error } = await admin.from(tableFor[target]).delete().eq('id', id).select(hasSlug(target) ? 'id,slug' : 'id').maybeSingle()
       if (error) throw error
       if (!data) return NextResponse.json({ error: 'Content record was not found.' }, { status: 404 })
-      invalidate(target, data.slug)
+      invalidate(target, slugOf(data))
     }
     return NextResponse.json({ success: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Delete failed.'
+    const message = messageOf(error, 'Delete failed.')
     return NextResponse.json({ error: message }, { status: 503 })
   }
 }

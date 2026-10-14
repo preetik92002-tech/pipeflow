@@ -333,7 +333,7 @@ describe('editor exposes the alt-text fields the schema has', () => {
     const adminLayout = readFileSync(path.join(root, 'src/app/(admin)/layout.tsx'), 'utf8')
     expect(adminLayout).not.toMatch(/MotionRoot|RevealObserver|gsap/)
     const siteLayout = readFileSync(path.join(root, 'src/app/(site)/layout.tsx'), 'utf8')
-    expect(siteLayout).toContain('<MotionRoot />')
+    expect(siteLayout).not.toContain('<MotionRoot />') // scroll animations are switched off
     expect(siteLayout).not.toMatch(/import \{[^}]*Sora[^}]*\} from 'next\/font\/google'/) // the admin loads its own fonts
   })
 })
