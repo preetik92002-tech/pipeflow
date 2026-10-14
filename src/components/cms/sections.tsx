@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight, Check, Clock, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
 import type { CmsButton } from '@/lib/cms-pages/links'
-import { MARQUEE_PHOTOS, PHOTOS, PROCESS_PHOTOS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
+import { MARQUEE_PHOTOS, PHOTOS, PROCESS_PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
 import { SplitWords } from '@/components/motion/SplitWords'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
@@ -562,35 +562,28 @@ export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Ton
 
 // ------------------------------------------------------------------ calls to action
 
-const CTA_PHOTOS = [PHOTOS.plumberSinkTrap, PHOTOS.mechanicalPipes, PHOTOS.technicianToolBelt, PHOTOS.plumberUnderSink]
 
 export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Tone }) {
   const id = `cta-${slug(data.heading)}`
   if (data.tone === 'dark') {
-    // Background photo sirf sajawat hai (alt khaali); heading se chuni jaati hai taaki pages par alag dikhe.
-    const photo = CTA_PHOTOS[[...data.heading].reduce((a, c) => a + c.charCodeAt(0), 0) % CTA_PHOTOS.length]
     return (
-      <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby={id}>
-        <div className="absolute inset-0 -z-20">
-          <div data-parallax="7" className="absolute inset-0">
-            <CmsImage src={photo.src} decorative sizes="100vw" className="object-cover" />
-          </div>
-        </div>
-        {/* Photo poori dikhe: halka ek-rang scrim, bas text ke peeche contrast ke liye */}
-        <div className="absolute inset-0 -z-10 bg-ink/60" aria-hidden="true" />
-        <div className="container-wide py-16 text-center sm:py-24 lg:py-32">
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-navy-900 via-navy-800 to-navy-900 text-white" aria-labelledby={id}>
+        <div className="container-wide py-14 text-center sm:py-20 lg:py-24">
           <div className="mx-auto max-w-3xl" data-reveal>
-            <h2 id={id} data-lines className="font-display text-display-xl font-normal">
+            <div className="relative mx-auto mb-8 aspect-[1920/640] w-full max-w-2xl overflow-hidden rounded-2xl ring-1 ring-white/15">
+              <CmsImage src={HERO_BANNERS.van} decorative sizes="(min-width: 768px) 42rem, 100vw" className="object-cover object-right" />
+            </div>
+            <h2 id={id} className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
               {data.heading}
             </h2>
             {data.text && (
-              <div className="mx-auto mt-6 max-w-2xl space-y-3 text-lead text-white/75">
+              <div className="mx-auto mt-5 max-w-2xl space-y-3 text-lead text-white/80">
                 {data.text.split(/\n{2,}/).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
             )}
-            <CmsButtons buttons={data.buttons} onDark center className="mt-10" />
+            <CmsButtons buttons={data.buttons} onDark center className="mt-8" />
           </div>
         </div>
       </section>
@@ -730,23 +723,28 @@ export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; t
 }
 
 /** Sirf asli, admin dwara daale gaye reviews dikhte hain; khaali ho to section render hi nahi hota. */
-export function TestimonialsSection({ data, tone }: { data: SectionData<'testimonials'>; tone: Tone }) {
+export function TestimonialsSection({ data }: { data: SectionData<'testimonials'>; tone: Tone }) {
   if (!data.items.length) return null
   return (
-    <Band tone={tone}>
+    <section className="relative overflow-hidden bg-gradient-to-b from-navy-800 to-navy-900 py-16 text-white sm:py-20 lg:py-24">
       <div className="container-wide">
-        <SectionHeader heading={data.heading} />
-        <ul className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="max-w-3xl" data-reveal>
+          <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{data.heading}</h2>
+          <div className="mt-4 h-1 w-20 rounded-full bg-brand-red" aria-hidden="true" />
+        </div>
+        <ul className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {data.items.map((t, i) => (
-            <li key={i} className="flex flex-col border border-line bg-white p-8" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-              {t.rating && (
-                <p className="text-sm tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>
-                  {'★'.repeat(t.rating)}
-                  {'☆'.repeat(5 - t.rating)}
-                </p>
-              )}
-              <blockquote className="mt-4 flex-1 font-display text-lg leading-snug text-ink">“{t.quote}”</blockquote>
-              <p className="mt-6 text-sm font-semibold text-ink">
+            <li key={i} className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-xl shadow-black/20" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+              <div className="flex flex-1 flex-col p-6 sm:p-8">
+                {t.rating && (
+                  <p className="text-xl tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>
+                    {'★'.repeat(t.rating)}
+                    {'☆'.repeat(5 - t.rating)}
+                  </p>
+                )}
+                <blockquote className="mt-4 flex-1 text-[0.95rem] leading-relaxed text-neutral-700">“{t.quote}”</blockquote>
+              </div>
+              <p className="border-t border-line px-6 py-4 text-sm font-bold text-ink sm:px-8">
                 {t.name}
                 {t.location && <span className="font-normal text-neutral-600"> · {t.location}</span>}
               </p>
@@ -754,7 +752,7 @@ export function TestimonialsSection({ data, tone }: { data: SectionData<'testimo
           ))}
         </ul>
       </div>
-    </Band>
+    </section>
   )
 }
 

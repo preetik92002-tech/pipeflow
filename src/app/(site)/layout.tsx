@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { FloatingCallButton } from '@/components/layout/FloatingCallButton'
+import { VideoPopup } from '@/components/layout/VideoPopup'
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import { NavigationProvider } from '@/components/layout/NavigationProvider'
 import { getNavigation } from '@/lib/cms-pages/navigation'
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Footer />
             <StickyMobileCTA />
             <FloatingCallButton />
+            <VideoPopup />
           </NavigationProvider>
         </SiteSettingsProvider>
       </body>

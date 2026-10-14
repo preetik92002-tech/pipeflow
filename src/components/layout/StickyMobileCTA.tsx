@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Phone } from 'lucide-react'
+import { Phone } from 'lucide-react'
 import { useSiteSettings } from './SiteSettingsProvider'
 import { useNavigation } from './NavigationProvider'
 import { hasRealPhone } from '@/lib/config/contact'
@@ -20,14 +20,13 @@ export function StickyMobileCTA() {
     >
       <div className="flex gap-2 p-2.5">
         {hasPhone && (
-          <a href={`tel:${company.phone}`} className="cta cta-line !min-h-[3rem] flex-none !px-5" aria-label={`Call ${company.phone}`}>
+          <a href={`tel:${company.phone}`} className="btn-outline !min-h-[3rem] flex-none !px-5" aria-label={`Call ${company.phone}`}>
             <Phone className="h-4 w-4" aria-hidden="true" />
             Call
           </a>
         )}
-        <Link href={nav.cta.href} className="cta cta-solid !min-h-[3rem] flex-1">
+        <Link href={nav.cta.href} className="btn-primary !min-h-[3rem] flex-1">
           {nav.cta.label}
-          <ArrowRight className="cta-arrow" aria-hidden="true" />
         </Link>
       </div>
     </div>

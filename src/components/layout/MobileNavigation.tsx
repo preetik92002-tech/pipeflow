@@ -121,12 +121,11 @@ export function MobileNavigation({ isOpen, onClose, items, config, phone }: Mobi
         </nav>
 
         <div className="flex-shrink-0 space-y-3 border-t border-line p-5" style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}>
-          <Link href={config.bookService.href} className="cta cta-solid w-full">
+          <Link href={config.bookService.href} className="btn-primary !py-3 w-full">
             {config.bookService.label}
-            <ArrowRight className="cta-arrow" aria-hidden="true" />
           </Link>
           {hasRealPhone(phone) && (
-            <a href={`tel:${phone}`} className="cta cta-line w-full">
+            <a href={`tel:${phone}`} className="btn-outline !py-3 w-full">
               <Phone className="h-4 w-4" aria-hidden="true" />
               {phone}
             </a>

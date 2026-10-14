@@ -38,16 +38,16 @@ export function HeroCarousel({ heading, buttons, labelId }: { heading: string; b
       <div className="overflow-hidden">
         <div className="flex transition-transform duration-700 ease-out will-change-transform motion-reduce:transition-none" style={{ transform: `translateX(-${index * 100}%)` }}>
           {SLIDES.map((s, i) => (
-            <div key={s.src} className="relative aspect-[1600/587] min-h-[200px] w-full shrink-0" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${SLIDES.length}`} aria-hidden={i !== index}>
-              <Image src={s.src} alt={s.alt} fill priority={i === 0} sizes="100vw" quality={70} className="object-cover" />
+            <div key={s.src} className="relative aspect-[1600/587] w-full shrink-0" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${SLIDES.length}`} aria-hidden={i !== index}>
+              <Image src={s.src} alt={s.alt} fill priority={i === 0} sizes="100vw" quality={70} className="object-contain sm:object-cover" />
             </div>
           ))}
         </div>
       </div>
       <div className="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900">
-        <div className="container-wide flex flex-col items-center gap-4 py-4 sm:flex-row sm:justify-between">
+        <div className="container-wide flex flex-col items-stretch gap-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:py-4">
           <CmsButtons buttons={buttons} onDark className="" />
-          <div className="flex gap-2">
+          <div className="flex justify-center gap-2">
             {SLIDES.map((s, i) => (
               <button
                 key={s.src}
