@@ -10,7 +10,6 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
  *   [data-parallax="6"]                                     photo apne frame mein scrub hoti hai
  *   [data-clip]                                             frame ek chhote mask se poora khulta hai
  *   [data-lines]                                            heading line-by-line (SplitText)
- *   [data-marquee="left|right"]                             photo strip scroll ke saath sarakti hai
  *   [data-story] (pinned process)                           desktop par pin, step-by-step
  *   [data-step-line]                                        steps ki hairline scroll se bharti hai
  *
@@ -102,20 +101,6 @@ export function initMotion(): () => void {
             })
           },
         })
-      }
-
-      // ---- photo marquee: scroll position se chalti hai, apne aap nahi
-      for (const track of all('[data-marquee]')) {
-        const toRight = track.dataset.marquee === 'right'
-        gsap.fromTo(
-          track,
-          { xPercent: toRight ? -32 : 0 },
-          {
-            xPercent: toRight ? 0 : -32,
-            ease: 'none',
-            scrollTrigger: { trigger: track.parentElement ?? track, start: 'top bottom', end: 'bottom top', scrub: 0.6 },
-          }
-        )
       }
 
       // ---- steps ki hairline scroll ke saath bharti hai

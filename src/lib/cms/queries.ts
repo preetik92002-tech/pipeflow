@@ -129,3 +129,23 @@ export function toSiteService(service: CmsService): Service {
 export function toSiteServiceArea(area: CmsServiceArea): import('@/types').ServiceArea {
   return { id: area.id, name: area.name, slug: area.slug, state: area.state, zipCodes: area.zip_codes, description: area.description || undefined, active: area.active, primary: Boolean(area.primary_area) }
 }
+
+/** Active customer reviews for the home page, newest first. Empty on any error: the page must still render. */
+export async function getActiveReviews(limit = 6) {
+  try {
+    const supabase = createPublicClient()
+    const { data, error } = await supabase.from('testimonials').select('*').eq('active', true).order('created_at', { ascending: false }).limit(limit)
+    if (error) return []
+    return (data ?? []).map((row) => ({
+      name: row.reviewer_name as string,
+      city: (row.reviewer_city as string | null) || undefined,
+      rating: Math.min(5, Math.max(1, Number(row.rating ?? 5))),
+      text: row.review_text as string,
+      service: (row.service_name as string | null) || undefined,
+      date: (row.date as string | null) || undefined,
+      verified: Boolean(row.verified),
+    }))
+  } catch {
+    return []
+  }
+}

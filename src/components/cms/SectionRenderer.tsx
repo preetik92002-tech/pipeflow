@@ -2,7 +2,7 @@ import type { Section, SectionData } from '@/lib/cms-pages/sections/schema'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import {
   HeroSection, RichTextSection, ContentBlockSection, ContentBlockGroup, GallerySection, FeatureCardsSection, ComparisonSection,
-  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, PhotoMarquee,
+  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection,
   type PageContext, type Tone,
 } from './sections'
 
@@ -81,10 +81,13 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
   // Split hero paper par hota hai, isliye uske baad pehla light section white se shuru.
   let light = 0
   let marqueeShown = false
+  const items = layoutSections(valid)
+  // Reviews go right after the last service list (Plumbing, then HVAC), home page only.
+  const lastLinkList = ctx.kind === 'home' ? items.reduce((n, it, i) => (it.kind === 'one' && it.section.type === 'linkList' ? i : n), -1) : -1
   const nextTone = (): Tone => (light++ % 2 === 0 ? 'white' : 'paper')
   return (
     <>
-      {layoutSections(valid).map((item) => {
+      {items.map((item, itemIndex) => {
         if (item.kind === 'group') return <div key={item.id}><ContentBlockGroup blocks={item.blocks} tone={nextTone()} /></div>
         const tone = isDark(item.section) ? 'white' : nextTone()
         // Home par pehli photo-tiles wali section ke baad photo strip: ek hi scroll-journey ka hissa, naya content nahi.
@@ -93,7 +96,8 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
         return (
           <div key={item.section.id}>
             {renderSection(item.section, item.index, tone, ctx)}
-            {marqueeAfter && <PhotoMarquee />}
+            {marqueeAfter && <TextMarquee />}
+            {itemIndex === lastLinkList && <ReviewsSection reviews={ctx.reviews ?? []} tone={nextTone()} />}
           </div>
         )
       })}

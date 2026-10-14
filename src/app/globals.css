@@ -492,3 +492,19 @@ html.no-intro .site-intro { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .site-intro { display: none; }
 }
+
+/* Text marquee (home): constant-speed right-to-left loop; the track holds the text twice, so -50% is a seamless wrap. */
+@keyframes textMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.text-marquee-track {
+  animation: textMarquee 45s linear infinite;
+  will-change: transform;
+}
+@media (max-width: 640px) {
+  .text-marquee-track { animation-duration: 32s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-marquee-track { animation: none; }
+}

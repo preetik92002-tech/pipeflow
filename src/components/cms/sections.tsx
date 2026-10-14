@@ -1,7 +1,7 @@
-import { ArrowRight, ArrowUpRight, Check, Clock, Mail, MapPin, Phone, Plus } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Award, BadgeCheck, Check, Clock, Droplets, Fan, Flame, Home, Mail, MapPin, Phone, Plus, ShieldCheck, Snowflake, ThermometerSun, ThumbsUp, Users, Wrench, type LucideIcon } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
 import type { CmsButton } from '@/lib/cms-pages/links'
-import { MARQUEE_PHOTOS, PHOTOS, PROCESS_PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
+import { PHOTOS, PROCESS_PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
 import { SplitWords } from '@/components/motion/SplitWords'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
@@ -21,10 +21,21 @@ export interface Crumb {
   label: string
   href?: string
 }
+/** A real customer review (from the testimonials table), as shown in the home page reviews section. */
+export interface ReviewItem {
+  name: string
+  city?: string
+  rating: number
+  text: string
+  service?: string
+  date?: string
+  verified?: boolean
+}
 export interface PageContext {
   kind: PageKind
   crumbs: Crumb[]
   cityPhoto?: Photo
+  reviews?: ReviewItem[]
 }
 
 const toneBg: Record<Tone, string> = { white: 'bg-white', paper: 'bg-paper' }
@@ -139,7 +150,7 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
   const center = data.align === 'center'
   // The banner is chosen from the hero's wording; the page's stored image is left untouched.
   const banner = heroBanner(data.heading, data.eyebrow, ...ctx.crumbs.map((c) => c.href ?? c.label))
-  if (ctx.kind === 'home') return <HeroCarousel heading={data.heading} buttons={data.buttons} labelId={first ? 'page-title' : undefined} />
+  if (ctx.kind === 'home') return <HeroCarousel heading={data.heading} labelId={first ? 'page-title' : undefined} />
   return (
     <section data-hero className="relative isolate flex min-h-[460px] items-center overflow-hidden bg-navy-900 text-white lg:min-h-[560px]" aria-labelledby={first ? 'page-title' : undefined}>
       <div className="absolute inset-0 -z-20 select-none">
@@ -274,6 +285,42 @@ export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'conte
 
 type Card = SectionData<'featureCards'>['cards'][number]
 
+/** Round icon for a service, picked from its name. */
+function serviceIcon(text: string): LucideIcon {
+  const t = text.toLowerCase()
+  if (/freez|frozen/.test(t)) return Snowflake
+  if (/water heater|heater/.test(t)) return Flame
+  if (/ac |a\/c|air condition|cooling|\bac\b/.test(t)) return Snowflake
+  if (/furnace|heating|hvac repair/.test(t)) return Flame
+  if (/maintenance|tune/.test(t)) return ThermometerSun
+  if (/hvac|install|replac/.test(t)) return Fan
+  if (/plumbing repair|drain|pipe|leak|faucet|fix/.test(t)) return Droplets
+  return Wrench
+}
+
+/** A service as a white rounded card: round icon badge, bold title, red "Learn More" button. The whole card is the link. */
+function ServiceButtonCard({ href, title, text, index }: { href: string; title: string; text?: string; index: number }) {
+  const Icon = serviceIcon(title)
+  return (
+    <li className={`${text ? 'w-full' : 'w-[calc(50%-0.625rem)]'} sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]`} data-reveal style={{ '--reveal-delay': `${(index % 3) * 70}ms` } as React.CSSProperties}>
+      <SmartLink
+        href={href}
+        className="group relative flex h-full flex-col items-center rounded-3xl border border-line bg-white px-3 pb-5 pt-11 text-center shadow-md sm:px-6 sm:pb-7 sm:pt-12 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl focus-visible:-translate-y-1.5 focus-visible:shadow-2xl motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      >
+        <span className="absolute -top-7 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white shadow-lg ring-4 ring-white transition-transform duration-300 group-hover:scale-110 motion-reduce:transition-none">
+          <Icon className="h-7 w-7" aria-hidden="true" />
+        </span>
+        <span className="font-display text-base font-bold leading-snug text-ink sm:text-2xl">{title}</span>
+        {text && <span className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{text}</span>}
+        <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-red px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors group-hover:bg-brand-red-dark sm:px-6 sm:py-2.5 sm:text-sm">
+          Learn More
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+        </span>
+      </SmartLink>
+    </li>
+  )
+}
+
 function CardShell({ card, className, children }: { card: Card; className: string; children: React.ReactNode }) {
   return card.href ? (
     <SmartLink href={card.href} className={`group ${className}`}>
@@ -289,75 +336,16 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
   const linked = data.cards.every((c) => c.href)
   const id = data.heading ? `fc-${slug(data.heading)}` : undefined
 
-  // 2 photo cards: badi photo tiles (Plumbing / HVAC, Denver / Boulder).
-  if (withImages && data.cards.length === 2) {
+  // Cards that used photos: no images, each service is an icon card with a button.
+  if (withImages && linked) {
     return (
-      <Band tone={tone} labelledBy={id}>
+      <Band tone={tone} labelledBy={id} className="!py-14 sm:!py-20">
         <div className="container-wide">
-          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
-          <ul className="mt-12 grid gap-5 md:grid-cols-2">
+          <SectionHeader heading={data.heading} intro={data.intro} id={id} center />
+          <ul className="mt-14 flex flex-wrap justify-center gap-x-5 gap-y-12 sm:gap-x-6">
             {data.cards.map((card, i) => (
-              <li key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties}>
-                <CardShell card={card} className="relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden bg-ink p-7 text-white sm:aspect-[5/4] sm:p-10">
-                  {card.image && (
-                    <div className="absolute inset-0 -z-20 transition-transform duration-700 ease-out-expo group-hover:scale-105">
-                      <div data-parallax="5" className="absolute inset-0">
-                        <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-                      </div>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent" aria-hidden="true" />
-                  <h3 className="font-display text-display-md font-normal">{card.title}</h3>
-                  {card.text && <p className="mt-3 max-w-md text-white/80">{card.text}</p>}
-                  {card.href && (
-                    <span
-                      className="mt-6 inline-flex h-12 w-12 items-center justify-center bg-white text-ink transition-all duration-300 ease-out-expo group-hover:bg-terra group-hover:text-white"
-                      aria-hidden="true"
-                    >
-                      <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:rotate-45" />
-                    </span>
-                  )}
-                </CardShell>
-              </li>
+              <ServiceButtonCard key={i} href={card.href} title={card.title} text={card.text} index={i} />
             ))}
-          </ul>
-        </div>
-      </Band>
-    )
-  }
-
-  // Photo cards (3+): pehla card bada, baaki chhote — ek"bento" layout.
-  if (withImages) {
-    return (
-      <Band tone={tone} labelledBy={id}>
-        <div className="container-wide">
-          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
-          <ul className="mt-12 flex flex-wrap justify-center gap-5">
-            {data.cards.map((card, i) => {
-              return (
-                <li key={i} className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.84rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-                  <CardShell
-                    card={card}
-                    className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_24px_60px_-28px_rgba(11,23,40,0.35)]"
-                  >
-                    {card.image && (
-                      <div className="relative aspect-[16/10] overflow-hidden bg-mist">
-                        <div className="absolute inset-0 transition-transform duration-700 ease-out-expo group-hover:scale-105">
-                          <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex items-start justify-between gap-4 p-6 sm:p-7">
-                      <div>
-                        <h3 className="font-display text-xl font-normal text-ink">{card.title}</h3>
-                        {card.text && <p className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{card.text}</p>}
-                      </div>
-                      {card.href && <ArrowUpRight className="mt-1 h-5 w-5 flex-shrink-0 text-terra transition-transform duration-300 group-hover:rotate-45" aria-hidden="true" />}
-                    </div>
-                  </CardShell>
-                </li>
-              )
-            })}
           </ul>
         </div>
       </Band>
@@ -391,21 +379,29 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
     )
   }
 
-  // Bina photo, bina link: numbered features grid.
+  // No photo, no link: tinted rounded tiles with a round icon and a bold title.
+  const tileIcons = [Users, ShieldCheck, Clock, BadgeCheck, Wrench, Award, ThumbsUp, Home]
   return (
     <Band tone={tone} labelledBy={id}>
       <div className="container-wide">
         <SectionHeader heading={data.heading} intro={data.intro} id={id} />
-        <ul className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-          {data.cards.map((card, i) => (
-            <li key={i} className="border-t border-ink/15 pt-6" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-              <CardShell card={card} className="block">
-                <span className="font-display text-sm font-medium tracking-[0.2em] text-terra">{pad2(i + 1)}</span>
-                <h3 className="mt-3 font-display text-xl font-normal text-ink">{card.title}</h3>
-                {card.text && <p className="mt-3 leading-relaxed text-neutral-600">{card.text}</p>}
-              </CardShell>
-            </li>
-          ))}
+        <ul className="mt-10 flex flex-wrap justify-center gap-4">
+          {data.cards.map((card, i) => {
+            const Icon = tileIcons[i % tileIcons.length]
+            return (
+              <li key={i} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.7rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+                <CardShell card={card} className="flex h-full items-center gap-5 rounded-2xl bg-brand-blue/10 p-5 sm:p-6">
+                  <span className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-700 text-white shadow-md">
+                    <Icon className="h-7 w-7" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <h3 className="font-display text-lg font-bold leading-snug text-ink">{card.title}</h3>
+                    {card.text && <p className="mt-1 text-[0.95rem] leading-snug text-neutral-700">{card.text}</p>}
+                  </span>
+                </CardShell>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </Band>
@@ -671,30 +667,49 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
       </Band>
     )
   }
-  // Service cards: one uniform photo size, rounded cards in a grid (no hover-swap panel, no full-width rows).
+  // Service-area lists: dark rounded panel with the places in columns and a pin-in-circle graphic.
+  if (/\b(areas?|cities|city|neighbou?rhoods?|locations?|communities|serving)\b/i.test(data.heading) && data.links.length >= 4) {
+    return (
+      <Band tone={tone} labelledBy={id} className="!py-12 sm:!py-16">
+        <div className="container-wide">
+          <div className="grid gap-10 overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 to-navy-700 p-8 text-white sm:p-12 lg:grid-cols-12" data-reveal>
+            <div className="lg:col-span-7">
+              <p className="text-sm font-semibold uppercase tracking-widest text-white/70">Service areas</p>
+              <h2 id={id} className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+                {data.heading}
+              </h2>
+              <ul className="mt-8 columns-2 gap-8 sm:columns-3 [&>li]:mb-2.5">
+                {data.links.map((l, i) => (
+                  <li key={i} className="break-inside-avoid">
+                    <SmartLink href={l.href} className="inline-flex items-center gap-2 text-[0.95rem] text-white/90 transition-colors hover:text-white">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-brand-red" aria-hidden="true" />
+                      <span className="link-grow">{l.label}</span>
+                    </SmartLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="hidden items-center justify-center lg:col-span-5 lg:flex" aria-hidden="true">
+              <div className="relative flex h-72 w-72 items-center justify-center rounded-full border-4 border-white/90 bg-brand-blue/30">
+                <span className="absolute inset-6 rounded-full border border-dashed border-white/30" />
+                <span className="absolute inset-16 rounded-full border border-dashed border-white/20" />
+                <MapPin className="h-16 w-16 text-brand-red drop-shadow-lg" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Band>
+    )
+  }
+  // Service list: icon button cards, no photos.
   return (
     <Band tone={tone} labelledBy={id} className="!py-12 sm:!py-16">
       <div className="container-wide">
-        <SectionHeader heading={data.heading} id={id} />
-        <ul className="mt-8 flex flex-wrap justify-center gap-4">
-          {data.links.map((l, i) => {
-            const photo = SERVICE_PHOTOS[l.href] ?? PHOTOS.plumbingTools
-            return (
-              <li key={i} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.7rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 70}ms` } as React.CSSProperties}>
-                <SmartLink href={l.href} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-mist">
-                    <CmsImage src={photo.src} decorative sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                  </div>
-                  <div className="flex flex-1 items-center justify-between gap-3 p-4">
-                    <span className="font-display text-base font-semibold leading-snug text-ink transition-colors group-hover:text-terra">{l.label}</span>
-                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-mist text-ink transition-colors group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
-                  </div>
-                </SmartLink>
-              </li>
-            )
-          })}
+        <SectionHeader heading={data.heading} id={id} center />
+        <ul className="mt-12 flex flex-wrap justify-center gap-x-5 gap-y-12 sm:gap-x-6">
+          {data.links.map((l, i) => (
+            <ServiceButtonCard key={i} href={l.href} title={l.label} index={i} />
+          ))}
         </ul>
       </div>
     </Band>
@@ -739,27 +754,30 @@ export function TestimonialsSection({ data }: { data: SectionData<'testimonials'
   const rated = data.items.filter((t) => t.rating)
   const average = rated.length ? (rated.reduce((n, t) => n + (t.rating ?? 0), 0) / rated.length).toFixed(1) : null
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-navy-800 to-navy-900 py-16 text-white sm:py-20 lg:py-24">
-      <div className="container-wide">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" data-reveal>
-          <div className="max-w-3xl">
-            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{data.heading}</h2>
-            <div className="mt-4 h-1 w-20 rounded-full bg-brand-red" aria-hidden="true" />
-          </div>
+    <section className="bg-gradient-to-b from-navy-800 to-navy-900 pb-16 text-white sm:pb-20 lg:pb-24">
+      <div className="relative isolate overflow-hidden bg-gradient-to-br from-brand-blue to-navy-700 pb-24 pt-14 sm:pt-20 lg:pb-28">
+        <div className="absolute inset-y-0 right-0 -z-10 hidden w-[58%] [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)] md:block" aria-hidden="true">
+          <CmsImage src={HERO_BANNERS.van} decorative sizes="60vw" className="object-cover object-right" />
+        </div>
+        <div className="container-wide" data-reveal>
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Reviews</p>
+          <h2 className="mt-3 max-w-md font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{data.heading}</h2>
           {average && (
-            <p className="flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-3 ring-1 ring-white/15">
+            <p className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-white/15 px-5 py-3 ring-1 ring-white/25 backdrop-blur">
               <GoogleG />
               <span className="font-display text-3xl font-bold">{average}</span>
-              <span className="text-sm text-white/80">
-                <span className="block text-amber-400" aria-hidden="true">★★★★★</span>
+              <span className="text-sm text-white/90">
+                <span className="block text-amber-300" aria-hidden="true">★★★★★</span>
                 Based on {data.items.length} review{data.items.length === 1 ? '' : 's'}
               </span>
             </p>
           )}
         </div>
-        <ul className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      </div>
+      <div className="container-wide -mt-14 sm:-mt-16">
+        <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {data.items.map((t, i) => (
-            <li key={i} className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-xl shadow-black/20" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+            <li key={i} className="flex flex-col overflow-hidden rounded-2xl bg-white text-ink shadow-xl shadow-black/20" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
               <div className="flex flex-1 flex-col p-6 sm:p-8">
                 {t.rating && (
                   <p className="text-xl tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>
@@ -826,17 +844,80 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
  * Photo strip: scroll position se chalti hai (GSAP scrub), apne aap nahi. Poori tarah sajawati, isliye
  * screen readers se chhupi aur alt khaali. Sab photos alag hain.
  */
-export function PhotoMarquee({ photos = MARQUEE_PHOTOS, direction = 'left' }: { photos?: Photo[]; direction?: 'left' | 'right' }) {
+const MARQUEE_PHRASES = [
+  'Expert Plumbing Repairs',
+  'AC Repair & Installation',
+  'Water Heater Services',
+  'Emergency Plumbing',
+  'Residential & Commercial',
+  'Denver & Boulder',
+  'Trusted Local Professionals',
+  'Easy Scheduling',
+]
+
+/** Thick brand-red strip of bold text that scrolls right to left on its own (CSS only; the text is duplicated for a seamless loop). */
+export function TextMarquee() {
+  const run = (key: string, hidden: boolean) => (
+    <ul key={key} className="flex flex-none items-center" aria-hidden={hidden || undefined}>
+      {MARQUEE_PHRASES.map((t) => (
+        <li key={t} className="flex flex-none items-center whitespace-nowrap">
+          <span>{t}</span>
+          <span className="px-6 text-navy-900 sm:px-9" aria-hidden="true">✦</span>
+        </li>
+      ))}
+    </ul>
+  )
   return (
-    <section className="overflow-hidden bg-white py-10 sm:py-14" aria-hidden="true">
-      <div data-marquee={direction} className="flex w-max gap-4 will-change-transform sm:gap-6">
-        {photos.map((p, i) => (
-          <div key={i} className={`photo-frame aspect-[4/5] w-[58vw] flex-none sm:w-[34vw] lg:w-[22vw] ${i % 2 ? 'translate-y-6 sm:translate-y-10' : ''}`}>
-            <CmsImage src={p.src} decorative sizes="(min-width: 1024px) 22vw, 58vw" className="object-cover" />
-          </div>
-        ))}
+    <section data-text-marquee className="overflow-hidden bg-brand-red text-white" aria-label="What we do">
+      <div className="text-marquee-track flex w-max items-center py-5 font-display text-2xl font-extrabold uppercase tracking-tight sm:py-7 sm:text-3xl lg:py-8 lg:text-[2.5rem]">
+        {run('a', false)}
+        {run('b', true)}
       </div>
     </section>
+  )
+}
+
+/** Customer reviews after the services. Real reviews only; a clearly labelled sample set shows in development builds when there are none. */
+export function ReviewsSection({ reviews, tone }: { reviews: ReviewItem[]; tone: Tone }) {
+  const isDev = process.env.NODE_ENV !== 'production'
+  const sample = reviews.length === 0 && isDev
+  if (reviews.length === 0 && !isDev) return null
+  const items: ReviewItem[] = sample
+    ? [1, 2, 3].map((n) => ({ name: `Sample reviewer ${n}`, rating: 5, text: 'Development placeholder: this card shows the layout only. Real customer reviews from the admin Testimonials list appear here.', service: 'Plumbing' }))
+    : reviews
+  return (
+    <Band tone={tone} labelledBy="home-reviews" className="!py-14 sm:!py-20">
+      <div className="container-wide">
+        <div className="mx-auto max-w-2xl text-center" data-reveal>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-terra">Customer Reviews</p>
+          <h2 id="home-reviews" className="mt-3 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+            What Our Customers Say
+          </h2>
+          <p className="mt-4 text-lead text-neutral-600">See why homeowners and businesses choose PipeFlow for their plumbing and HVAC needs.</p>
+          {sample && <p className="mt-3 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Development placeholders, hidden in production</p>}
+        </div>
+        <ul className="mt-10 flex flex-wrap justify-center gap-5">
+          {items.map((r, i) => (
+            <li key={i} className="w-full md:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.85rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+              <figure className="flex h-full flex-col rounded-2xl border border-line bg-white p-6 shadow-sm sm:p-8">
+                <p className="text-xl tracking-widest text-amber-500" aria-label={`${r.rating} out of 5 stars`}>
+                  {'★'.repeat(r.rating)}
+                  {'☆'.repeat(5 - r.rating)}
+                </p>
+                <blockquote className="mt-4 flex-1 leading-relaxed text-neutral-700">“{r.text}”</blockquote>
+                <figcaption className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
+                  <span className="text-sm font-bold text-ink">
+                    {r.name}
+                    {r.city && <span className="font-normal text-neutral-600"> · {r.city}</span>}
+                  </span>
+                  {r.service && <span className="rounded-full bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">{r.service}</span>}
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Band>
   )
 }
 

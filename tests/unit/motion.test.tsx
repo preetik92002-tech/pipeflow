@@ -42,12 +42,12 @@ describe('SplitWords (hero headline)', () => {
 })
 
 describe('hero markup contract', () => {
-  it('home hero is a three-slide carousel with one heading and the buttons', () => {
+  it('home hero is a three-slide carousel with one heading and no button bar', () => {
     const html = render([hero({ buttons: [{ label: 'Request Service', href: '/book-service', variant: 'primary' }] })], ctx('home'))
     expect(html).toContain('aria-roledescription="carousel"')
     expect(count(html, '<h1')).toBe(1)
     expect(count(html, 'aria-roledescription="slide"')).toBe(3)
-    expect(html).toContain('Request Service')
+    expect(html).not.toContain('Request Service')
   })
   it('photo hero exposes the hooks the scroll timeline needs', () => {
     const html = render([hero()], ctx('service'))
@@ -109,18 +109,24 @@ describe('pinned process story', () => {
 describe('photo marquee and service tiles', () => {
   it('adds one decorative marquee after the first photo tiles, on the home page only', () => {
     const html = render([hero(), cards(true), cards(true)], ctx('home'))
-    expect(count(html, 'data-marquee')).toBe(1)
-    expect(html.indexOf('data-marquee')).toBeGreaterThan(html.indexOf('What Service Do You Need?'))
-    expect(render([hero(), cards(true)], ctx('service'))).not.toContain('data-marquee')
-    expect(render([hero(), cards(false)], ctx('home'))).not.toContain('data-marquee')
+    expect(count(html, 'data-text-marquee')).toBe(1)
+    expect(html.indexOf('data-text-marquee')).toBeGreaterThan(html.indexOf('What Service Do You Need?'))
+    expect(render([hero(), cards(true)], ctx('service'))).not.toContain('data-text-marquee')
+    expect(render([hero(), cards(false)], ctx('home'))).not.toContain('data-text-marquee')
   })
-  it('hides the marquee from screen readers and uses eight different photos', () => {
+  it('the text marquee has the exact phrases, star separators, and a hidden duplicate for a seamless loop', () => {
     const html = render([cards(true)], ctx('home'))
-    const strip = html.slice(html.indexOf('<section class="overflow-hidden'))
-    expect(strip).toContain('aria-hidden="true"')
-    expect(strip).not.toMatch(/alt="[^"]+"/)
+    const phrases = ['Expert Plumbing Repairs', 'AC Repair &amp; Installation', 'Water Heater Services', 'Emergency Plumbing', 'Residential &amp; Commercial', 'Denver &amp; Boulder', 'Trusted Local Professionals', 'Easy Scheduling']
+    let last = -1
+    for (const t of phrases) {
+      const at = html.indexOf(t)
+      expect(at, t).toBeGreaterThan(last)
+      last = at
+      expect(count(html, t)).toBe(2)
+    }
+    expect(count(html, '✦')).toBe(16)
+    expect(html).toContain('aria-hidden="true"')
     expect(MARQUEE_PHOTOS).toHaveLength(8)
-    expect(new Set(MARQUEE_PHOTOS.map((p) => p.src)).size).toBe(8)
   })
   it('never repeats a photo that the home hero, service tiles or pinned story already show', () => {
     const onScreenElsewhere = [PHOTOS.plumberBathroom, PHOTOS.plumberUnderSink, PHOTOS.acCondenser, PHOTOS.houseBlossom, PHOTOS.technicianToolBelt, PHOTOS.denverRockies, PHOTOS.boulderFlatirons]
@@ -131,20 +137,20 @@ describe('photo marquee and service tiles', () => {
     expect(html).toMatch(/<img[^>]*fetchPriority="high"[^>]*images%2Fhero|<img[^>]*images%2Fhero[^>]*fetchPriority="high"/)
     expect(render([cards(true)], ctx('home'))).not.toContain('fetchPriority="high"')
   })
-  it('two photo cards become big tiles that link to their pages and move their photo inside', () => {
+  it('photo cards become icon cards with a Learn More button and no photos', () => {
     const html = render([cards(true)], ctx('home'))
     expect(count(html, 'href="/plumbing"')).toBe(2)
-    expect(count(html, 'data-parallax="5"')).toBe(2)
+    expect(count(html, 'Learn More')).toBe(2)
+    expect(html).not.toMatch(/<img/)
   })
 })
 
 describe('service cards', () => {
   const links = (hrefs: string[]) => ({ id: uuid(), type: 'linkList', data: { heading: 'Plumbing', links: hrefs.map((h, i) => ({ label: `Link ${i}`, href: h })) } })
-  it('shows each link as a rounded card with one uniformly sized, decorative photo', () => {
+  it('shows each link as an icon card with a Learn More button and no photo', () => {
     const hrefs = ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair', '/plumbing/water-heater-replacement', '/plumbing/frozen-pipe-repair', '/plumbing/plumbing-fixes']
     const html = render([links(hrefs)], ctx('page'))
-    expect(count(html, 'aspect-[16/10]')).toBe(5)
-    expect(count(html, 'rounded-2xl border border-line')).toBe(5)
+    expect(count(html, 'Learn More')).toBe(5)
     for (const h of hrefs) expect(html).toContain(`href="${h}"`)
     expect(html).not.toMatch(/<img[^>]+alt="[^"]+"/)
   })
@@ -176,7 +182,7 @@ describe('motion hooks used by the scroll engine all exist in the markup', () =>
   const engine = readFileSync(path.join(root, 'src/components/motion/init-motion.ts'), 'utf8')
   const used = [...new Set([...engine.matchAll(/\[(data-[a-z-]+)(?:[=\]])/g)].map((m) => m[1]))]
   it('finds the hooks in the engine', () => {
-    expect(used.sort()).toEqual(['data-clip', 'data-hero', 'data-hero-content', 'data-hero-media', 'data-lines', 'data-marquee', 'data-parallax', 'data-step-line', 'data-story', 'data-story-count', 'data-story-photo', 'data-story-pin', 'data-story-progress', 'data-story-step'])
+    expect(used.sort()).toEqual(['data-clip', 'data-hero', 'data-hero-content', 'data-hero-media', 'data-lines', 'data-parallax', 'data-step-line', 'data-story', 'data-story-count', 'data-story-photo', 'data-story-pin', 'data-story-progress', 'data-story-step'])
   })
   it('renders every one of them somewhere in the section components', () => {
     const imageBlock = { id: uuid(), type: 'contentBlock', data: { heading: 'With photo', content: doc('x'), image: '/art/hero-plumbing.svg', imagePosition: 'left' } }

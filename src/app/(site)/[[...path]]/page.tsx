@@ -7,6 +7,7 @@ import { ancestorPaths, breadcrumbJsonLd, buildPageContext, serviceJsonLd } from
 import { validatePath, pathToUrl } from '@/lib/cms-pages/paths'
 import { getPublishedPage, getPublishedTitles, getRedirect } from '@/lib/cms-pages/repository'
 import { siteConfig } from '@/lib/config/site'
+import { getActiveReviews } from '@/lib/cms/queries'
 import { generateMetadata as buildMetadata, getPublicCompanySettings, getPublicSeoSettings } from '@/lib/seo/metadata'
 
 /**
@@ -64,6 +65,7 @@ export default async function CmsPage({ params }: Props) {
 
   const [liveTitles, seo, company] = await Promise.all([getPublishedTitles(ancestorPaths(path)), getPublicSeoSettings(), getPublicCompanySettings()])
   const ctx = buildPageContext(path, page.title, liveTitles)
+  if (ctx.kind === 'home') ctx.reviews = await getActiveReviews()
   const baseUrl = seo?.canonical_domain || process.env.NEXT_PUBLIC_SITE_URL || 'https://pipeflowco.com'
   const url = `${baseUrl}${path === '' ? '' : pathToUrl(path)}`
   // Structured data sirf indexable pages par, aur sirf wahi jo page par dikh raha hai.

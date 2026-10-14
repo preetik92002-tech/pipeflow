@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import type { CmsButton } from '@/lib/cms-pages/links'
-import { CmsButtons } from './CmsButtons'
 
 const SLIDES = [
   { src: '/images/hero/slide-1.jpg', alt: 'PipeFlow technician heading to a Colorado home: Comfort starts here' },
@@ -12,7 +10,7 @@ const SLIDES = [
 ]
 
 /** Three promo banners that slide across on their own. Pauses on hover/focus; no auto-advance with reduced motion. */
-export function HeroCarousel({ heading, buttons, labelId }: { heading: string; buttons: CmsButton[]; labelId?: string }) {
+export function HeroCarousel({ heading, labelId }: { heading: string; labelId?: string }) {
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   useEffect(() => {
@@ -45,22 +43,17 @@ export function HeroCarousel({ heading, buttons, labelId }: { heading: string; b
           ))}
         </div>
       </div>
-      <div className="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900">
-        <div className="container-wide flex flex-col items-stretch gap-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:py-4">
-          <CmsButtons buttons={buttons} onDark className="" />
-          <div className="flex justify-center gap-2">
-            {SLIDES.map((s, i) => (
-              <button
-                key={s.src}
-                type="button"
-                aria-label={`Show slide ${i + 1}`}
-                aria-current={i === index}
-                onClick={() => setIndex(i)}
-                className={`h-2.5 rounded-full transition-all ${i === index ? 'w-7 bg-brand-red' : 'w-2.5 bg-white/60 hover:bg-white'}`}
-              />
-            ))}
-          </div>
-        </div>
+      <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
+        {SLIDES.map((s, i) => (
+          <button
+            key={s.src}
+            type="button"
+            aria-label={`Show slide ${i + 1}`}
+            aria-current={i === index}
+            onClick={() => setIndex(i)}
+            className={`h-2.5 rounded-full transition-all ${i === index ? 'w-7 bg-brand-red' : 'w-2.5 bg-white/70 hover:bg-white'}`}
+          />
+        ))}
       </div>
     </section>
   )

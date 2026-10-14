@@ -15,7 +15,7 @@ vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://pipeflowco.com')
 const state = vi.hoisted(() => ({ client: null as unknown, auth: { authenticated: false, authorized: false, user: null, role: null } as Record<string, unknown> }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => state.client }))
 vi.mock('@/lib/supabase/auth', () => ({ verifyAdminAuth: async () => state.auth }))
-vi.mock('@/lib/cms/queries', () => ({ getPublishedBlogs: async () => [] }))
+vi.mock('@/lib/cms/queries', () => ({ getPublishedBlogs: async () => [], getActiveReviews: async () => [] }))
 
 import CmsPage, { generateMetadata } from '@/app/(site)/[[...path]]/page'
 import PreviewPage from '@/app/(site)/preview/[id]/page'
@@ -158,7 +158,7 @@ describe('admin preview', () => {
     expect(textOf(city)).toContain('HVAC')
     const home = await idOf('')
     const html = renderToStaticMarkup((await PreviewPage({ params: Promise.resolve({ id: home.id }) })) as ReactElement)
-    for (const hook of ['aria-roledescription="carousel"', 'data-story', 'data-marquee']) expect(html, hook).toContain(hook)
+    for (const hook of ['aria-roledescription="carousel"', 'data-story', 'data-text-marquee']) expect(html, hook).toContain(hook)
   })
 
   it('shows an admin the saved draft, marked as not visible to visitors', async () => {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import { SectionRenderer } from '@/components/cms/SectionRenderer'
 import { idSchema } from '@/lib/cms-pages/api'
+import { getActiveReviews } from '@/lib/cms/queries'
 import { ancestorPaths, buildPageContext } from '@/lib/cms-pages/page-context'
 import { getPageForAdmin, getPublishedTitles } from '@/lib/cms-pages/repository'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
@@ -24,6 +25,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   if (!page) notFound()
   // Public page jaisa hi context (hero ka type, pinned story, marquee, breadcrumbs): warna preview aur live alag dikhte.
   const ctx = buildPageContext(page.path, page.title, await getPublishedTitles(ancestorPaths(page.path)))
+  if (ctx.kind === 'home') ctx.reviews = await getActiveReviews()
   return (
     <>
       <div role="status" className="sticky top-0 z-50 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-navy-900">

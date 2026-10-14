@@ -51,7 +51,7 @@ export function Header() {
         </a>
 
         <div className="container-wide">
-          <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-16' : 'h-[72px] lg:h-20')}>
+          <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-14' : 'h-16 lg:h-[84px]')}>
             <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="group flex-shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terra">
               <Image
                 src="/assets/logo.png"
@@ -67,7 +67,17 @@ export function Header() {
               />
             </Link>
 
-            <Navigation items={nav.header} className="hidden flex-1 justify-center lg:flex" />
+            <p className="hidden flex-1 flex-col items-center leading-none lg:flex">
+              <span className="bg-gradient-to-r from-brand-blue via-navy-800 to-brand-red bg-clip-text font-display text-2xl font-black italic tracking-tight text-transparent xl:text-[1.9rem]">
+                Plumbing &amp; HVAC Pros
+              </span>
+              <span className="mt-1.5 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-navy-800 xl:text-xs">
+                <span className="h-0.5 w-6 rounded-full bg-brand-red" aria-hidden="true" />
+                Serving Denver &amp; Boulder
+                <span className="h-0.5 w-6 rounded-full bg-brand-red" aria-hidden="true" />
+              </span>
+            </p>
+            <span className="flex-1 lg:hidden" aria-hidden="true" />
 
             <div className="hidden flex-shrink-0 items-center gap-3 lg:flex">
               {hasRealPhone(company.phone) && (
@@ -89,10 +99,21 @@ export function Header() {
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMobileMenuOpen(true)}
-              className="flex h-11 w-11 items-center justify-center border border-line text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra lg:hidden"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white shadow-md transition-transform active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra lg:hidden"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
+          </div>
+        </div>
+        {/* Phones and tablets: slim blue tagline strip instead of the desktop nav bar. */}
+        <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-navy-800 via-brand-blue to-navy-800 px-4 py-1.5 text-center text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white sm:text-xs lg:hidden">
+          <span className="h-0.5 w-4 rounded-full bg-brand-red" aria-hidden="true" />
+          Plumbing &amp; HVAC Pros · Serving Denver &amp; Boulder
+          <span className="h-0.5 w-4 rounded-full bg-brand-red" aria-hidden="true" />
+        </div>
+        <div className="hidden bg-gradient-to-b from-brand-blue to-navy-700 shadow-md lg:block">
+          <div className="container-wide">
+            <Navigation items={nav.header} variant="bar" />
           </div>
         </div>
         <div className="h-[3px] w-full bg-gradient-to-r from-brand-blue via-navy-700 to-brand-red" aria-hidden="true" />
