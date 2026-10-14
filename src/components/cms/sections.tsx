@@ -328,22 +328,20 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
 
   // Photo cards (3+): pehla card bada, baaki chhote — ek"bento" layout.
   if (withImages) {
-    const bento = data.cards.length === 5 || data.cards.length === 3
     return (
       <Band tone={tone} labelledBy={id}>
         <div className="container-wide">
           <SectionHeader heading={data.heading} intro={data.intro} id={id} />
-          <ul className={`mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 ${bento ? 'lg:auto-rows-[minmax(15rem,auto)]' : ''}`}>
+          <ul className="mt-12 flex flex-wrap justify-center gap-5">
             {data.cards.map((card, i) => {
-              const big = bento && i === 0
               return (
-                <li key={i} className={big ? 'sm:col-span-2 lg:col-span-1 lg:row-span-2' : ''} data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
+                <li key={i} className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.84rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
                   <CardShell
                     card={card}
-                    className="flex h-full flex-col overflow-hidden border border-line bg-white transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_24px_60px_-28px_rgba(11,23,40,0.35)]"
+                    className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_24px_60px_-28px_rgba(11,23,40,0.35)]"
                   >
                     {card.image && (
-                      <div className={`relative overflow-hidden bg-mist ${big ? 'aspect-[4/3] lg:aspect-auto lg:flex-1' : 'aspect-[16/10]'}`}>
+                      <div className="relative aspect-[16/10] overflow-hidden bg-mist">
                         <div className="absolute inset-0 transition-transform duration-700 ease-out-expo group-hover:scale-105">
                           <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
                         </div>
@@ -351,7 +349,7 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
                     )}
                     <div className="flex items-start justify-between gap-4 p-6 sm:p-7">
                       <div>
-                        <h3 className={`font-display font-normal text-ink ${big ? 'text-display-md' : 'text-xl'}`}>{card.title}</h3>
+                        <h3 className="font-display text-xl font-normal text-ink">{card.title}</h3>
                         {card.text && <p className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{card.text}</p>}
                       </div>
                       {card.href && <ArrowUpRight className="mt-1 h-5 w-5 flex-shrink-0 text-terra transition-transform duration-300 group-hover:rotate-45" aria-hidden="true" />}
@@ -426,7 +424,7 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
           {data.columns.map((col, i) => {
             const dark = i % 2 === 1
             return (
-              <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'border border-line bg-white'}`}>
+              <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'rounded-2xl border border-line bg-white'}`}>
                 <h3 className={`font-display text-display-md font-normal ${dark ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
                 <ul className="mt-7 space-y-4">
                   {col.items.map((item, j) => (
@@ -567,23 +565,37 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
   const id = `cta-${slug(data.heading)}`
   if (data.tone === 'dark') {
     return (
-      <section className="relative isolate overflow-hidden bg-gradient-to-b from-navy-900 via-navy-800 to-navy-900 text-white" aria-labelledby={id}>
-        <div className="container-wide py-14 text-center sm:py-20 lg:py-24">
-          <div className="mx-auto max-w-3xl" data-reveal>
-            <div className="relative mx-auto mb-8 aspect-[1920/640] w-full max-w-2xl overflow-hidden rounded-2xl ring-1 ring-white/15">
-              <CmsImage src={HERO_BANNERS.van} decorative sizes="(min-width: 768px) 42rem, 100vw" className="object-cover object-right" />
-            </div>
-            <h2 id={id} className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              {data.heading}
-            </h2>
-            {data.text && (
-              <div className="mx-auto mt-5 max-w-2xl space-y-3 text-lead text-white/80">
-                {data.text.split(/\n{2,}/).map((p, i) => (
-                  <p key={i}>{p}</p>
+      <section className="bg-gradient-to-b from-navy-900 via-navy-800 to-navy-900 py-14 text-white sm:py-20" aria-labelledby={id}>
+        <div className="container-wide">
+          <div className="grid overflow-hidden rounded-3xl bg-navy-700/40 ring-1 ring-white/15 lg:grid-cols-2" data-reveal>
+            <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-14">
+              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-brand-blue-light/40 bg-brand-blue/30 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-brand-blue-lighter">
+                Same-day service available
+              </p>
+              <h2 id={id} className="mt-5 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+                {data.heading}
+              </h2>
+              {data.text && (
+                <div className="mt-5 space-y-3 text-lead text-white/80">
+                  {data.text.split(/\n{2,}/).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              )}
+              <ul className="mt-6 grid gap-2 text-sm font-semibold text-white/90 sm:grid-cols-2">
+                {['Licensed local professionals', 'Easy online scheduling', 'Residential & commercial', 'Serving Denver & Boulder'].map((t) => (
+                  <li key={t} className="flex items-center gap-2">
+                    <Check className="h-4 w-4 flex-shrink-0 text-brand-red" aria-hidden="true" />
+                    {t}
+                  </li>
                 ))}
-              </div>
-            )}
-            <CmsButtons buttons={data.buttons} onDark center className="mt-8" />
+              </ul>
+              <CmsButtons buttons={data.buttons} onDark className="mt-8" />
+            </div>
+            <div className="relative min-h-[240px] lg:min-h-full">
+              <CmsImage src={HERO_BANNERS.van} decorative sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover object-right" />
+              <div className="absolute inset-0 bg-gradient-to-r from-navy-800/60 to-transparent lg:from-navy-800/40" aria-hidden="true" />
+            </div>
           </div>
         </div>
       </section>
@@ -592,7 +604,7 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
   return (
     <section className={`${toneBg[tone]} py-16 sm:py-20`} aria-labelledby={id}>
       <div className="container-wide">
-        <div className="flex flex-col gap-8 border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
+        <div className="flex flex-col gap-8 rounded-2xl border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
           <div className="max-w-2xl">
             <h2 id={id} className="font-display text-display-lg font-normal text-ink">
               {data.heading}
@@ -659,40 +671,31 @@ export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkLi
       </Band>
     )
   }
-  // Service index: 3+ links jinki photo maujood hai -> hover/focus par photo crossfade (sirf CSS).
-  const photos = data.links.map((l) => SERVICE_PHOTOS[l.href])
-  if (photos.filter(Boolean).length >= 3 && data.links.length <= 10) {
-    return (
-      <Band tone={tone} labelledBy={id} className="!py-16 sm:!py-20">
-        <div className="svc-index container-wide grid gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-7">
-            <SectionHeader heading={data.heading} id={id} />
-            <div className="mt-8">
-              <LinkRows links={data.links} />
-            </div>
-          </div>
-          <div className="hidden lg:col-span-5 lg:block" aria-hidden="true">
-            <div className="photo-frame sticky top-32 aspect-[4/5] w-full">
-              {data.links.map((l, i) => (
-                <div key={i} className="svc-photo absolute inset-0">
-                  <CmsImage src={(photos[i] ?? photos.find(Boolean)!).src} decorative sizes="(min-width: 1024px) 38vw, 0px" className="object-cover" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Band>
-    )
-  }
+  // Service cards: one uniform photo size, rounded cards in a grid (no hover-swap panel, no full-width rows).
   return (
-    <Band tone={tone} labelledBy={id} className="!py-16 sm:!py-20">
-      <div className="container-wide grid gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-4">
-          <SectionHeader heading={data.heading} id={id} />
-        </div>
-        <div className="lg:col-span-8">
-          <LinkRows links={data.links} />
-        </div>
+    <Band tone={tone} labelledBy={id} className="!py-12 sm:!py-16">
+      <div className="container-wide">
+        <SectionHeader heading={data.heading} id={id} />
+        <ul className="mt-8 flex flex-wrap justify-center gap-4">
+          {data.links.map((l, i) => {
+            const photo = SERVICE_PHOTOS[l.href] ?? PHOTOS.plumbingTools
+            return (
+              <li key={i} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.7rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 70}ms` } as React.CSSProperties}>
+                <SmartLink href={l.href} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-mist">
+                    <CmsImage src={photo.src} decorative sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <div className="flex flex-1 items-center justify-between gap-3 p-4">
+                    <span className="font-display text-base font-semibold leading-snug text-ink transition-colors group-hover:text-terra">{l.label}</span>
+                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-mist text-ink transition-colors group-hover:bg-brand-red group-hover:text-white" aria-hidden="true">
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </SmartLink>
+              </li>
+            )
+          })}
+        </ul>
       </div>
     </Band>
   )
@@ -723,14 +726,36 @@ export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; t
 }
 
 /** Sirf asli, admin dwara daale gaye reviews dikhte hain; khaali ho to section render hi nahi hota. */
+function GoogleG() {
+  return (
+    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white font-bold" aria-label="Google">
+      <span className="bg-gradient-to-br from-[#4285F4] via-[#EA4335] to-[#34A853] bg-clip-text text-lg text-transparent">G</span>
+    </span>
+  )
+}
+
 export function TestimonialsSection({ data }: { data: SectionData<'testimonials'>; tone: Tone }) {
   if (!data.items.length) return null
+  const rated = data.items.filter((t) => t.rating)
+  const average = rated.length ? (rated.reduce((n, t) => n + (t.rating ?? 0), 0) / rated.length).toFixed(1) : null
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-navy-800 to-navy-900 py-16 text-white sm:py-20 lg:py-24">
       <div className="container-wide">
-        <div className="max-w-3xl" data-reveal>
-          <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{data.heading}</h2>
-          <div className="mt-4 h-1 w-20 rounded-full bg-brand-red" aria-hidden="true" />
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between" data-reveal>
+          <div className="max-w-3xl">
+            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{data.heading}</h2>
+            <div className="mt-4 h-1 w-20 rounded-full bg-brand-red" aria-hidden="true" />
+          </div>
+          {average && (
+            <p className="flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-3 ring-1 ring-white/15">
+              <GoogleG />
+              <span className="font-display text-3xl font-bold">{average}</span>
+              <span className="text-sm text-white/80">
+                <span className="block text-amber-400" aria-hidden="true">★★★★★</span>
+                Based on {data.items.length} review{data.items.length === 1 ? '' : 's'}
+              </span>
+            </p>
+          )}
         </div>
         <ul className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {data.items.map((t, i) => (
@@ -744,10 +769,13 @@ export function TestimonialsSection({ data }: { data: SectionData<'testimonials'
                 )}
                 <blockquote className="mt-4 flex-1 text-[0.95rem] leading-relaxed text-neutral-700">“{t.quote}”</blockquote>
               </div>
-              <p className="border-t border-line px-6 py-4 text-sm font-bold text-ink sm:px-8">
-                {t.name}
-                {t.location && <span className="font-normal text-neutral-600"> · {t.location}</span>}
-              </p>
+              <div className="flex items-center justify-between gap-3 border-t border-line px-6 py-4 sm:px-8">
+                <p className="text-sm font-bold text-ink">
+                  {t.name}
+                  {t.location && <span className="font-normal text-neutral-600"> · {t.location}</span>}
+                </p>
+                <GoogleG />
+              </div>
             </li>
           ))}
         </ul>
@@ -770,7 +798,7 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
         <SectionHeader heading={data.heading} />
         <dl className="mt-10 grid gap-5 sm:grid-cols-2">
           {rows.map((r) => (
-            <div key={r.label} className="flex gap-4 border border-line bg-white p-6" data-reveal>
+            <div key={r.label} className="flex gap-4 rounded-2xl border border-line bg-white p-6" data-reveal>
               <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center bg-mist">
                 <r.icon className="h-5 w-5 text-terra" aria-hidden="true" />
               </span>

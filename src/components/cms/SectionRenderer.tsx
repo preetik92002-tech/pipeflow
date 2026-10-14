@@ -68,6 +68,16 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
     const parsed = sectionsSchema.element.safeParse(raw)
     if (parsed.success) valid.push(parsed.data)
   }
+  // The same call-to-action never appears twice on a page, and only the last dark one stays.
+  const lastDark = valid.map((v, i) => (v.type === 'cta' && v.data.tone === 'dark' ? i : -1)).filter((i) => i >= 0).pop()
+  const seenCta = new Set<string>()
+  for (let i = valid.length - 1; i >= 0; i--) {
+    const v = valid[i]
+    if (v.type !== 'cta') continue
+    const key = v.data.heading.trim().toLowerCase()
+    if (seenCta.has(key) || (v.data.tone === 'dark' && i !== lastDark)) valid.splice(i, 1)
+    else seenCta.add(key)
+  }
   // Split hero paper par hota hai, isliye uske baad pehla light section white se shuru.
   let light = 0
   let marqueeShown = false

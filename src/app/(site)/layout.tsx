@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { FloatingCallButton } from '@/components/layout/FloatingCallButton'
 import { VideoPopup } from '@/components/layout/VideoPopup'
+import { LoadingIntro, LOADING_INTRO_BOOT_SCRIPT } from '@/components/layout/LoadingIntro'
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import { NavigationProvider } from '@/components/layout/NavigationProvider'
 import { getNavigation } from '@/lib/cms-pages/navigation'
@@ -42,9 +43,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="manifest" href="/manifest.webmanifest" />
         {/* Reveal animations ke liye"js" class; script fail ho to 3s mein hat jaati hai (content kabhi chhupa nahi rehta). */}
         <script dangerouslySetInnerHTML={{ __html: REVEAL_BOOT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: LOADING_INTRO_BOOT_SCRIPT }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }} />
       </head>
       <body className="min-h-screen flex flex-col">
+        <LoadingIntro />
         <SiteSettingsProvider initialSettings={siteSettings}>
           <NavigationProvider navigation={navigation}>
             <AnalyticsProvider />

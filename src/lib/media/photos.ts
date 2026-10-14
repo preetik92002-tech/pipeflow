@@ -49,6 +49,10 @@ export const PHOTOS = {
   boulderAutumn: p('boulder-flatirons-autumn', 1800, 1200, 'The Flatirons above golden grassland in Boulder', '55% 40%', 'Braden Collum', 'TFFaIgbBETs'),
 } satisfies Record<string, Photo>
 
+/** The site's own HVAC banner photo (not stock), used for the HVAC Repair card. */
+const HERO_HVAC_PHOTO: Photo = { src: '/images/hero/hvac.jpg', alt: 'A PipeFlow technician beside an outdoor AC unit with the Denver skyline behind', width: 1920, height: 641, focus: '85% 50%', credit: { photographer: 'PipeFlow', url: 'https://pipeflow-theta.vercel.app' } }
+
+
 /**
  * Pages saved before the photography existed point at /art/*.svg illustrations. Woh
  * paths database mein hain; unhe badle bina, render ke waqt sahi photo dikhai jaati hai.
@@ -92,7 +96,7 @@ export const SERVICE_PHOTOS: Record<string, Photo> = {
   '/hvac/ac-repair': PHOTOS.acCondenser,
   '/hvac/ac-installation': PHOTOS.miniSplit,
   '/hvac/ac-replacement': PHOTOS.acUnitsWall,
-  '/hvac/hvac-repair': PHOTOS.technicianEquipment,
+  '/hvac/hvac-repair': HERO_HVAC_PHOTO,
   '/hvac/hvac-maintenance': PHOTOS.technicianToolBelt,
 }
 

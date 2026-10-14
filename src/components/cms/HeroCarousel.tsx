@@ -15,7 +15,6 @@ const SLIDES = [
 export function HeroCarousel({ heading, buttons, labelId }: { heading: string; buttons: CmsButton[]; labelId?: string }) {
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
-
   useEffect(() => {
     if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const t = setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), 5000)
@@ -35,11 +34,13 @@ export function HeroCarousel({ heading, buttons, labelId }: { heading: string; b
       <h1 id={labelId} className="sr-only">
         {heading}
       </h1>
-      <div className="overflow-hidden">
+      <div className="relative overflow-hidden">
         <div className="flex transition-transform duration-700 ease-out will-change-transform motion-reduce:transition-none" style={{ transform: `translateX(-${index * 100}%)` }}>
           {SLIDES.map((s, i) => (
             <div key={s.src} className="relative aspect-[1600/587] w-full shrink-0" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${SLIDES.length}`} aria-hidden={i !== index}>
-              <Image src={s.src} alt={s.alt} fill priority={i === 0} sizes="100vw" quality={70} className="object-contain sm:object-cover" />
+              <div className={`absolute inset-0 ${i === index ? 'hero-kenburns' : ''}`}>
+                <Image src={s.src} alt={s.alt} fill priority={i === 0} sizes="100vw" quality={70} className="object-contain sm:object-cover" />
+              </div>
             </div>
           ))}
         </div>

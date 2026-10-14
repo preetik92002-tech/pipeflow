@@ -138,24 +138,27 @@ describe('photo marquee and service tiles', () => {
   })
 })
 
-describe('service index (hover preview)', () => {
+describe('service cards', () => {
   const links = (hrefs: string[]) => ({ id: uuid(), type: 'linkList', data: { heading: 'Plumbing', links: hrefs.map((h, i) => ({ label: `Link ${i}`, href: h })) } })
-  it('shows one preview photo per link, decorative, and keeps every link a real route', () => {
+  it('shows each link as a rounded card with one uniformly sized, decorative photo', () => {
     const hrefs = ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair', '/plumbing/water-heater-replacement', '/plumbing/frozen-pipe-repair', '/plumbing/plumbing-fixes']
     const html = render([links(hrefs)], ctx('page'))
-    expect(html).toContain('svc-index')
-    expect(count(html, 'svc-photo')).toBe(5)
+    expect(count(html, 'aspect-[16/10]')).toBe(5)
+    expect(count(html, 'rounded-2xl border border-line')).toBe(5)
     for (const h of hrefs) expect(html).toContain(`href="${h}"`)
-    expect(html).toMatch(/hidden[^"]*lg:block" aria-hidden="true"/)
-  })
-  it('falls back to the plain list when the links have no photos', () => {
-    expect(render([links(['/a', '/b', '/c'])], ctx('page'))).not.toContain('svc-index')
+    expect(html).not.toMatch(/<img[^>]+alt="[^"]+"/)
   })
   it('has a photo for each of the five required services', () => {
     for (const p of ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair', '/plumbing/frozen-pipe-repair', '/hvac/ac-repair', '/hvac/ac-installation']) expect(SERVICE_PHOTOS[p], p).toBeTruthy()
   })
-  it('crossfades by CSS for each of up to ten rows', () => {
-    for (let i = 1; i <= 10; i++) expect(css).toContain(`li:nth-child(${i}):is(:hover, :focus-within)) .svc-photo:nth-child(${i})`)
+})
+
+describe('repeated call-to-action', () => {
+  const cta = (heading: string, tone: 'dark' | 'light') => ({ id: uuid(), type: 'cta', data: { heading, text: '', buttons: [], tone } })
+  it('drops an identical heading and keeps only the last dark call-to-action', () => {
+    const html = render([cta('Need help?', 'dark'), cta('Need help?', 'dark'), cta('Other', 'light')], ctx('page'))
+    expect(count(html, 'Need help?')).toBe(1)
+    expect(html).toContain('Other')
   })
 })
 

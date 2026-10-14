@@ -1,30 +1,23 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { usePathname } from 'next/navigation'
 import { Maximize2, Volume2, VolumeX, X } from 'lucide-react'
 
 const VIDEO_SRC = '/assets/add.mp4'
-const DISMISS_KEY = 'pipeflow-video-popup-closed'
+// Kept in memory only: closing hides it while the visitor browses, and it comes back on the next page load.
+let closedThisLoad = false
 
-/** Small autoplaying ad on the home page: muted at first (browsers require it), with mute/unmute, full screen and close. */
+/** Small autoplaying ad on public pages: muted at first (browsers require it), with mute/unmute, full screen and close. */
 export function VideoPopup() {
-  const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const [muted, setMuted] = useState(true)
   const video = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    if (pathname !== '/') {
-      setVisible(false)
-      return
-    }
-    try {
-      if (sessionStorage.getItem(DISMISS_KEY)) return
-    } catch {}
+    if (closedThisLoad) return
     const t = setTimeout(() => setVisible(true), 1500)
     return () => clearTimeout(t)
-  }, [pathname])
+  }, [])
 
   // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start playback by hand.
   useEffect(() => {
@@ -37,10 +30,8 @@ export function VideoPopup() {
   if (!visible) return null
 
   const close = () => {
+    closedThisLoad = true
     setVisible(false)
-    try {
-      sessionStorage.setItem(DISMISS_KEY, '1')
-    } catch {}
   }
   const toggleMute = () => {
     const v = video.current
