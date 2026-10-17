@@ -17,6 +17,7 @@ export interface RequestPrefill {
   service?: string
   city?: (typeof CITIES)[number]
   urgency?: string
+  zip?: string
 }
 
 interface Form {
@@ -70,7 +71,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
     urgency: prefill.urgency ?? '',
     city: prefill.city ?? '',
     address: '',
-    zip: '',
+    zip: prefill.zip ?? '',
     preferredDate: '',
     preferredWindow: 'any',
     name: '',
