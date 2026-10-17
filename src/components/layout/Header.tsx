@@ -67,17 +67,7 @@ export function Header() {
               />
             </Link>
 
-            <p className="hidden flex-1 flex-col items-center leading-none lg:flex">
-              <span className="bg-gradient-to-r from-brand-blue via-navy-800 to-brand-red bg-clip-text font-display text-2xl font-black italic tracking-tight text-transparent xl:text-[1.9rem]">
-                Plumbing &amp; HVAC Pros
-              </span>
-              <span className="mt-1.5 flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-navy-800 xl:text-xs">
-                <span className="h-0.5 w-6 rounded-full bg-brand-red" aria-hidden="true" />
-                Serving Denver &amp; Boulder
-                <span className="h-0.5 w-6 rounded-full bg-brand-red" aria-hidden="true" />
-              </span>
-            </p>
-            <span className="flex-1 lg:hidden" aria-hidden="true" />
+            <span className="flex-1" aria-hidden="true" />
 
             <div className="hidden flex-shrink-0 items-center gap-3 lg:flex">
               {hasRealPhone(company.phone) && (
