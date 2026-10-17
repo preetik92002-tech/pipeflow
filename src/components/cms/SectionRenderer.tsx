@@ -128,7 +128,7 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
         if (marqueeAfter) marqueeShown = true
         if (marqueeAfter) prevBg = null
         return (
-          <div key={item.section.id}>
+          <div key={item.section.id} id={ctx.kind === 'home' && itemIndex === serviceBlocks[0] ? 'services' : undefined} className={ctx.kind === 'home' && itemIndex === serviceBlocks[0] ? 'scroll-mt-32' : undefined}>
             {divider}
             {itemIndex === reviewsBefore && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} />}
             {renderSection(item.section, item.index, tone, ctx, look)}
