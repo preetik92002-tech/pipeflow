@@ -1077,14 +1077,14 @@ const MARQUEE_PHRASES = [
   'Easy Scheduling',
 ]
 
-/** Thick brand-red strip of bold text that scrolls right to left on its own (CSS only; the text is duplicated for a seamless loop). */
+/** Thick brand-blue strip of bold text that scrolls right to left on its own (CSS only; the text is duplicated for a seamless loop). */
 export function TextMarquee() {
   const run = (key: string, hidden: boolean) => (
     <ul key={key} className="flex flex-none items-center" aria-hidden={hidden || undefined}>
       {MARQUEE_PHRASES.map((t) => (
         <li key={t} className="flex flex-none items-center whitespace-nowrap">
           <span>{t}</span>
-          <span className="px-6 text-navy-900 sm:px-9" aria-hidden="true">✦</span>
+          <span className="px-6 text-white/70 sm:px-9" aria-hidden="true">✦</span>
         </li>
       ))}
     </ul>
