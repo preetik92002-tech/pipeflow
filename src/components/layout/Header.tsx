@@ -95,12 +95,6 @@ export function Header() {
             </button>
           </div>
         </div>
-        {/* Phones and tablets: slim blue tagline strip instead of the desktop nav bar. */}
-        <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-navy-800 via-brand-blue to-navy-800 px-4 py-1.5 text-center text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white sm:text-xs lg:hidden">
-          <span className="h-0.5 w-4 rounded-full bg-brand-red" aria-hidden="true" />
-          Plumbing &amp; HVAC Pros · Serving Denver &amp; Boulder
-          <span className="h-0.5 w-4 rounded-full bg-brand-red" aria-hidden="true" />
-        </div>
         <div className="hidden bg-gradient-to-b from-brand-blue to-navy-700 shadow-md lg:block">
           <div className="container-wide">
             <Navigation items={nav.header} variant="bar" />
