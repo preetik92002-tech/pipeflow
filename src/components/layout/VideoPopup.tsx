@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Maximize2, Volume2, VolumeX, X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Maximize2, Play, Volume2, VolumeX, X } from 'lucide-react'
 
 const VIDEO_SRC = '/assets/add.mp4'
 // Kept in memory only: closing hides it while the visitor browses, and it comes back on the next page load.
@@ -15,9 +16,31 @@ export function VideoPopup() {
 
   useEffect(() => {
     if (closedThisLoad) return
-    const t = setTimeout(() => setVisible(true), 1500)
-    return () => clearTimeout(t)
-  }, [])
+    let t: ReturnType<typeof setTimeout> | undefined
+    const show = () => {
+      t = setTimeout(() => setVisible(true), 1500)
+    }
+    if (!home) {
+      show()
+      return () => clearTimeout(t)
+    }
+    // Home page: keep the first screen (hero text, buttons and request form) clear; show the ad once the hero has mostly scrolled away.
+    const heroGone = () => {
+      const hero = document.querySelector('[data-hero]')
+      return !hero || hero.getBoundingClientRect().bottom < window.innerHeight * 0.6
+    }
+    const onScroll = () => {
+      if (!heroGone()) return
+      window.removeEventListener('scroll', onScroll)
+      show()
+    }
+    if (heroGone()) show()
+    else window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      clearTimeout(t)
+    }
+  }, [home])
 
   // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start playback by hand.
   useEffect(() => {
