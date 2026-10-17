@@ -59,7 +59,7 @@ export const requestSchema = z
     urgency: z.enum(['emergency', 'today', 'soon', 'flexible']),
     city: z.enum(CITIES),
     address: text(3, 200, 'Enter the service address.'),
-    zip: z.string().trim().regex(/^80\d{3}$/, 'Enter a 5-digit Colorado ZIP code that starts with 80.'),
+    zip: z.string().trim().regex(SERVICE_ZIP, ZIP_ERROR),
     attachments: z.array(z.string().regex(ATTACHMENT_PATH)).max(MAX_FILES).default([]),
     preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Choose a valid date.').optional().or(z.literal('')),
     preferredWindow: z.enum(['any', 'morning', 'afternoon', 'evening']).default('any'),
