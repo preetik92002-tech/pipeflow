@@ -459,13 +459,6 @@ const home: SeedPage = {
     {
       type: 'featureCards',
       data: {
-        heading: 'A Better Way to Find Plumbing & HVAC Help', intro: '',
-        cards: ['Local Options', 'Easy Service Requests', 'Photo Uploads', 'Convenient Scheduling', 'Residential & Commercial Support', 'Clear Professional Profiles'].map((title) => ({ title, text: '', href: '', image: '' })),
-      },
-    },
-    {
-      type: 'featureCards',
-      data: {
         heading: 'Serving Denver & Boulder', intro: '',
         cards: [
           { title: 'Denver', text: 'Find plumbing and HVAC professionals serving homes and businesses across Denver.', href: '/denver', image: '' },
