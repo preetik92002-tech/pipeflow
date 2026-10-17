@@ -402,18 +402,20 @@ export function FrontRangeMap({ className = '' }: { className?: string }) {
 }
 
 /** Mascot standing on the seam between two sections, with a big Book Appointment button. Sits in a zero-height row so no section clips it. */
-export function JunctionAvatar({ flip = false, pose }: { flip?: boolean; pose?: 1 | 2 | 3 | 4 }) {
+export function JunctionAvatar({ flip = false, pose, hideButton = false }: { flip?: boolean; pose?: 1 | 2 | 3 | 4; hideButton?: boolean }) {
   return (
     <div className="pointer-events-none relative z-20 h-0" aria-hidden={false}>
       <div className={`flex w-full px-2 sm:px-6 lg:px-10 ${flip ? 'justify-start' : 'justify-end'}`}>
         <div className={`pointer-events-auto relative -translate-y-[calc(100%-5.5rem)] ${flip ? 'flex-row-reverse' : ''} flex items-end gap-3 sm:gap-6`}>
-          <SmartLink
-            href="/book-service"
-            className="mb-8 inline-flex items-center gap-2 rounded-2xl bg-brand-red px-5 py-3 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/25 ring-4 ring-white transition hover:-translate-y-1 hover:bg-brand-red-dark sm:mb-12 sm:px-8 sm:py-4 sm:text-lg"
-          >
-            <CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-            Book Appointment
-          </SmartLink>
+          {!hideButton && (
+            <SmartLink
+              href="/book-service"
+              className="mb-8 inline-flex items-center gap-2 rounded-2xl bg-brand-red px-5 py-3 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/25 ring-4 ring-white transition hover:-translate-y-1 hover:bg-brand-red-dark sm:mb-12 sm:px-8 sm:py-4 sm:text-lg"
+            >
+              <CalendarCheck className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+              Book Appointment
+            </SmartLink>
+          )}
           <Avatar pose={pose} className={`h-40 w-auto flex-none drop-shadow-xl sm:h-56 lg:h-72 ${flip && pose !== 2 ? '-scale-x-100' : ''}`} />
         </div>
       </div>
