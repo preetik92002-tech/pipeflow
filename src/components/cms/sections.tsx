@@ -1090,7 +1090,7 @@ export function TextMarquee() {
     </ul>
   )
   return (
-    <section data-text-marquee className="relative z-[2] overflow-hidden bg-brand-red text-white" aria-label="What we do">
+    <section data-text-marquee className="relative z-[2] overflow-hidden bg-brand-blue text-white" aria-label="What we do">
       <div className="text-marquee-track flex w-max items-center py-5 font-display text-2xl font-extrabold uppercase tracking-tight sm:py-7 sm:text-3xl lg:py-8 lg:text-[2.5rem]">
         {run('a', false)}
         {run('b', true)}
