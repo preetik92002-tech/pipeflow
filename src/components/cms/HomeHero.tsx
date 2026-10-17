@@ -2,10 +2,7 @@
 
 import { useId, useState, type FormEvent } from 'react'
 import Link from 'next/link'
-import { SERVICES } from '@/lib/requests/schema'
-
-const ZIP = /^\d{5}$/
-const ZIP_ERROR = 'Enter a 5-digit ZIP code, for example 80202.'
+import { SERVICES, ZIP_ERROR, isServiceZip } from '@/lib/requests/schema'
 
 const DEFAULT_SERVICE = 'plumbing:water-heater-repair'
 
@@ -34,7 +31,7 @@ export function HomeHero({ labelId }: { labelId?: string }) {
     e.preventDefault()
     if (busy) return
     const value = zip.trim()
-    if (!ZIP.test(value)) {
+    if (!isServiceZip(value)) {
       setError(value ? ZIP_ERROR : 'Enter your ZIP code, for example 80202.')
       return
     }
