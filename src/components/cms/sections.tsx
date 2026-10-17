@@ -1186,6 +1186,31 @@ export function ReviewsSection({ reviews, stats }: { reviews: ReviewItem[]; stat
   )
 }
 
+/** Home page only, last section before the footer: invites plumbing and HVAC companies to the contractor pages. */
+export function CompanyMarketingCta() {
+  return (
+    <section className="bg-navy-900 py-16 text-white sm:py-20" aria-labelledby="company-cta">
+      <div className="container-wide">
+        <h2 id="company-cta" className="max-w-3xl font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          Are You a Plumbing or HVAC Company?
+        </h2>
+        <p className="mt-4 max-w-2xl text-lead leading-relaxed text-white/85">We also help plumbing and HVAC companies grow their reputation, search visibility, and leads.</p>
+        <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+          <SmartLink href="/for-contractors" className="btn-primary !px-7 !py-3.5 text-base focus-visible:ring-offset-navy-900">
+            View Marketing Services
+          </SmartLink>
+          <SmartLink
+            href="/for-contractors"
+            className="inline-flex items-center justify-center rounded-lg border-2 border-white px-7 py-3.5 text-base font-semibold text-white transition hover:bg-white hover:text-navy-900 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-900 active:scale-95"
+          >
+            Request a Marketing Consultation
+          </SmartLink>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export function SpacerSection({ data }: { data: SectionData<'spacer'> }) {
   const h = { sm: 'h-6', md: 'h-12', lg: 'h-24' }[data.size]
   return <div className={h} aria-hidden="true" />
