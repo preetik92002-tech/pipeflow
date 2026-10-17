@@ -27,11 +27,24 @@ export function HomeHero({ labelId }: { labelId?: string }) {
   const [service, setService] = useState(DEFAULT_SERVICE)
   const [zip, setZip] = useState('')
   const [property, setProperty] = useState<'residential' | 'commercial'>('residential')
-  const error: string | null = null
-  const busy = false
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   function onSubmit(e: FormEvent) {
     e.preventDefault()
+    if (busy) return
+    const value = zip.trim()
+    if (!ZIP.test(value)) {
+      setError(value ? ZIP_ERROR : 'Enter your ZIP code, for example 80202.')
+      return
+    }
+    setError(null)
+    setBusy(true)
+    const [category, svc] = service.split(':')
+    const params = new URLSearchParams({ category, service: svc, zip: value, type: property === 'commercial' ? 'business' : 'homeowner' })
+    window.location.assign(`/book-service?${params.toString()}`)
+    // If navigation stalls, let the visitor try again instead of leaving the button locked.
+    setTimeout(() => setBusy(false), 8000)
   }
 
   return (
@@ -96,7 +109,10 @@ export function HomeHero({ labelId }: { labelId?: string }) {
                 id={`${uid}-zip`}
                 className={field}
                 value={zip}
-                onChange={(e) => setZip(e.target.value)}
+                onChange={(e) => {
+                  setZip(e.target.value)
+                  if (error) setError(null)
+                }}
                 placeholder="e.g. 80202"
                 inputMode="numeric"
                 autoComplete="postal-code"
