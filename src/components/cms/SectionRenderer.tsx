@@ -134,7 +134,7 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
             {renderSection(item.section, item.index, tone, ctx, look)}
             {marqueeAfter && <TextMarquee />}
             {itemIndex === avatarAfter && ctx.kind !== 'home' && <JunctionAvatar flip={itemIndex % 2 === 0} pose={pose} />}
-            {itemIndex === lastLinkList && <JunctionAvatar />}
+            {itemIndex === lastLinkList && <JunctionAvatar hideButton />}
             {itemIndex === lastLinkList && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} />}
             {itemIndex === lastLinkList && <AboutBlock />}
             {reviewsAfterLast && itemIndex === lastIdx && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} />}
