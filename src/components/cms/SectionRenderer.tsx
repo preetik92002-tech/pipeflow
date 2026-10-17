@@ -2,7 +2,7 @@ import type { Section, SectionData } from '@/lib/cms-pages/sections/schema'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import {
   HeroSection, RichTextSection, ContentBlockSection, ContentBlockGroup, GallerySection, FeatureCardsSection, ComparisonSection,
-  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection, SlantDivider, JunctionAvatar, AboutBlock,
+  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection, SlantDivider, JunctionAvatar, CompanyMarketingCta,
   type PageContext, type Tone, type Look,
 } from './sections'
 
@@ -150,6 +150,7 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
           </div>
         )
       })}
+      {ctx.kind === 'home' && <CompanyMarketingCta />}
     </>
   )
 }
