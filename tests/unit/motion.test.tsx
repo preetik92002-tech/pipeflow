@@ -42,12 +42,13 @@ describe('SplitWords (hero headline)', () => {
 })
 
 describe('hero markup contract', () => {
-  it('home hero is a three-slide carousel with one heading and no button bar', () => {
+  it('home hero is the text-led hero with one heading and the request form', () => {
     const html = render([hero({ buttons: [{ label: 'Request Service', href: '/book-service', variant: 'primary' }] })], ctx('home'))
-    expect(html).toContain('aria-roledescription="carousel"')
+    expect(html).not.toContain('aria-roledescription="carousel"')
     expect(count(html, '<h1')).toBe(1)
-    expect(count(html, 'aria-roledescription="slide"')).toBe(3)
-    expect(html).not.toContain('Request Service')
+    expect(html).toContain('Reliable Plumbing &amp; HVAC Solutions for Your Home and Business')
+    expect(html).toContain('Water Heater Repair')
+    expect(html).toContain('e.g. 80202')
   })
   it('photo hero exposes the hooks the scroll timeline needs', () => {
     const html = render([hero()], ctx('service'))
