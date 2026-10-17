@@ -1,5 +1,5 @@
 import type { RequestPrefill } from '@/components/request/RequestServiceFlow'
-import { CITIES, SERVICES, URGENCY } from './schema'
+import { CITIES, SERVICES, URGENCY, isServiceZip } from './schema'
 
 export type PrefillParams = Record<string, string | string[] | undefined>
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
@@ -13,5 +13,7 @@ export function toPrefill(sp: PrefillParams): RequestPrefill {
   const city = CITIES.find((c) => c.toLowerCase() === cityParam)
   const urgency = URGENCY.find((u) => u.value === one(sp.urgency))?.value
   const customerType = one(sp.type) === 'business' ? 'business' : category ? 'homeowner' : one(sp.type) === 'homeowner' ? 'homeowner' : undefined
-  return { category, service, city, urgency, customerType }
+  const zipParam = one(sp.zip)?.trim()
+  const zip = zipParam && isServiceZip(zipParam) ? zipParam : undefined
+  return { category, service, city, urgency, customerType, zip }
 }
