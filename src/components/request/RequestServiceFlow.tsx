@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Briefcase, Camera, Check, CheckCircle2, Droplets
 import { createClient } from '@/lib/supabase/client'
 import { getStoredAttribution, trackEvent } from '@/lib/analytics/tracker'
 import { ALLOWED_TYPES, maxSizeFor } from '@/lib/requests/files'
-import { CITIES, MAX_FILES, PROPERTY_TYPES, SERVICES, URGENCY, WINDOWS } from '@/lib/requests/schema'
+import { CITIES, MAX_FILES, PROPERTY_TYPES, SERVICES, URGENCY, WINDOWS, ZIP_ERROR, isServiceZip } from '@/lib/requests/schema'
 
 type Category = 'plumbing' | 'hvac'
 type CustomerType = 'homeowner' | 'business'
@@ -123,7 +123,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
       case 'location':
         if (!form.city) return 'Choose Denver or Boulder.'
         if (form.address.trim().length < 3) return 'Enter the service address.'
-        if (!/^80\d{3}$/.test(form.zip.trim())) return 'Enter a 5-digit Colorado ZIP code that starts with 80.'
+        if (!isServiceZip(form.zip)) return ZIP_ERROR
         return null
       case 'contact':
         if (!form.name.trim()) return 'Enter your name.'
