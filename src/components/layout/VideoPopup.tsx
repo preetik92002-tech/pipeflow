@@ -11,6 +11,19 @@ let closedThisLoad = false
 /** Small autoplaying ad on public pages: muted at first (browsers require it), with mute/unmute, full screen and close. */
 export function VideoPopup() {
   const [visible, setVisible] = useState(false)
+  const home = usePathname() === '/'
+  // Home page: the video starts as a small launcher and only opens when the visitor asks for it. Other pages open it straight away.
+  const [opened, setOpened] = useState(false)
+  const [overForm, setOverForm] = useState(false)
+
+  // Home: the launcher steps aside while the hero request form is on screen (e.g. after scrolling back up to it).
+  useEffect(() => {
+    const form = home ? document.querySelector('section[data-hero] form') : null
+    if (!form) return
+    const io = new IntersectionObserver(([entry]) => setOverForm(entry.isIntersecting))
+    io.observe(form)
+    return () => io.disconnect()
+  }, [home])
   const [muted, setMuted] = useState(true)
   const video = useRef<HTMLVideoElement>(null)
 
@@ -45,12 +58,29 @@ export function VideoPopup() {
   // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start playback by hand.
   useEffect(() => {
     const v = video.current
-    if (!visible || !v) return
+    if (!visible || !(opened || !home) || !v) return
     v.muted = true
+    setMuted(true)
     void v.play().catch(() => {})
-  }, [visible])
+  }, [visible, opened, home])
 
   if (!visible) return null
+
+  if (home && !opened) {
+    if (overForm) return null
+    return (
+      <button
+        type="button"
+        onClick={() => setOpened(true)}
+        aria-label="Watch our video"
+        className="fixed right-4 z-40 flex animate-rise items-center gap-2 rounded-full bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white shadow-xl ring-1 ring-white/25 transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white lg:bottom-6 lg:right-6"
+        style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
+      >
+        <Play className="h-4 w-4" aria-hidden="true" />
+        Watch our video
+      </button>
+    )
+  }
 
   const close = () => {
     closedThisLoad = true
