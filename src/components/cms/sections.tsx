@@ -1099,51 +1099,6 @@ export function TextMarquee() {
   )
 }
 
-/** About-style block: copy and icon tiles on the left, a big pill-shaped photo on the right. */
-export function AboutBlock() {
-  const tiles: [LucideIcon, string, string][] = [
-    [Users, 'Local', 'Professionals'],
-    [CalendarCheck, 'Easy Online', 'Service Requests'],
-    [Wrench, 'Plumbing', '& HVAC'],
-    [Home, 'Residential', '& Commercial'],
-    [MapPin, 'Denver', '& Boulder'],
-    [Clock, 'Same-Day', 'Service'],
-  ]
-  return (
-    <section className="bg-white py-16 sm:py-24" aria-labelledby="about-pipeflow">
-      <div className="container-wide grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-        <div data-reveal>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-terra">About PipeFlow</p>
-          <h2 id="about-pipeflow" className="mt-3 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            Plumbing &amp; HVAC Help, Made Simple
-          </h2>
-          <p className="mt-5 max-w-xl text-lead text-neutral-600">Tell us what you need and we&apos;ll help you find the right local professional serving Denver and Boulder.</p>
-          <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
-            {tiles.map(([Icon, a, b]) => (
-              <li key={a} className="flex items-center gap-3 rounded-2xl bg-brand-blue/10 p-3.5 sm:gap-4 sm:p-5">
-                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white sm:h-12 sm:w-12">
-                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-                </span>
-                <span className="text-sm leading-tight text-neutral-700 sm:text-base">
-                  <span className="block font-bold text-ink">{a}</span>
-                  {b}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <SmartLink href="/book-service" className="btn-primary !px-6 !py-3">Request Service</SmartLink>
-            <SmartLink href="/find-a-pro" className="btn-outline !px-6 !py-3">Find a Professional</SmartLink>
-          </div>
-        </div>
-        <div className="relative aspect-[12/7] w-full overflow-hidden rounded-[2.5rem] rounded-br-[6rem] rounded-tl-[6rem] shadow-2xl" data-reveal="scale">
-          <CmsImage src="/images/about-handshake.jpg" alt="A PipeFlow professional shaking hands with a customer in front of the PipeFlow van" sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /** Customer reviews after the services. Real reviews only; a clearly labelled sample set shows in development builds when there are none. */
 const SOURCE_LABEL: Record<string, string> = { google: 'Google', yelp: 'Yelp', bbb: 'BBB' }
 
