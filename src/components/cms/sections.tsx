@@ -702,7 +702,6 @@ export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: P
           <p className="mx-auto mt-10 max-w-2xl text-center text-white/75" data-reveal>
             Describe your project once and we help match you with local plumbing and HVAC professionals in Denver and Boulder.
           </p>
-          <CmsButtons buttons={data.buttons} onDark center className="mt-8" />
         </div>
       </section>
     )
