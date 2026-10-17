@@ -6,6 +6,7 @@ import {
   type PageContext, type Tone, type Look,
 } from './sections'
 
+const LEGACY_BETTER_WAY_CARDS = ['Local Options', 'Easy Service Requests', 'Photo Uploads', 'Convenient Scheduling', 'Residential & Commercial Support', 'Clear Professional Profiles'].join('|')
 const DEFAULT_CTX: PageContext = { kind: 'page', crumbs: [] }
 
 /** Chhota, bina list/image wala content block — aise 2+ lagataar blocks ek row mein dikhte hain. */
@@ -67,6 +68,15 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
   for (const raw of list) {
     const parsed = sectionsSchema.element.safeParse(raw)
     if (parsed.success) valid.push(parsed.data)
+  }
+  // Home page only. Stored homepages seeded before supabase/migrations/20261012000000_remove_home_better_way_section.sql
+  // still hold the "A Better Way to Find Plumbing & HVAC Help" grid, so it is skipped by its six card titles (renaming the
+  // heading does not bring it back). Delete this block once that migration has been run and the home page republished.
+  if (ctx.kind === 'home') {
+    for (let i = valid.length - 1; i >= 0; i--) {
+      const v = valid[i]
+      if (v.type === 'featureCards' && v.data.cards.map((c) => c.title).join('|') === LEGACY_BETTER_WAY_CARDS) valid.splice(i, 1)
+    }
   }
   // The same call-to-action never appears twice on a page, and only the last dark one stays.
   const lastDark = valid.map((v, i) => (v.type === 'cta' && v.data.tone === 'dark' ? i : -1)).filter((i) => i >= 0).pop()
