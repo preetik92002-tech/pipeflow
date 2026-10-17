@@ -83,6 +83,10 @@ export function VideoPopup() {
   }
 
   const close = () => {
+    if (home) {
+      setOpened(false)
+      return
+    }
     closedThisLoad = true
     setVisible(false)
   }
