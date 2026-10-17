@@ -81,11 +81,11 @@ describe('home "How it works" flow chart', () => {
     expect(html).toContain('Step text 3')
     expect(count(html, '<svg')).toBe(3) // an arrow between each pair of the 4 steps
   })
-  it('uses the mascot illustrations, decorative, and keeps the button reachable after the list', () => {
+  it('uses the mascot illustrations, decorative, and has no button after the list', () => {
     const html = render([steps(4)], home)
     expect(count(html, '/images/mascot/')).toBe(4)
     expect(html).not.toMatch(/<img[^>]+alt="[^"]+"/)
-    expect(html.indexOf('Request Service')).toBeGreaterThan(html.indexOf('</ol>'))
+    expect(html).not.toContain('Request Service')
   })
   it('is only used on the home page with 3 to 6 steps; everywhere else steps are a plain list with a filling hairline', () => {
     for (const c of [ctx('service'), ctx('page'), ctx('location')]) {
