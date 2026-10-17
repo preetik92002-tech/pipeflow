@@ -5,7 +5,7 @@ import { PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/
 import { SplitWords } from '@/components/motion/SplitWords'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
-import { HeroCarousel } from './HeroCarousel'
+import { HomeHero } from './HomeHero'
 import { RichTextRenderer } from './RichTextRenderer'
 
 /**
@@ -171,7 +171,7 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
   const center = data.align === 'center'
   // The banner is chosen from the hero's wording; the page's stored image is left untouched.
   const banner = heroBanner(data.heading, data.eyebrow, ...ctx.crumbs.map((c) => c.href ?? c.label))
-  if (ctx.kind === 'home') return <HeroCarousel heading={data.heading} labelId={first ? 'page-title' : undefined} />
+  if (ctx.kind === 'home') return <HomeHero labelId={first ? 'page-title' : undefined} />
   return (
     <section data-hero className="relative isolate flex min-h-[460px] items-center overflow-hidden bg-navy-900 text-white lg:min-h-[560px]" aria-labelledby={first ? 'page-title' : undefined}>
       <div className="absolute inset-0 -z-20 select-none">
