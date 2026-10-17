@@ -2,6 +2,11 @@ import { z } from 'zod'
 
 export const CITIES = ['Denver', 'Boulder'] as const
 
+/** The one ZIP rule for service requests: 5-digit Colorado ZIP codes (80xxx). The hero, the request flow and the API all use it. */
+export const SERVICE_ZIP = /^80\d{3}$/
+export const ZIP_ERROR = 'Enter a 5-digit Colorado ZIP code that starts with 80.'
+export const isServiceZip = (value: string) => SERVICE_ZIP.test(value.trim())
+
 export const SERVICES = {
   plumbing: [
     { value: 'plumbing-repair', label: 'Plumbing Repair' },
