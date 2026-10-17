@@ -1,10 +1,38 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, useState, type FormEvent } from 'react'
+import Link from 'next/link'
+import { SERVICES } from '@/lib/requests/schema'
 
-/** Home hero: headline, supporting copy and two actions over a navy mountain backdrop. */
+const ZIP = /^\d{5}$/
+const ZIP_ERROR = 'Enter a 5-digit ZIP code, for example 80202.'
+
+const DEFAULT_SERVICE = 'plumbing:water-heater-repair'
+
+/** Every service the request flow supports, as "category:value" options (the flow's own catalog, nothing extra). */
+const OPTIONS = (['plumbing', 'hvac'] as const).flatMap((category) =>
+  SERVICES[category].map((s) => ({ key: `${category}:${s.value}`, label: s.label, group: category === 'plumbing' ? 'Plumbing' : 'HVAC' }))
+)
+
+const field =
+  'mt-1.5 w-full rounded-lg border border-white/20 bg-navy-800 px-3.5 py-3 text-base text-white placeholder:text-white/45 focus:border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 aria-[invalid=true]:border-red-400'
+
+/**
+ * Home hero: text on the left, a compact request form on the right. The form only collects what the
+ * visitor can type in seconds; it checks the ZIP and opens the full request flow with those answers
+ * filled in, because a saved request also needs an address and contact details.
+ */
 export function HomeHero({ labelId }: { labelId?: string }) {
   const uid = useId()
+  const [service, setService] = useState(DEFAULT_SERVICE)
+  const [zip, setZip] = useState('')
+  const [property, setProperty] = useState<'residential' | 'commercial'>('residential')
+  const error: string | null = null
+  const busy = false
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault()
+  }
 
   return (
     <section data-hero className="relative isolate overflow-hidden bg-gradient-to-b from-navy-900 via-navy-800 to-navy-700 text-white" aria-labelledby={labelId}>
@@ -17,7 +45,7 @@ export function HomeHero({ labelId }: { labelId?: string }) {
       </svg>
       <div className="absolute -left-24 top-0 -z-10 h-80 w-80 rounded-full bg-brand-blue/25 blur-3xl" aria-hidden="true" />
 
-      <div className="container-wide py-12 sm:py-16 lg:py-20">
+      <div className="container-wide grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-20">
         <div>
           <h1 id={labelId} className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl xl:text-5xl">
             Reliable Plumbing &amp; HVAC Solutions for Your Home and Business
@@ -39,6 +67,67 @@ export function HomeHero({ labelId }: { labelId?: string }) {
           <p className="mt-5 max-w-xl text-sm text-white/70">Residential and commercial inquiries welcome. Submitting a request does not guarantee immediate service or provider availability.</p>
         </div>
 
+        <form id={`${uid}-form`} onSubmit={onSubmit} noValidate aria-labelledby={`${uid}-title`} className="scroll-mt-32 rounded-2xl border border-white/15 bg-navy-900/90 p-5 shadow-2xl shadow-black/30 sm:p-7">
+          <h2 id={`${uid}-title`} className="font-display text-2xl font-bold">
+            Request Service
+          </h2>
+          <div className="mt-5 space-y-4">
+            <div>
+              <label htmlFor={`${uid}-service`} className="text-sm font-semibold text-white/90">
+                Service needed
+              </label>
+              <select id={`${uid}-service`} className={field} value={service} onChange={(e) => setService(e.target.value)}>
+                {(['Plumbing', 'HVAC'] as const).map((group) => (
+                  <optgroup key={group} label={group}>
+                    {OPTIONS.filter((o) => o.group === group).map((o) => (
+                      <option key={o.key} value={o.key}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor={`${uid}-zip`} className="text-sm font-semibold text-white/90">
+                ZIP code
+              </label>
+              <input
+                id={`${uid}-zip`}
+                className={field}
+                value={zip}
+                onChange={(e) => setZip(e.target.value)}
+                placeholder="e.g. 80202"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                maxLength={5}
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? `${uid}-zip-error` : undefined}
+              />
+              {error && (
+                <p id={`${uid}-zip-error`} role="alert" className="mt-1.5 text-sm font-medium text-red-300">
+                  {error}
+                </p>
+              )}
+            </div>
+            <div>
+              <label htmlFor={`${uid}-property`} className="text-sm font-semibold text-white/90">
+                Property type
+              </label>
+              <select id={`${uid}-property`} className={field} value={property} onChange={(e) => setProperty(e.target.value as 'residential' | 'commercial')}>
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" disabled={busy} aria-busy={busy} className="btn-primary mt-6 w-full !py-3.5 text-base">
+            {busy ? 'Opening request form…' : 'Request Service'}
+          </button>
+          <p className="mt-3 text-center text-xs text-white/65">Submitting a request does not guarantee immediate service or provider availability.</p>
+          <p className="mt-2 text-center text-xs text-white/55">
+            You&apos;ll add your address and contact details on the next step. <Link href="/book-service" className="underline underline-offset-2 hover:text-white">Start from scratch</Link>
+          </p>
+        </form>
       </div>
     </section>
   )
