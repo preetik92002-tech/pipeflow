@@ -87,8 +87,10 @@ export default async function CmsPage({ params }: Props) {
   // Structured data sirf indexable pages par, aur sirf wahi jo page par dikh raha hai.
   const jsonLd = [
     faqJsonLd(page.sections),
-    page.noindex ? null : breadcrumbJsonLd(ctx.crumbs, baseUrl, url),
-    !page.noindex && ctx.kind === 'service'
+    // A service template shows its own breadcrumb trail, so the structured data describes that trail.
+    page.noindex ? null : breadcrumbJsonLd((template && serviceCrumbs(page.sections, ctx.liveHrefs)) || ctx.crumbs, baseUrl, url),
+    // Service data only for real service pages: those under /plumbing, /hvac, /commercial, or any page built from the service-detail template.
+    !page.noindex && (ctx.kind === 'service' || template === 'serviceDetail')
       ? serviceJsonLd({ name: page.title, description: page.seoDescription || page.description, url, providerName: company.name || siteConfig.company.name, baseUrl })
       : null,
   ].filter(Boolean)
