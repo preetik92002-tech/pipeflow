@@ -3,6 +3,7 @@
 import type { SectionType } from '@/lib/cms-pages/sections/schema'
 import { ImageField, ListEditor, SelectField, TextField } from './fields'
 import { RichTextEditor } from './RichTextEditor'
+import { ServicePageForm } from './ServicePageForm'
 
 type Data = Record<string, unknown>
 type Errors = Record<string, string>
@@ -294,6 +295,8 @@ const FORMS: Record<SectionType, (p: FormProps) => React.ReactElement> = {
   hero: HeroForm, richText: RichTextForm, contentBlock: ContentBlockForm, gallery: GalleryForm,
   featureCards: FeatureCardsForm, comparison: ComparisonForm, steps: StepsForm, faq: FaqForm, cta: CtaForm,
   testimonials: TestimonialsForm, linkList: LinkListForm, contactInfo: ContactInfoForm, spacer: SpacerForm,
+  serviceCategory: (p) => <ServicePageForm {...p} template="category" />,
+  serviceDetail: (p) => <ServicePageForm {...p} template="detail" />,
 }
 
 export function SectionForm({ type, ...props }: FormProps & { type: SectionType }) {
