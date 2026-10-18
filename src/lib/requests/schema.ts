@@ -24,6 +24,9 @@ export const SERVICES = {
     { value: 'ac-replacement', label: 'AC Replacement' },
     { value: 'hvac-repair', label: 'HVAC Repair' },
     { value: 'hvac-maintenance', label: 'HVAC Maintenance' },
+    // Added for the Heating Installation page so its leads read "Heating Installation" instead of "Something else / not sure".
+    // Stored requests keep their old values; this only adds an accepted value.
+    { value: 'heating-installation', label: 'Heating Installation' },
     { value: 'other-hvac', label: 'Something else / not sure' },
   ],
 } as const
