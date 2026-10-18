@@ -89,7 +89,7 @@ BEGIN
       ${q(page.seoDescription)},
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
