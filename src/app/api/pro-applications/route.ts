@@ -78,8 +78,9 @@ export async function POST(request: NextRequest) {
       status: 'new',
     }
 
-    const supabase = await createClient()
-    const { error: insertError } = await supabase.from('pro_applications').insert([applicationRecord])
+    // Public submissions are validated and screened here; database INSERT is
+    // therefore restricted to this server-side path.
+    const { error: insertError } = await createAdminClient().from('pro_applications').insert([applicationRecord])
     if (insertError) {
       console.error('[PRO APPLICATION API] Database insert failed:', insertError.message)
       return NextResponse.json({ error: 'We could not save your application. Please try again.' }, { status: 503 })
