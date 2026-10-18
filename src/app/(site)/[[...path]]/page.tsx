@@ -66,6 +66,17 @@ export default async function CmsPage({ params }: Props) {
 
   const [liveTitles, seo, company] = await Promise.all([getPublishedTitles(ancestorPaths(path)), getPublicSeoSettings(), getPublicCompanySettings()])
   const ctx = buildPageContext(path, page.title, liveTitles)
+  // Service templates (at any URL) link to other CMS pages: withhold links to pages that are not live yet.
+  const template = serviceTemplateOf(page.sections)
+  const linked = template ? linkedCmsPaths(page.sections) : []
+  if (linked.length) {
+    try {
+      ctx.liveHrefs = new Set([...(await getPublishedTitles(linked)).keys()].map((p) => `/${p}`))
+    } catch (error) {
+      // Optional: without the answer the links stay, exactly as before.
+      console.error('[cms page] could not check which linked pages are live:', error instanceof Error ? error.message : error)
+    }
+  }
   if (ctx.kind === 'home' || ctx.kind === 'service') {
     const r = await getActiveReviews(6, ctx.kind === 'service' ? { path: path, title: page.title } : undefined)
     ctx.reviews = r.items
