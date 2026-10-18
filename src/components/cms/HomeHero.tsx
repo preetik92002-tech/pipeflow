@@ -1,10 +1,57 @@
 'use client'
 
-import { useId, useState, type FormEvent } from 'react'
+import { useEffect, useId, useState, type FormEvent } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { SERVICES, ZIP_ERROR, isServiceZip } from '@/lib/requests/schema'
 
 const DEFAULT_SERVICE = 'plumbing:water-heater-repair'
+
+/** Background slides (decorative: the headline and copy carry the meaning). Slide 2 is intentionally not used. */
+const SLIDES = ['/images/hero/slide-1.png', '/images/hero/slide-3.png']
+const SLIDE_MS = 7000
+
+/** Two photos that crossfade slowly behind the hero. With reduced motion the first photo stays still. */
+function HeroBackdrop() {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let timer: ReturnType<typeof setInterval> | undefined
+    const sync = () => {
+      clearInterval(timer)
+      if (query.matches) {
+        setIndex(0)
+        return
+      }
+      timer = setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), SLIDE_MS)
+    }
+    sync()
+    query.addEventListener('change', sync)
+    return () => {
+      clearInterval(timer)
+      query.removeEventListener('change', sync)
+    }
+  }, [])
+
+  return (
+    <div className="pointer-events-none absolute inset-0 -z-20 select-none" aria-hidden="true" data-hero-backdrop>
+      {SLIDES.map((src, i) => (
+        <Image
+          key={src}
+          src={src}
+          alt=""
+          fill
+          sizes="100vw"
+          priority={i === 0}
+          loading="eager"
+          className={`object-cover object-[72%_center] transition-opacity duration-[1600ms] ease-in-out motion-reduce:transition-none ${i === index ? 'opacity-100' : 'opacity-0'}`}
+        />
+      ))}
+      {/* Navy wash keeps the white text and the form readable over either photo. */}
+      <div className="absolute inset-0 bg-navy-900/75 lg:bg-gradient-to-r lg:from-navy-900/90 lg:via-navy-900/60 lg:to-navy-900/35" />
+    </div>
+  )
+}
 
 /** Every service the request flow supports, as "category:value" options (the flow's own catalog, nothing extra). */
 const OPTIONS = (['plumbing', 'hvac'] as const).flatMap((category) =>
