@@ -8,8 +8,10 @@
 import { createHash } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
 import { seedPages } from '../supabase/seed/pages.ts'
+import { servicePages } from '../supabase/seed/service-pages.ts'
 
 export const OUTPUT = 'supabase/migrations/20261009000100_seed_cms_pages.sql'
+export const SERVICE_OUTPUT = 'supabase/migrations/20261013000000_service_pages.sql'
 
 /** Stable ids so regenerating the file produces the same SQL. */
 function stableUuid(seed: string): string {
