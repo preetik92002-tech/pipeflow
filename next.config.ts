@@ -1,5 +1,11 @@
 import type { NextConfig } from 'next'
 
+// React's development build rebuilds component stacks with eval(). Without 'unsafe-eval' the
+// browser blocks it and the console shows "eval() is not supported in this environment"
+// (node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md). Production keeps
+// the strict policy.
+const isDev = process.env.NODE_ENV !== 'production'
+
 // External origins the app actually loads scripts from or connects to:
 // Supabase (API + storage), Google Analytics (gtag.js), Meta Pixel.
 // next/font self-hosts fonts at build time, so no external font CDN is needed.
