@@ -68,8 +68,8 @@ function renderSection(section: Section, index: number, tone: Tone, ctx: PageCon
     case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} look={look} />
     case 'contactInfo': return <ContactInfoSection data={section.data} tone={tone} />
     case 'spacer': return <SpacerSection data={section.data} />
-    case 'serviceCategory': return <ServicePageTemplate data={section.data} template="category" />
-    case 'serviceDetail': return <ServicePageTemplate data={section.data} template="detail" />
+    case 'serviceCategory': return <ServicePageTemplate data={section.data} template="category" liveHrefs={ctx.liveHrefs} />
+    case 'serviceDetail': return <ServicePageTemplate data={section.data} template="detail" liveHrefs={ctx.liveHrefs} />
   }
 }
 
@@ -78,7 +78,7 @@ function renderSection(section: Section, index: number, tone: Tone, ctx: PageCon
  * that fails validation is skipped on the public site instead of breaking the page.
  * Light sections alternate white and paper backgrounds so long pages have a rhythm.
  */
-export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unknown; ctx?: PageContext }) {
+export function SectionRenderer({ sections, ctx = DEFAULT_CTX, showLegacy = false }: { sections: unknown; ctx?: PageContext; showLegacy?: boolean }) {
   const list = Array.isArray(sections) ? sections : []
   const valid: Section[] = []
   for (const raw of list) {
