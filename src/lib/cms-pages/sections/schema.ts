@@ -172,6 +172,8 @@ export const sectionSchema = z.discriminatedUnion('type', [
   z.object({ id, type: z.literal('linkList'), data: linkListData }),
   z.object({ id, type: z.literal('contactInfo'), data: contactInfoData }),
   z.object({ id, type: z.literal('spacer'), data: spacerData }),
+  z.object({ id, type: z.literal('serviceCategory'), data: servicePageData }),
+  z.object({ id, type: z.literal('serviceDetail'), data: servicePageData }),
 ])
 
 export const MAX_SECTIONS = 60
