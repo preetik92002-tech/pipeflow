@@ -112,7 +112,7 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX }: { sections: unk
     if (look?.dark) return null
     if (it.kind === 'group') return tone === 'white' ? 'bg-white' : 'bg-paper'
     const t = it.section.type
-    if (t === 'hero' || t === 'spacer') return null
+    if (t === 'hero' || t === 'spacer' || t === 'serviceCategory' || t === 'serviceDetail') return null
     if (t === 'steps' || t === 'testimonials' || (t === 'cta' && it.section.data.tone === 'dark')) return 'bg-navy-900'
     return tone === 'white' ? 'bg-white' : 'bg-paper'
   }
