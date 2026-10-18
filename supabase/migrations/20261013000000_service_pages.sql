@@ -27,7 +27,7 @@ BEGIN
       $cms_seed$Explore plumbing services for homes and businesses in Denver and Boulder, including water heater repair, replacement, and frozen pipe help. Request service today.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -58,7 +58,7 @@ BEGIN
       $cms_seed$Explore HVAC services for cooling and heating in Denver and Boulder, including AC services, AC installation, and heating installation. Request service today.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -89,7 +89,7 @@ BEGIN
       $cms_seed$No hot water or a leaking tank? Learn common water heater problems, causes, and repair options in Denver and Boulder, then request service.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -120,7 +120,7 @@ BEGIN
       $cms_seed$Compare tank and tankless water heaters, capacity, and efficiency. Learn what to consider and request a water heater installation estimate.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -151,7 +151,7 @@ BEGIN
       $cms_seed$Learn the signs of frozen pipes, safe first steps, and prevention tips for Colorado winters. Request help for frozen or burst pipes in Denver and Boulder.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -182,7 +182,7 @@ BEGIN
       $cms_seed$Learn about common AC problems, weak airflow, noises, and maintenance needs. Send an air conditioning service inquiry in Denver or Boulder.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -213,7 +213,7 @@ BEGIN
       $cms_seed$Planning a new air conditioner? Learn about sizing, efficiency, and installation planning for homes and businesses, then request an estimate.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
@@ -239,12 +239,12 @@ BEGIN
       $cms_seed$Heating Installation$cms_seed$,
       $cms_seed$heating-installation$cms_seed$,
       $cms_seed$Compare furnace and heating options, sizing, and efficiency for Colorado homes and businesses. Request a heating installation estimate.$cms_seed$,
-      $cms_seed$[{"id":"5ddaacab-1616-43bd-813b-827e36fbb0d3","type":"serviceDetail","data":{"guidanceHeading":"Installation planning, request steps, and FAQs","faqHeading":"Frequently asked questions","relatedHeading":"Related services and areas","disclosure":"Submitting a request does not guarantee immediate service or availability of a provider. Service coverage, pricing, scheduling and terms vary by location, service type and provider.","serviceCategory":"hvac","formService":"hvac:other-hvac","formServiceLabel":"Heating Installation","breadcrumbs":[{"label":"Home","href":"/"},{"label":"HVAC Services","href":"/hvac-services"},{"label":"Heating Installation","href":"/heating-installation"}],"heading":"Heating System Installation in Denver and Boulder","intro":"Winter in Colorado can bring heavy snow, sub-freezing nights, and sudden cold snaps. A heating system that fits your property keeps you comfortable and manages energy use. This page explains the main heating options, sizing, and planning, and how to request an installation estimate in Denver, Boulder, and nearby communities where service is available.","ctaLabel":"Request a Heating Installation Estimate","illustration":"furnace","illustrationAlt":"","mainHeading":"Choosing and Sizing a Heating System","cards":[],"mainBlocks":[{"kind":"list","heading":"Signs You May Need a New Heating System","intro":"","text":"","items":["Aging equipment or frequent breakdowns.","Uneven heating or cold spots.","Higher energy bills.","Excessive noise, short cycling, or visible rust.","Safety concerns, such as a cracked heat exchanger identified by a professional.","A renovation or addition."],"cards":[],"columns":[],"rows":[],"tone":"info"},{"kind":"cards","heading":"Heating Options","intro":"","text":"","items":[],"cards":[{"title":"Gas furnace","text":"Common in Colorado homes. Efficiency is rated in AFUE. High-efficiency condensing models typically exceed 90% AFUE and need different venting. Altitude affects combustion, so equipment and settings should suit your elevation."},{"title":"Electric furnace","text":"Simpler installation but often higher operating cost where electricity is pricier than gas."},{"title":"Heat pump (air-source and cold-climate)","text":"Moves heat rather than generating it, and can provide both heating and cooling. Cold-climate models are designed for lower outdoor temperatures. Some homes pair a heat pump with a gas furnace as a 'dual fuel' system."},{"title":"Boilers and radiant systems","text":"Common in some older Denver and Boulder homes. These use hot water or steam."},{"title":"Ductless mini-splits","text":"Useful for additions, rooms without ducts, or zoned heating."},{"title":"Commercial systems","text":"Rooftop heating units, unit heaters, boilers, and multi-zone systems."}],"columns":[],"rows":[],"tone":"info"},{"kind":"text","heading":"Sizing and Load","intro":"","text":"Heating load depends on square footage, insulation, windows, air leakage, orientation, and local design temperatures. Professionals often use a load calculation, such as ACCA Manual J. An oversized furnace may short-cycle, causing uneven comfort and extra wear. An undersized one may not keep up on the coldest nights.","items":[],"cards":[],"columns":[],"rows":[],"tone":"info"},{"kind":"list","heading":"Energy Efficiency","intro":"","text":"","items":["AFUE for furnaces and boilers.","HSPF2 for heat pumps.","ENERGY STAR® options.","Insulation, air sealing, and duct sealing can reduce the load and may allow a smaller system.","Check for current federal, state, and utility incentives."],"cards":[],"columns":[],"rows":[],"tone":"info"}],"guidanceBlocks":[{"kind":"list","heading":"Installation Planning","intro":"","text":"","items":["Venting, flue, and combustion air.","Gas line capacity and shutoff.","Electrical requirements.","Ductwork condition and layout.","Thermostat selection.","Permits and inspections.","Removal of the old equipment.","Carbon monoxide detectors and testing."],"cards":[],"columns":[],"rows":[],"tone":"info"},{"kind":"cards","heading":"Residential and Commercial","intro":"","text":"","items":[],"cards":[{"title":"Homes","text":"Replacing a furnace, switching fuels, or adding zones."},{"title":"Commercial","text":"Replacing rooftop units, planning for tenant spaces, and addressing code or ventilation requirements."}],"columns":[],"rows":[],"tone":"info"},{"kind":"steps","heading":"How to Request an Estimate","intro":"","text":"","items":["Click Request Service, then HVAC, then Heating Installation.","Enter ZIP code and property type.","Describe your current heating, property size, and goals.","Add preferred timing. We'll follow up about availability and next steps."],"cards":[],"columns":[],"rows":[],"tone":"info"}],"faqs":[{"question":"Furnace or heat pump: which is better for Colorado?","answer":"Both can work. The best fit depends on your property, fuel costs, and the equipment's cold-weather performance."},{"question":"What does AFUE mean?","answer":"It measures how much of a furnace's fuel becomes usable heat. A higher AFUE means less wasted fuel."},{"question":"How long do furnaces last?","answer":"Often 15 to 20 years with maintenance, though it varies."},{"question":"Does altitude affect a furnace?","answer":"Yes. Thinner air affects combustion, so equipment and settings should suit your elevation."},{"question":"Do I need a carbon monoxide detector?","answer":"Yes, with any fuel-burning appliance. Place them per manufacturer and local code guidance."},{"question":"Can you replace my furnace the same day?","answer":"Timing depends on availability and the project. We'll discuss it when we respond."},{"question":"Can you give me a price here?","answer":"No. Prices depend on equipment, installation, and provider."}],"finalHeading":"Planning a new heating system?","finalText":"Describe your current heating, your property and your goals, and send your request. We'll follow up about availability and next steps.","finalCtaLabel":"Request a Heating Installation Estimate","related":[{"label":"HVAC Services","href":"/hvac-services"},{"label":"AC Installation","href":"/ac-installation"},{"label":"AC Services","href":"/ac-services"},{"label":"Denver","href":"/denver"},{"label":"Boulder","href":"/boulder"}]}}]$cms_seed$::jsonb,
+      $cms_seed$[{"id":"5ddaacab-1616-43bd-813b-827e36fbb0d3","type":"serviceDetail","data":{"guidanceHeading":"Installation planning, request steps, and FAQs","faqHeading":"Frequently asked questions","relatedHeading":"Related services and areas","disclosure":"Submitting a request does not guarantee immediate service or availability of a provider. Service coverage, pricing, scheduling and terms vary by location, service type and provider.","serviceCategory":"hvac","formService":"hvac:heating-installation","breadcrumbs":[{"label":"Home","href":"/"},{"label":"HVAC Services","href":"/hvac-services"},{"label":"Heating Installation","href":"/heating-installation"}],"heading":"Heating System Installation in Denver and Boulder","intro":"Winter in Colorado can bring heavy snow, sub-freezing nights, and sudden cold snaps. A heating system that fits your property keeps you comfortable and manages energy use. This page explains the main heating options, sizing, and planning, and how to request an installation estimate in Denver, Boulder, and nearby communities where service is available.","ctaLabel":"Request a Heating Installation Estimate","illustration":"furnace","illustrationAlt":"","mainHeading":"Choosing and Sizing a Heating System","cards":[],"mainBlocks":[{"kind":"list","heading":"Signs You May Need a New Heating System","intro":"","text":"","items":["Aging equipment or frequent breakdowns.","Uneven heating or cold spots.","Higher energy bills.","Excessive noise, short cycling, or visible rust.","Safety concerns, such as a cracked heat exchanger identified by a professional.","A renovation or addition."],"cards":[],"columns":[],"rows":[],"tone":"info"},{"kind":"cards","heading":"Heating Options","intro":"","text":"","items":[],"cards":[{"title":"Gas furnace","text":"Common in Colorado homes. Efficiency is rated in AFUE. High-efficiency condensing models typically exceed 90% AFUE and need different venting. Altitude affects combustion, so equipment and settings should suit your elevation."},{"title":"Electric furnace","text":"Simpler installation but often higher operating cost where electricity is pricier than gas."},{"title":"Heat pump (air-source and cold-climate)","text":"Moves heat rather than generating it, and can provide both heating and cooling. Cold-climate models are designed for lower outdoor temperatures. Some homes pair a heat pump with a gas furnace as a 'dual fuel' system."},{"title":"Boilers and radiant systems","text":"Common in some older Denver and Boulder homes. These use hot water or steam."},{"title":"Ductless mini-splits","text":"Useful for additions, rooms without ducts, or zoned heating."},{"title":"Commercial systems","text":"Rooftop heating units, unit heaters, boilers, and multi-zone systems."}],"columns":[],"rows":[],"tone":"info"},{"kind":"text","heading":"Sizing and Load","intro":"","text":"Heating load depends on square footage, insulation, windows, air leakage, orientation, and local design temperatures. Professionals often use a load calculation, such as ACCA Manual J. An oversized furnace may short-cycle, causing uneven comfort and extra wear. An undersized one may not keep up on the coldest nights.","items":[],"cards":[],"columns":[],"rows":[],"tone":"info"},{"kind":"list","heading":"Energy Efficiency","intro":"","text":"","items":["AFUE for furnaces and boilers.","HSPF2 for heat pumps.","ENERGY STAR® options.","Insulation, air sealing, and duct sealing can reduce the load and may allow a smaller system.","Check for current federal, state, and utility incentives."],"cards":[],"columns":[],"rows":[],"tone":"info"}],"guidanceBlocks":[{"kind":"list","heading":"Installation Planning","intro":"","text":"","items":["Venting, flue, and combustion air.","Gas line capacity and shutoff.","Electrical requirements.","Ductwork condition and layout.","Thermostat selection.","Permits and inspections.","Removal of the old equipment.","Carbon monoxide detectors and testing."],"cards":[],"columns":[],"rows":[],"tone":"info"},{"kind":"cards","heading":"Residential and Commercial","intro":"","text":"","items":[],"cards":[{"title":"Homes","text":"Replacing a furnace, switching fuels, or adding zones."},{"title":"Commercial","text":"Replacing rooftop units, planning for tenant spaces, and addressing code or ventilation requirements."}],"columns":[],"rows":[],"tone":"info"},{"kind":"steps","heading":"How to Request an Estimate","intro":"","text":"","items":["Click Request Service, then HVAC, then Heating Installation.","Enter ZIP code and property type.","Describe your current heating, property size, and goals.","Add preferred timing. We'll follow up about availability and next steps."],"cards":[],"columns":[],"rows":[],"tone":"info"}],"faqs":[{"question":"Furnace or heat pump: which is better for Colorado?","answer":"Both can work. The best fit depends on your property, fuel costs, and the equipment's cold-weather performance."},{"question":"What does AFUE mean?","answer":"It measures how much of a furnace's fuel becomes usable heat. A higher AFUE means less wasted fuel."},{"question":"How long do furnaces last?","answer":"Often 15 to 20 years with maintenance, though it varies."},{"question":"Does altitude affect a furnace?","answer":"Yes. Thinner air affects combustion, so equipment and settings should suit your elevation."},{"question":"Do I need a carbon monoxide detector?","answer":"Yes, with any fuel-burning appliance. Place them per manufacturer and local code guidance."},{"question":"Can you replace my furnace the same day?","answer":"Timing depends on availability and the project. We'll discuss it when we respond."},{"question":"Can you give me a price here?","answer":"No. Prices depend on equipment, installation, and provider."}],"finalHeading":"Planning a new heating system?","finalText":"Describe your current heating, your property and your goals, and send your request. We'll follow up about availability and next steps.","finalCtaLabel":"Request a Heating Installation Estimate","related":[{"label":"HVAC Services","href":"/hvac-services"},{"label":"AC Installation","href":"/ac-installation"},{"label":"AC Services","href":"/ac-services"},{"label":"Denver","href":"/denver"},{"label":"Boulder","href":"/boulder"}]}}]$cms_seed$::jsonb,
       $cms_seed$Heating System Installation in Denver & Boulder, CO | PipeFlowCo$cms_seed$,
       $cms_seed$Compare furnace and heating options, sizing, and efficiency for Colorado homes and businesses. Request a heating installation estimate.$cms_seed$,
       NULL,
       NULL,
-      false,
+      true,
       false,
       NULL
     );
