@@ -10,6 +10,19 @@ import { ServicePageTemplate } from '@/components/service-pages/ServicePageTempl
 const LEGACY_BETTER_WAY_CARDS = ['Local Options', 'Easy Service Requests', 'Photo Uploads', 'Convenient Scheduling', 'Residential & Commercial Support', 'Clear Professional Profiles'].join('|')
 const DEFAULT_CTX: PageContext = { kind: 'page', crumbs: [] }
 
+const isLegacyBetterWay = (s: Section) => s.type === 'featureCards' && s.data.cards.map((c) => c.title).join('|') === LEGACY_BETTER_WAY_CARDS
+
+/**
+ * True when the stored sections still hold the legacy "A Better Way to Find Plumbing & HVAC Help" grid. The live home page hides it
+ * (see SectionRenderer), so the admin preview uses this to say the section is stored but not shown to visitors.
+ */
+export function hasLegacyBetterWay(sections: unknown): boolean {
+  return (Array.isArray(sections) ? sections : []).some((raw) => {
+    const parsed = sectionsSchema.element.safeParse(raw)
+    return parsed.success && isLegacyBetterWay(parsed.data)
+  })
+}
+
 /** Chhota, bina list/image wala content block — aise 2+ lagataar blocks ek row mein dikhte hain. */
 export function isShortBlock(section: Section): section is Extract<Section, { type: 'contentBlock' }> {
   if (section.type !== 'contentBlock') return false
