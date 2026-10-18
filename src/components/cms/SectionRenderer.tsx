@@ -88,10 +88,10 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX, showLegacy = fals
   // Home page only. Stored homepages seeded before supabase/migrations/20261012000000_remove_home_better_way_section.sql
   // still hold the "A Better Way to Find Plumbing & HVAC Help" grid, so it is skipped by its six card titles (renaming the
   // heading does not bring it back). Delete this block once that migration has been run and the home page republished.
-  if (ctx.kind === 'home') {
+  // The admin preview passes showLegacy so it shows what is really stored; only the public page hides the grid.
+  if (ctx.kind === 'home' && !showLegacy) {
     for (let i = valid.length - 1; i >= 0; i--) {
-      const v = valid[i]
-      if (v.type === 'featureCards' && v.data.cards.map((c) => c.title).join('|') === LEGACY_BETTER_WAY_CARDS) valid.splice(i, 1)
+      if (isLegacyBetterWay(valid[i])) valid.splice(i, 1)
     }
   }
   // The same call-to-action never appears twice on a page, and only the last dark one stays.
