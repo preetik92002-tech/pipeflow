@@ -162,6 +162,9 @@ function BlockView({ block }: { block: Block }) {
  */
 export function ServicePageTemplate({ data, template, liveHrefs }: { data: Data; template: 'category' | 'detail'; liveHrefs?: ReadonlySet<string> }) {
   const ctaTarget = '#request'
+  // Links to CMS pages that are not live (still drafts) are withheld, so a visitor never lands on a 404.
+  const linkable = (href: string) => isLinkable(href, liveHrefs)
+  const related = data.related.filter((l) => linkable(l.href))
   return (
     <div className={styles.page} data-service-page={template}>
       <section className={styles.hero} aria-labelledby="page-title">
@@ -172,7 +175,9 @@ export function ServicePageTemplate({ data, template, liveHrefs }: { data: Data;
                 <nav aria-label="Breadcrumb" className={styles.crumbs}>
                   <ol>
                     {data.breadcrumbs.map((c, i) => (
-                      <li key={i}>{i < data.breadcrumbs.length - 1 ? <Link href={c.href}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}</li>
+                      <li key={i}>
+                        {i === data.breadcrumbs.length - 1 ? <span aria-current="page">{c.label}</span> : linkable(c.href) ? <Link href={c.href}>{c.label}</Link> : <span>{c.label}</span>}
+                      </li>
                     ))}
                   </ol>
                 </nav>
@@ -205,9 +210,11 @@ export function ServicePageTemplate({ data, template, liveHrefs }: { data: Data;
                   <ServiceIllustration name={c.illustration} alt={c.illustrationAlt} className={styles.cardSvg} />
                   <h3>{c.title}</h3>
                   <p>{c.text}</p>
-                  <Link href={c.href} className={styles.more} aria-label={`Learn more about ${c.title}`}>
-                    Learn More <span aria-hidden="true">→</span>
-                  </Link>
+                  {linkable(c.href) && (
+                    <Link href={c.href} className={styles.more} aria-label={`Learn more about ${c.title}`}>
+                      Learn More <span aria-hidden="true">→</span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
