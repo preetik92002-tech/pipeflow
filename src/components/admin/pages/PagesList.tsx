@@ -11,6 +11,7 @@ import { joinPath, pathToUrl, slugify, splitPath, validatePath } from '@/lib/cms
 import { filterPages, PAGE_LIST_LIMIT, summarize } from '@/lib/cms-pages/page-list'
 import type { PageListItem } from '@/lib/cms-pages/repository'
 import { inputCls, SelectField, TextField } from './fields'
+import { sectionMeta } from '@/lib/cms-pages/sections/registry'
 import { StatusBadge } from './StatusBadge'
 
 type ToastState = { message: string; type: 'success' | 'error' } | null
@@ -191,11 +192,12 @@ function NewPageModal({ open, onClose, existing, onCreated }: { open: boolean; o
   const [parent, setParent] = useState('')
   const [slug, setSlug] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
+  const [template, setTemplate] = useState<'standard' | 'serviceCategory' | 'serviceDetail'>('standard')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) { setTitle(''); setParent(''); setSlug(''); setSlugTouched(false); setError(null) }
+    if (open) { setTitle(''); setParent(''); setSlug(''); setSlugTouched(false); setTemplate('standard'); setError(null) }
   }, [open])
 
   const parents = useMemo(() => {
@@ -225,7 +227,9 @@ function NewPageModal({ open, onClose, existing, onCreated }: { open: boolean; o
         body: JSON.stringify({
           title: title.trim(),
           path,
-          sections: [{ id: crypto.randomUUID(), type: 'hero', data: { eyebrow: '', heading: title.trim(), subtitle: '', intro: '', image: '', buttons: [], align: 'left' } }],
+          sections: [template === 'standard'
+            ? { id: crypto.randomUUID(), type: 'hero', data: { eyebrow: '', heading: title.trim(), subtitle: '', intro: '', image: '', buttons: [], align: 'left' } }
+            : { id: crypto.randomUUID(), type: template, data: { ...sectionMeta(template)!.defaults(), heading: title.trim() } }],
         }),
       })
       const body = await res.json()
