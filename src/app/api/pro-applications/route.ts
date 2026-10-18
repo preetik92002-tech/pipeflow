@@ -23,8 +23,9 @@ export async function GET() {
       )
     }
 
-    const supabase = await createClient()
-    const { data: applications, error: dbError } = await supabase
+    // Admin access was verified above. The session client is filtered by RLS through is_admin(), which only looks at
+    // profiles, so it returned an empty list for an admin who is authorized through app_metadata.
+    const { data: applications, error: dbError } = await createAdminClient()
       .from('pro_applications')
       .select('*')
       .order('created_at', { ascending: false })
@@ -33,7 +34,8 @@ export async function GET() {
 
     return NextResponse.json({ applications: applications || [] }, { status: 200 })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to retrieve applications' }, { status: 503 })
+    console.error('[pro-applications GET]', error instanceof Error ? error.message : (error as { message?: string })?.message)
+    return NextResponse.json({ error: 'Failed to retrieve applications' }, { status: 503 })
   }
 }
 
