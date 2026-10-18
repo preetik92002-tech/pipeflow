@@ -32,7 +32,7 @@ describe('service page seed', () => {
   })
 
   it('uses real request-catalog service ids and never invents a service', () => {
-    const ok = ['plumbing:water-heater-repair', 'plumbing:water-heater-replacement', 'plumbing:frozen-pipe-repair', 'hvac:ac-repair', 'hvac:ac-installation', 'hvac:other-hvac']
+    const ok = ['plumbing:water-heater-repair', 'plumbing:water-heater-replacement', 'plumbing:frozen-pipe-repair', 'hvac:ac-repair', 'hvac:ac-installation', 'hvac:heating-installation']
     for (const p of servicePages) expect(ok, p.path).toContain(p.data.formService)
   })
 
@@ -113,6 +113,18 @@ describe('service pages migration', () => {
     expect(rows.filter((r) => r.path !== 'water-heater-repair').every((r) => r.status === 'draft')).toBe(true)
     expect(rows.find((r) => r.path === 'water-heater-repair')?.title).toBe('Edited')
     expect(rows.find((r) => r.path === 'water-heater-repair')?.status).toBe('draft')
+  })
+
+  it('creates every new page non-indexable, so publishing cannot make an unapproved page indexable', async () => {
+    const db = new PGlite()
+    open.push(db)
+    await db.exec(read('20261009000000_cms_pages.sql'))
+    await db.exec(read('20261013000000_service_pages.sql'))
+    const { rows } = await db.query<{ path: string; noindex: boolean; canonical_url: string | null }>(
+      'select p.path, r.noindex, r.canonical_url from cms_pages p join cms_page_revisions r on r.id = p.draft_revision_id order by p.path'
+    )
+    expect(rows).toHaveLength(8)
+    expect(rows.every((r) => r.noindex === true && r.canonical_url === null)).toBe(true)
   })
 
   it('reports and preserves an existing published page with conflicting content', async () => {
