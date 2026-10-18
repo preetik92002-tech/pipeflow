@@ -544,8 +544,8 @@ const acInstallation: ServiceSeedPage = {
 }
 
 // ------------------------------------------------------------------ 8. Heating Installation
-// The request catalog has no heating-installation service, so the form is preset to the existing
-// "Something else / not sure" HVAC option (hvac:other-hvac). No service id is invented.
+// The form is preset to the catalog's own hvac:heating-installation service (src/lib/requests/schema.ts), so the
+// saved request is labelled "Heating Installation" and not "Something else / not sure".
 const heatingInstallation: ServiceSeedPage = {
   path: 'heating-installation',
   title: 'Heating Installation',
@@ -555,7 +555,7 @@ const heatingInstallation: ServiceSeedPage = {
   type: 'serviceDetail',
   data: {
     ...base,
-    serviceCategory: 'hvac', formService: 'hvac:other-hvac', formServiceLabel: 'Heating Installation',
+    serviceCategory: 'hvac', formService: 'hvac:heating-installation',
     breadcrumbs: [home, HVAC, link('Heating Installation', '/heating-installation')],
     heading: 'Heating System Installation in Denver and Boulder',
     intro: 'Winter in Colorado can bring heavy snow, sub-freezing nights, and sudden cold snaps. A heating system that fits your property keeps you comfortable and manages energy use. This page explains the main heating options, sizing, and planning, and how to request an installation estimate in Denver, Boulder, and nearby communities where service is available.',
