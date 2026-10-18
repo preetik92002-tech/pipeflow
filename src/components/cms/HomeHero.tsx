@@ -93,8 +93,9 @@ export function HomeHero({ labelId }: { labelId?: string }) {
 
   return (
     <section data-hero className="relative isolate overflow-hidden bg-gradient-to-b from-navy-900 via-navy-800 to-navy-700 text-white" aria-labelledby={labelId}>
-      {/* Decorative mountains and skyline: layered shapes only, no text. */}
-      <svg className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[38%] min-h-[140px] w-full" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+      <HeroBackdrop />
+      {/* Decorative mountains and skyline: layered shapes only, no text. Kept faint so the photos show through. */}
+      <svg className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[38%] min-h-[140px] w-full opacity-30" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0 220 L140 120 L230 190 L380 60 L520 200 L640 110 L780 210 L920 80 L1080 200 L1220 120 L1340 190 L1440 140 V320 H0 Z" fill="#132952" opacity="0.7" />
         <path d="M0 260 L120 190 L260 250 L420 150 L560 255 L700 180 L860 260 L1010 170 L1160 255 L1300 200 L1440 250 V320 H0 Z" fill="#1A3566" opacity="0.75" />
         <path d="M0 300 L0 285 H60 V265 H95 V285 H150 V250 H190 V285 H1250 V270 H1290 V240 H1325 V270 H1380 V280 H1440 V300 Z" fill="#0B1728" opacity="0.6" />
