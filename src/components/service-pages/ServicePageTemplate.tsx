@@ -261,11 +261,11 @@ export function ServicePageTemplate({ data, template, liveHrefs }: { data: Data;
           <a href={ctaTarget} className={styles.cta}>
             {data.finalCtaLabel}
           </a>
-          {data.related.length > 0 && (
+          {related.length > 0 && (
             <nav aria-label={data.relatedHeading} className={styles.related}>
               <h3>{data.relatedHeading}</h3>
               <ul>
-                {data.related.map((l, i) => (
+                {related.map((l, i) => (
                   <li key={i}>
                     <Link href={l.href}>{l.label}</Link>
                   </li>
