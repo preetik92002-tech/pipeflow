@@ -11,7 +11,7 @@ const isDev = process.env.NODE_ENV !== 'production'
 // next/font self-hosts fonts at build time, so no external font CDN is needed.
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://connect.facebook.net`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://*.supabase.co https://www.facebook.com",
   "font-src 'self' data:",
