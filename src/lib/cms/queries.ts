@@ -1,7 +1,6 @@
 import { createPublicClient } from '@/lib/supabase/public'
 import type { BlogPost } from '@/lib/blog/types'
-import type { CmsBlog, CmsService, CmsServiceArea, HomepageContent } from './types'
-import type { Testimonial, Service, FAQ } from '@/types'
+import type { CmsBlog } from './types'
 import { resolveImage } from '@/lib/media/photos'
 
 export function toBlogPost(row: CmsBlog): BlogPost {
