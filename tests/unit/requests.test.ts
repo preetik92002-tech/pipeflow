@@ -55,6 +55,14 @@ describe('service request schema', () => {
     expect(requestSchema.safeParse({ ...valid, service: 'water-heater-installation' }).success).toBe(true)
     expect(requestSchema.safeParse({ ...valid, category: 'hvac', service: 'water-heater-installation' }).success).toBe(false)
   })
+
+  it('accepts heating installation as an HVAC service only, and keeps the older "something else" value valid', () => {
+    expect(requestSchema.safeParse({ ...valid, category: 'hvac', service: 'heating-installation' }).success).toBe(true)
+    expect(requestSchema.safeParse({ ...valid, category: 'plumbing', service: 'heating-installation' }).success).toBe(false)
+    expect(requestSchema.safeParse({ ...valid, category: 'hvac', service: 'other-hvac' }).success).toBe(true)
+    expect(serviceLabel('heating-installation')).toBe('Heating Installation')
+    expect(serviceLabel('other-hvac')).toBe('Something else / not sure')
+  })
 })
 
 describe('attachment files', () => {
