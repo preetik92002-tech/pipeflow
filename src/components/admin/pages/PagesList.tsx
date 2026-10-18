@@ -245,6 +245,7 @@ function NewPageModal({ open, onClose, existing, onCreated }: { open: boolean; o
     <Modal isOpen={open} onClose={onClose} title="New page" size="md">
       <form className="space-y-4 p-6" onSubmit={(e) => { e.preventDefault(); void create() }}>
         <TextField label="Page title" value={title} onChange={(v) => { setTitle(v); if (!slugTouched) setSlug(slugify(v)) }} max={180} placeholder="Our Services" />
+        <SelectField label="Page template" value={template} onChange={setTemplate} options={[{ value: 'standard', label: 'Standard page (add sections yourself)' }, { value: 'serviceCategory', label: 'Service Category Template' }, { value: 'serviceDetail', label: 'Individual Service Template' }]} />
         <SelectField label="Under" value={parent} onChange={setParent} options={parents.map((p) => ({ value: p, label: p === '' ? 'Top level' : `/${p}` }))} />
         <TextField label="Page URL name" value={slug} onChange={(v) => { setSlugTouched(true); setSlug(slugify(v) || v.toLowerCase()) }} max={80} error={pathError ?? undefined} />
         <p className="text-xs text-neutral-600">Web address: <code className="rounded bg-neutral-100 px-1.5 py-0.5">{pathToUrl(path)}</code></p>
