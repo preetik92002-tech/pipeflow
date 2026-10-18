@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
-import { SectionRenderer } from '@/components/cms/SectionRenderer'
+import { SectionRenderer, hasLegacyBetterWay } from '@/components/cms/SectionRenderer'
 import { idSchema } from '@/lib/cms-pages/api'
 import { getActiveReviews } from '@/lib/cms/queries'
 import { ancestorPaths, buildPageContext } from '@/lib/cms-pages/page-context'
@@ -30,6 +30,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
     ctx.reviews = r.items
     ctx.reviewStats = { count: r.count, average: r.average }
   }
+  const legacyStored = ctx.kind === 'home' && hasLegacyBetterWay(page.sections)
   return (
     <>
       <div role="status" className="sticky top-0 z-50 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-navy-900">
