@@ -5,6 +5,7 @@ import {
   StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection, SlantDivider, JunctionAvatar, CompanyMarketingCta,
   type PageContext, type Tone, type Look,
 } from './sections'
+import { ServicePageTemplate } from '@/components/service-pages/ServicePageTemplate'
 
 const LEGACY_BETTER_WAY_CARDS = ['Local Options', 'Easy Service Requests', 'Photo Uploads', 'Convenient Scheduling', 'Residential & Commercial Support', 'Clear Professional Profiles'].join('|')
 const DEFAULT_CTX: PageContext = { kind: 'page', crumbs: [] }
@@ -54,6 +55,8 @@ function renderSection(section: Section, index: number, tone: Tone, ctx: PageCon
     case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} look={look} />
     case 'contactInfo': return <ContactInfoSection data={section.data} tone={tone} />
     case 'spacer': return <SpacerSection data={section.data} />
+    case 'serviceCategory': return <ServicePageTemplate data={section.data} template="category" />
+    case 'serviceDetail': return <ServicePageTemplate data={section.data} template="detail" />
   }
 }
 
