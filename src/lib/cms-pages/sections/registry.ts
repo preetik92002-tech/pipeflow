@@ -26,8 +26,21 @@ export const SECTION_TYPES: SectionMeta[] = [
   { type: 'testimonials', label: 'Testimonials', description: 'Customer quotes. Only add real, verified reviews.', defaults: () => ({ heading: 'What Customers Are Saying', items: [] }) },
   { type: 'linkList', label: 'Link list', description: 'A list of links, such as related services.', defaults: () => ({ heading: 'New heading', links: [] }) },
   { type: 'contactInfo', label: 'Contact info', description: 'Phone, email, address and hours.', defaults: () => ({ heading: 'Contact us', phone: '', email: '', address: '', hours: '' }) },
+  { type: 'serviceCategory', label: 'Service category page', description: 'A whole service category page (hero, three service cards, guidance, request form, FAQs, final call to action).', defaults: () => servicePageDefaults('category') },
+  { type: 'serviceDetail', label: 'Individual service page', description: 'A whole service page (hero, service information, guidance, request form, FAQs, final call to action).', defaults: () => servicePageDefaults('detail') },
   { type: 'spacer', label: 'Spacer', description: 'Empty space between sections.', defaults: () => ({ size: 'md' }) },
 ]
+
+/** Starting content for a new service page; the editor fills in the rest. */
+export function servicePageDefaults(template: 'category' | 'detail'): Record<string, unknown> {
+  return {
+    serviceCategory: 'plumbing', formService: 'plumbing:water-heater-repair', breadcrumbs: [], heading: 'New service page', intro: '', ctaLabel: 'Request Service',
+    illustration: 'pipes', illustrationAlt: '', mainHeading: template === 'category' ? 'Services you can explore' : 'What to know', cards: [], mainBlocks: [],
+    guidanceHeading: 'Practical guidance', guidanceBlocks: [], faqHeading: 'Frequently asked questions', faqs: [], relatedHeading: 'Related services and areas', related: [],
+    finalHeading: 'Ready to request service?', finalText: '', finalCtaLabel: 'Request Service',
+    disclosure: 'Submitting a request does not guarantee immediate service or availability of a provider. Service coverage, pricing, scheduling and terms vary by location, service type and provider.',
+  }
+}
 
 export const sectionMeta = (type: string) => SECTION_TYPES.find((s) => s.type === type)
 
