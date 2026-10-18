@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Check } from 'lucide-react'
 import type { z } from 'zod'
 import type { servicePageData, serviceBlock } from '@/lib/cms-pages/sections/schema'
+import { isLinkable } from '@/lib/cms-pages/service-links'
 import { ServiceIllustration } from './ServiceIllustration'
 import { ServiceRequestForm } from './ServiceRequestForm'
 import styles from './servicePage.module.css'
@@ -159,7 +160,7 @@ function BlockView({ block }: { block: Block }) {
  * Both service-page templates in one renderer. Four primary sections: hero, main information,
  * guidance with the request form, final call to action. Content comes from the CMS as structured data.
  */
-export function ServicePageTemplate({ data, template }: { data: Data; template: 'category' | 'detail' }) {
+export function ServicePageTemplate({ data, template, liveHrefs }: { data: Data; template: 'category' | 'detail'; liveHrefs?: ReadonlySet<string> }) {
   const ctaTarget = '#request'
   return (
     <div className={styles.page} data-service-page={template}>
