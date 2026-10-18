@@ -115,6 +115,11 @@ COMMIT;
 
 // Only write files when run directly, not when a test imports the generators.
 if (process.argv[1]?.endsWith('generate-seed-sql.ts')) {
-  writeFileSync(OUTPUT, buildSeedSql())
-  console.log(`Wrote ${OUTPUT} (${seedPages.length} pages)`)
+  const serviceOnly = process.argv.includes('--service-only')
+  if (!serviceOnly) {
+    writeFileSync(OUTPUT, buildSeedSql())
+    console.log(`Wrote ${OUTPUT} (${seedPages.length} pages)`)
+  }
+  writeFileSync(SERVICE_OUTPUT, buildServicePagesSql())
+  console.log(`Wrote ${SERVICE_OUTPUT} (${servicePages.length} pages)`)
 }
