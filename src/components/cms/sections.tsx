@@ -43,6 +43,8 @@ export interface PageContext {
   cityPhoto?: Photo
   reviews?: ReviewItem[]
   reviewStats?: ReviewStats
+  /** Paths ('/plumbing') of the linked CMS pages that are live. When set, service pages withhold links to any other CMS page. */
+  liveHrefs?: ReadonlySet<string>
 }
 
 /** Optional look for a section: dark navy band with slanted (criss-cross) top and bottom edges, optionally ending with the "Questions?" bar. */
