@@ -8,6 +8,7 @@ import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import { servicePageDefaults } from '@/lib/cms-pages/sections/registry'
 import { validatePath } from '@/lib/cms-pages/paths'
 import { faqJsonLd } from '@/lib/cms-pages/jsonld'
+import { serviceLabel } from '@/lib/requests/schema'
 import { servicePages } from '../../supabase/seed/service-pages'
 import { buildServicePagesSql, SERVICE_OUTPUT } from '../../scripts/generate-seed-sql'
 
