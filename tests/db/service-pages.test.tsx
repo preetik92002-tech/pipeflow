@@ -164,12 +164,14 @@ describe('AC and heating pages', () => {
     for (const h of hrefs) expect(h === '/' || h === '/denver' || h === '/boulder' || paths.has(h), h).toBe(true)
     expect(known.size).toBeGreaterThan(0)
   })
-  it('heating installation reuses the Something else option without inventing an id, and shows its own label', () => {
+  it('heating installation presets its own catalog service, which the server accepts and labels correctly', () => {
     const d = page('heating-installation').data
-    expect(d.formService).toBe('hvac:other-hvac')
+    expect(d.formService).toBe('hvac:heating-installation')
     const html = render(page('heating-installation'))
-    expect(html).toContain('>Heating Installation</option>')
+    expect(html).toContain('<option value="hvac:heating-installation" selected="">Heating Installation</option>')
+    expect(html).not.toContain('<option value="hvac:other-hvac" selected')
     expect(sectionsSchema.safeParse(withIds(page('heating-installation'))).success).toBe(true)
+    expect(serviceLabel('heating-installation')).toBe('Heating Installation')
   })
   it('the AC page keeps the service-availability notice and the electrical/refrigerant warning', () => {
     const html = render(page('ac-services'))
