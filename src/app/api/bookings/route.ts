@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { checkRateLimit, checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
 
