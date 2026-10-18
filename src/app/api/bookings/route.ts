@@ -22,11 +22,15 @@ export async function GET() {
   if (!auth.authenticated) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
   if (!auth.authorized) return NextResponse.json({ error: 'Admin authorization required.' }, { status: 403 })
   try {
-    const supabase = await createClient()
-    const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false })
+    // Admin access was just verified above (app_metadata role or profiles row). The session client would be filtered by
+    // RLS through is_admin(), which only looks at profiles, so an admin without a profiles row would get an empty list.
+    const { data, error } = await createAdminClient().from('bookings').select('*').order('created_at', { ascending: false })
     if (error) throw error
     return NextResponse.json({ bookings: data ?? [] }, { headers: { 'Cache-Control': 'no-store' } })
-  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to load bookings.' }, { status: 503 }) }
+  } catch (error) {
+    console.error('[bookings GET]', error instanceof Error ? error.message : (error as { message?: string })?.message)
+    return NextResponse.json({ error: 'Unable to load bookings.' }, { status: 503 })
+  }
 }
 
 export async function POST(request: NextRequest) {
