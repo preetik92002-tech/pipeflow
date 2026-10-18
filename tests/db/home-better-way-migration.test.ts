@@ -48,6 +48,17 @@ describe('home "A Better Way" migration', () => {
     await about.db.exec(MIGRATION)
     expect(await headings(about.db, 'draft', about.id)).toHaveLength(1)
   })
+  it('preserves administrator-edited card copy even when the heading and titles still match', async () => {
+    const edited = betterWay()
+    edited.data.cards[0].text = 'Administrator-approved wording.'
+    const { db, id } = await setup([edited])
+    await db.exec(MIGRATION)
+    const { rows } = await db.query<{ sections: { data: { cards: { text: string }[] } }[] }>(
+      'select r.sections from cms_pages p join cms_page_revisions r on r.id = p.draft_revision_id where p.id = $1',
+      [id]
+    )
+    expect(rows[0].sections[0].data.cards[0].text).toBe('Administrator-approved wording.')
+  })
   it('skips a home page that has unpublished edits', async () => {
     const { db, id } = await setup([betterWay()])
     const { rows } = await db.query<{ version: number }>('select version from cms_pages where id = $1', [id])
