@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
 import { checkSpam, checkRateLimit, sanitizeString } from '@/lib/forms/spamProtection'
 
@@ -72,7 +73,9 @@ export async function POST(request: NextRequest) {
     landing_page: clean(fields.landingPage || fields.landing_page) || null,
   }
   try {
-    const supabase = await createClient()
+    // The anonymous INSERT policy is intentionally removed by a later migration.
+    // Keep the validated, rate-limited, spam-checked write on the server only.
+    const supabase = createAdminClient()
     const { error } = await supabase.from('leads').insert(record)
     if (error) throw error
     return NextResponse.json({ success: true, message: 'Your service request has been received.' }, { status: 201 })
