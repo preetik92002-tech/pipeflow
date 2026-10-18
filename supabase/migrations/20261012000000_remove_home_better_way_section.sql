@@ -15,7 +15,18 @@ DECLARE
   v_page cms_pages%ROWTYPE;
   v_rev cms_page_revisions%ROWTYPE;
   v_new JSONB;
-  c_titles CONSTANT JSONB := '["Local Options","Easy Service Requests","Photo Uploads","Convenient Scheduling","Residential & Commercial Support","Clear Professional Profiles"]'::jsonb;
+  c_expected_data CONSTANT JSONB := $better_way${
+    "heading": "A Better Way to Find Plumbing & HVAC Help",
+    "intro": "",
+    "cards": [
+      {"title": "Local Options", "text": "", "href": "", "image": ""},
+      {"title": "Easy Service Requests", "text": "", "href": "", "image": ""},
+      {"title": "Photo Uploads", "text": "", "href": "", "image": ""},
+      {"title": "Convenient Scheduling", "text": "", "href": "", "image": ""},
+      {"title": "Residential & Commercial Support", "text": "", "href": "", "image": ""},
+      {"title": "Clear Professional Profiles", "text": "", "href": "", "image": ""}
+    ]
+  }$better_way$::jsonb;
 BEGIN
   SELECT * INTO v_page FROM cms_pages WHERE path = '' AND deleted_at IS NULL FOR UPDATE;
   IF NOT FOUND THEN
@@ -37,10 +48,7 @@ BEGIN
   FROM jsonb_array_elements(v_rev.sections) WITH ORDINALITY AS y(s, si)
   WHERE NOT (
     s->>'type' = 'featureCards'
-    AND s->'data'->>'heading' = 'A Better Way to Find Plumbing & HVAC Help'
-    AND jsonb_typeof(s->'data'->'cards') = 'array'
-    AND (SELECT COALESCE(jsonb_agg(c->>'title' ORDER BY ci), '[]'::jsonb)
-         FROM jsonb_array_elements(s->'data'->'cards') WITH ORDINALITY AS z(c, ci)) = c_titles
+    AND s->'data' = c_expected_data
   );
 
   IF v_new IS DISTINCT FROM v_rev.sections THEN
