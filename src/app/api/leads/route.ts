@@ -34,12 +34,14 @@ export async function GET() {
   if (!auth.authenticated) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
   if (!auth.authorized) return NextResponse.json({ error: 'Admin authorization required.' }, { status: 403 })
   try {
-    const supabase = await createClient()
-    const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false })
+    // Admin access was just verified above. The session client is filtered by RLS through is_admin(), which only looks at
+    // profiles, so it would return nothing for an admin who is authorized through app_metadata.
+    const { data, error } = await createAdminClient().from('leads').select('*').order('created_at', { ascending: false })
     if (error) throw error
     return NextResponse.json({ leads: data ?? [] }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to load leads.' }, { status: 503 })
+    console.error('[leads GET]', error instanceof Error ? error.message : (error as { message?: string })?.message)
+    return NextResponse.json({ error: 'Unable to load leads.' }, { status: 503 })
   }
 }
 
