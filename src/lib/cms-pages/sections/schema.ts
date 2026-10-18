@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { buttonSchema, hrefSchema, imageSrcSchema } from '../links'
 import { richTextSchema } from '../richtext'
+import { SERVICES } from '../../requests/schema'
 
 /**
  * One Zod schema per section type. The same schemas validate what the editor
@@ -109,6 +110,51 @@ export const contactInfoData = z.object({
 })
 
 export const spacerData = z.object({ size: z.enum(['sm', 'md', 'lg']).default('md') })
+
+// ---- service pages (category and individual-service templates) -----------------------------
+export const SERVICE_ILLUSTRATIONS = ['water-heater', 'furnace', 'frozen-pipe', 'ac-vent', 'ac-condenser', 'pipes', 'thermostat', 'building'] as const
+const FORM_SERVICES = (['plumbing', 'hvac'] as const).flatMap((c) => SERVICES[c].map((s) => `${c}:${s.value}`))
+const link = z.object({ label: z.string().trim().min(1, 'Link text is required.').max(120), href: hrefSchema })
+
+/** One content block inside a service page. The kind decides which fields are shown. */
+export const serviceBlock = z.object({
+  kind: z.enum(['text', 'list', 'steps', 'cards', 'table', 'notice', 'accordion']),
+  heading: text(180).default(''),
+  intro: text(1500).default(''),
+  text: text(4000).default(''),
+  items: z.array(text(600)).max(40).default([]).transform((a) => a.filter(Boolean)),
+  cards: z.array(z.object({ title: heading(160), text: text(1500).default('') })).max(12).default([]),
+  columns: z.array(text(120)).max(5).default([]).transform((a) => a.filter(Boolean)),
+  rows: z.array(z.array(text(600))).max(20).default([]),
+  tone: z.enum(['info', 'safety']).default('info'),
+})
+
+export const servicePageData = z.object({
+  serviceCategory: z.enum(['plumbing', 'hvac']),
+  /** "category:service" from the request catalog; the request form is preset to it. */
+  formService: z.string().refine((v) => FORM_SERVICES.includes(v), 'Choose a service from the request catalog.'),
+  /** Optional name shown for the preselected service in the form (the value stays the catalog id). */
+  formServiceLabel: text(80).default(''),
+  breadcrumbs: z.array(link).max(5).default([]),
+  heading: heading(),
+  intro: text(3000).default(''),
+  ctaLabel: text(80).default('Request Service'),
+  illustration: z.enum(SERVICE_ILLUSTRATIONS).default('pipes'),
+  illustrationAlt: text(250).default(''),
+  mainHeading: text(180).default(''),
+  cards: z.array(z.object({ title: heading(160), text: text(800).default(''), href: hrefSchema, illustration: z.enum(SERVICE_ILLUSTRATIONS).default('pipes'), illustrationAlt: text(250).default('') })).max(6).default([]),
+  mainBlocks: z.array(serviceBlock).max(20).default([]),
+  guidanceHeading: text(180).default(''),
+  guidanceBlocks: z.array(serviceBlock).max(24).default([]),
+  faqHeading: text(180).default('Frequently asked questions'),
+  faqs: z.array(z.object({ question: z.string().trim().min(1, 'A question is required.').max(300), answer: z.string().trim().min(1, 'An answer is required.').max(3000) })).max(20).default([]),
+  relatedHeading: text(180).default('Related services and areas'),
+  related: z.array(link).max(10).default([]),
+  finalHeading: heading(),
+  finalText: text(1000).default(''),
+  finalCtaLabel: text(80).default('Request Service'),
+  disclosure: text(600).default('Submitting a request does not guarantee immediate service or availability of a provider. Service coverage, pricing, scheduling and terms vary by location, service type and provider.'),
+})
 
 const id = z.string().uuid()
 
