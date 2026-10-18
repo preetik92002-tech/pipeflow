@@ -35,8 +35,9 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
     <>
       <div role="status" className="sticky top-0 z-50 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-navy-900">
         Preview of the saved draft — not visible to visitors{page.status === 'published' ? ' until you publish your changes' : ' until you publish'}.
+        {legacyStored && ' This draft still contains the “A Better Way to Find Plumbing & HVAC Help” section: it is shown here, but the live home page hides it.'}
       </div>
-      <SectionRenderer sections={page.sections} ctx={ctx} />
+      <SectionRenderer sections={page.sections} ctx={ctx} showLegacy />
     </>
   )
 }
