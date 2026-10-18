@@ -5,8 +5,10 @@ export function faqJsonLd(sections: unknown): Record<string, unknown> | null {
   const list = Array.isArray(sections) ? sections : []
   const entities = list.flatMap((raw) => {
     const parsed = sectionsSchema.element.safeParse(raw)
-    if (!parsed.success || parsed.data.type !== 'faq') return []
-    return parsed.data.data.items.map((item) => ({
+    if (!parsed.success) return []
+    const d = parsed.data
+    const items = d.type === 'faq' ? d.data.items : d.type === 'serviceCategory' || d.type === 'serviceDetail' ? d.data.faqs : []
+    return items.map((item) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: { '@type': 'Answer', text: item.answer },
