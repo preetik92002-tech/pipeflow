@@ -1,7 +1,7 @@
 import type { SectionType } from './schema'
 import {
   heroData, richTextData, contentBlockData, galleryData, featureCardsData, comparisonData,
-  stepsData, faqData, ctaData, testimonialsData, linkListData, contactInfoData, spacerData,
+  stepsData, faqData, ctaData, testimonialsData, linkListData, contactInfoData, spacerData, servicePageData,
 } from './schema'
 import { emptyRichText } from '../richtext'
 
@@ -48,5 +48,5 @@ export const dataSchemas = {
   hero: heroData, richText: richTextData, contentBlock: contentBlockData, gallery: galleryData,
   featureCards: featureCardsData, comparison: comparisonData, steps: stepsData, faq: faqData,
   cta: ctaData, testimonials: testimonialsData, linkList: linkListData, contactInfo: contactInfoData,
-  spacer: spacerData,
+  spacer: spacerData, serviceCategory: servicePageData, serviceDetail: servicePageData,
 } as const
