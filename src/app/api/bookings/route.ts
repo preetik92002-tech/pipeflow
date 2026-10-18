@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { checkRateLimit, checkSpam, sanitizeString } from '@/lib/forms/spamProtection'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdminAuth } from '@/lib/supabase/auth'
 
 const schema = z.object({
@@ -54,7 +55,8 @@ export async function POST(request: NextRequest) {
     utm_campaign: clean(fields.utm_campaign) || null, gclid: clean(fields.gclid) || null, fbclid: clean(fields.fbclid) || null,
   }
   try {
-    const supabase = await createClient()
+    // Persist only after this server route's validation, rate limit and spam checks.
+    const supabase = createAdminClient()
     const { error } = await supabase.from('bookings').insert(record)
     if (error) throw error
     return NextResponse.json({ success: true, bookingId: record.booking_id, message: 'Your requested service window has been logged.' }, { status: 201 })
