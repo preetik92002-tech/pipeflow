@@ -1,12 +1,15 @@
-import { ArrowRight, ArrowUpRight, Award, CalendarCheck, BadgeCheck, Check, Clock, Droplets, Fan, Flame, Home, Mail, MapPin, Phone, Plus, ShieldCheck, Snowflake, ThermometerSun, ThumbsUp, Users, Wrench, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Award, BadgeCheck, Check, Clock, Droplets, Fan, Flame, Home, Info, Mail, MapPin, Phone, Plus, ShieldCheck, Snowflake, ThermometerSun, ThumbsUp, Users, Wrench, type LucideIcon } from 'lucide-react'
 import type { SectionData } from '@/lib/cms-pages/sections/schema'
 import type { CmsButton } from '@/lib/cms-pages/links'
-import { PHOTOS, HERO_BANNERS, heroBanner, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
-import { SplitWords } from '@/components/motion/SplitWords'
+import { heroBanner, servicePhotoFor, SERVICE_PHOTOS, type Photo } from '@/lib/media/photos'
 import { CmsButtons, SmartLink } from './CmsButtons'
 import { CmsImage } from './CmsImage'
+import { FrontRangeMap } from './FrontRangeMap'
+import { ExpandOnDesktop } from './ExpandOnDesktop'
 import { HomeHero } from './HomeHero'
 import { RichTextRenderer } from './RichTextRenderer'
+
+export { FrontRangeMap }
 
 /**
  * Public page sections. Har CMS page inhi se banta hai, isliye design yahan badalne se
