@@ -33,18 +33,22 @@ function HeroPhotos() {
 
   return (
     <>
-      {SLIDES.map((src, i) => (
-        <Image
-          key={src}
-          src={src}
-          alt=""
-          fill
-          sizes="100vw"
-          priority={i === 0}
-          loading={i === 0 ? undefined : 'eager'}
-          className={`object-cover object-[78%_center] transition-opacity duration-[1600ms] ease-in-out motion-reduce:transition-none lg:object-right ${i === index ? 'opacity-100' : 'opacity-0'}`}
-        />
-      ))}
+      {SLIDES.map((src, i) => {
+        // Keep the first-screen request focused on the LCP photo. The alternate
+        // slide only needs to enter the DOM when the carousel reaches it.
+        if (i > 0 && index === 0) return null
+        return (
+          <Image
+            key={src}
+            src={src}
+            alt=""
+            fill
+            sizes="100vw"
+            preload={i === 0}
+            className={`object-cover object-[78%_center] transition-opacity duration-[1600ms] ease-in-out motion-reduce:transition-none lg:object-right ${i === index ? 'opacity-100' : 'opacity-0'}`}
+          />
+        )
+      })}
     </>
   )
 }
