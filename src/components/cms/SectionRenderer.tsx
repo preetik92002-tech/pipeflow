@@ -50,7 +50,7 @@ export function layoutSections(sections: Section[]): Item[] {
   for (let i = 0; i < sections.length; i++) {
     if (isTextBlock(sections[i]) && i + 1 < sections.length && isTextBlock(sections[i + 1])) {
       const run: Extract<Section, { type: 'contentBlock' }>[] = []
-      while (i < sections.length && run.length < 3 && isShortBlock(sections[i])) run.push(sections[i++] as Extract<Section, { type: 'contentBlock' }>)
+      while (i < sections.length && run.length < 3 && isTextBlock(sections[i])) run.push(sections[i++] as Extract<Section, { type: 'contentBlock' }>)
       i--
       items.push({ kind: 'group', id: run[0].id, blocks: run.map((s) => s.data) })
     } else {
@@ -60,21 +60,21 @@ export function layoutSections(sections: Section[]): Item[] {
   return items
 }
 
-const isDark = (s: Section) => s.type === 'hero' || s.type === 'steps' || (s.type === 'cta' && s.data.tone === 'dark') || s.type === 'spacer'
+const isDark = (s: Section) => s.type === 'hero' || (s.type === 'cta' && s.data.tone === 'dark') || s.type === 'spacer'
 
-function renderSection(section: Section, index: number, tone: Tone, ctx: PageContext, look?: Look) {
+function renderSection(section: Section, index: number, tone: Tone, ctx: PageContext) {
   switch (section.type) {
     case 'hero': return <HeroSection data={section.data} first={index === 0} ctx={ctx} />
     case 'richText': return <RichTextSection data={section.data} tone={tone} />
     case 'contentBlock': return <ContentBlockSection data={section.data} tone={tone} />
     case 'gallery': return <GallerySection data={section.data} tone={tone} />
-    case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} look={look} />
+    case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} />
     case 'comparison': return <ComparisonSection data={section.data} tone={tone} />
-    case 'steps': return <StepsSection data={section.data} ctx={ctx} />
+    case 'steps': return <StepsSection data={section.data} ctx={ctx} tone={tone} />
     case 'faq': return <FaqSection data={section.data} tone={tone} />
     case 'cta': return <CtaSection data={section.data} tone={tone} />
     case 'testimonials': return <TestimonialsSection data={section.data} tone={tone} />
-    case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} look={look} />
+    case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} />
     case 'contactInfo': return <ContactInfoSection data={section.data} tone={tone} />
     case 'spacer': return <SpacerSection data={section.data} />
     case 'serviceCategory': return <ServicePageTemplate data={section.data} template="category" liveHrefs={ctx.liveHrefs} />
