@@ -15,27 +15,32 @@ export function StickyMobileCTA() {
   const pathname = usePathname()
   const [overForm, setOverForm] = useState(false)
 
-  // Home hero form: keep the bar out of the way while the form is on screen or being used, so it never covers the submit button.
+  // Keep the bar out of the way where it would only repeat or cover something: while a hero (which has its own
+  // Request Service button) or a request form is on screen or being used, and on the request page itself.
   useEffect(() => {
-    const form = document.querySelector<HTMLElement>('section[data-hero] form')
-    if (!form) {
+    const targets = [...document.querySelectorAll<HTMLElement>('[data-hero], form[data-quick-request], form#request')]
+    if (!targets.length) {
       setOverForm(false)
       return
     }
-    let inView = false
+    const visible = new Set<Element>()
     let focused = false
-    const update = () => setOverForm(inView || focused)
-    const io = new IntersectionObserver(([entry]) => {
-      inView = entry.isIntersecting
+    const update = () => setOverForm(visible.size > 0 || focused)
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) visible.add(e.target)
+        else visible.delete(e.target)
+      }
       update()
     })
-    io.observe(form)
+    targets.forEach((t) => io.observe(t))
+    const forms = targets.filter((t) => t.tagName === 'FORM')
     const onIn = () => {
       focused = true
       update()
     }
     const onOut = (e: FocusEvent) => {
-      if (e.relatedTarget instanceof Node && form.contains(e.relatedTarget)) return
+      if (e.relatedTarget instanceof Node && forms.some((f) => f.contains(e.relatedTarget as Node))) return
       focused = false
       update()
     }
