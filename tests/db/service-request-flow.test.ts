@@ -116,6 +116,7 @@ describe('water heater lead flow', () => {
   it('rejects an unknown or mismatched service and saves nothing', async () => {
     expect((await submit({ ...base, service: 'water-heater-teleport' })).status).toBe(400)
     expect((await submit({ ...base, service: 'ac-installation' })).status).toBe(400)
+    expect((await submit({ ...base, description: '' })).status).toBe(400)
     expect(await saved()).toEqual([])
   })
 
