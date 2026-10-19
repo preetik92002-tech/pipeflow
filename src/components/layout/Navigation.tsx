@@ -1,9 +1,11 @@
 'use client'
 
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import type { NavItem } from '@/types'
+import type { MenuItem } from '@/lib/cms-pages/menu'
 
 interface NavigationProps {
   items: NavItem[]
