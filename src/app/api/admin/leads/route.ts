@@ -27,6 +27,7 @@ export async function GET() {
     const leads = await Promise.all((leadResult.data ?? []).map(async (lead) => {
       const paths: string[] = Array.isArray(lead.attachments) ? lead.attachments : []
       let attachment_links: Array<{ name: string; url: string }> = []
+      let attachment_error = false
       if (paths.length) {
         const { data } = await storage.createSignedUrls(paths, 3600)
         attachment_links = (data ?? []).flatMap((d) => (d.signedUrl && d.path ? [{ name: d.path.split('/').pop() ?? 'file', url: d.signedUrl }] : []))
