@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import Script from 'next/script'
 import { initAttribution, trackEvent } from '@/lib/analytics/tracker'
 import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
