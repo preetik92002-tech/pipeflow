@@ -120,6 +120,69 @@ describe('water heater lead flow', () => {
     expect(await saved()).toEqual([])
   })
 
+  it('creates a second lead for a repeated submission because the API has no idempotency key', async () => {
+    expect((await submit({ ...base, service: 'water-heater-repair' })).status).toBe(201)
+    expect((await submit({ ...base, service: 'water-heater-repair' })).status).toBe(201)
+    expect(await saved()).toHaveLength(2)
+  })
+
+  it('persists the requested attachment path after verifying the stored file bytes', async () => {
+    const path = '123e4567-e89b-12d3-a456-426614174000/0-photo.jpg'
+    state.storedFiles = [{ name: '0-photo.jpg', metadata: { size: 16, mimetype: 'image/jpeg' } }]
+    const res = await submit({ ...base, service: 'water-heater-repair', attachments: [path] })
+    expect(res.status).toBe(201)
+    expect((await saved())[0].attachments).toEqual([path])
+    expect(state.removedPaths).toEqual([])
+  })
+
+  it('rejects an unverified attachment without deleting the client-supplied storage path', async () => {
+    const path = '123e4567-e89b-12d3-a456-426614174000/0-private.jpg'
+    const res = await submit({ ...base, service: 'water-heater-repair', attachments: [path] })
+    expect(res.status).toBe(400)
+    expect(await saved()).toEqual([])
+    expect(state.removedPaths).toEqual([])
+  })
+
+  it('returns a generic failure when the database insert fails', async () => {
+    state.failInsert = true
+    const res = await submit({ ...base, service: 'water-heater-repair' })
+    expect(res.status).toBe(503)
+    const body = await res.json()
+    expect(body).toMatchObject({ error: 'We could not save your request. Please try again.' })
+    expect(JSON.stringify(body)).not.toContain('private database detail')
+    expect(await saved()).toEqual([])
+  })
+
+  it('returns a generic failure when the server database client cannot be created', async () => {
+    state.failClient = true
+    const res = await submit({ ...base, service: 'water-heater-repair' })
+    expect(res.status).toBe(503)
+    const body = await res.json()
+    expect(body).toMatchObject({ error: 'We could not save your request. Please try again.' })
+    expect(JSON.stringify(body)).not.toContain('private database configuration detail')
+    expect(await saved()).toEqual([])
+  })
+
+  it('retrieves the persisted request through the administrator leads endpoint', async () => {
+    const submitted = await submit({ ...base, service: 'water-heater-repair' })
+    expect(submitted.status).toBe(201)
+    state.adminAuth = { authenticated: true, authorized: true, user: null }
+
+    const response = await getAdminLeads()
+    const rows = (await response.json()).leads
+    expect(response.status).toBe(200)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({
+      lead_id: expect.stringMatching(/^LD-/),
+      name: 'Sam Example', email: 'sam@example.com', service_category: 'Plumbing',
+      specific_service: 'Water Heater Repair', service_area: 'Denver', zip_code: '80202',
+      address: '123 Example St', message: 'The water heater makes a banging noise.',
+      status: 'new', lead_type: 'service_request', record_kind: 'lead',
+    })
+    expect(rows[0].id).toBeTruthy()
+    expect(rows[0].created_at).toBeTruthy()
+  })
+
   it('still accepts the service values stored on older leads', async () => {
     for (const service of ['plumbing-repair', 'water-heater-repair', 'water-heater-replacement', 'frozen-pipe-repair', 'plumbing-fixes', 'other-plumbing']) {
       expect((await submit({ ...base, service })).status, service).toBe(201)
