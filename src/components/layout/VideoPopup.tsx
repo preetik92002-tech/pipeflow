@@ -128,16 +128,28 @@ export function VideoPopup() {
   // Phones: under the header while docked, otherwise just above the mobile Request Service bar and the device's bottom
   // inset (the 5.625rem is the video's height at w-40). Tablet and desktop: bottom-right corner.
   return (
-    <aside aria-label="Promotional video" className="fixed right-4 z-40 w-56 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 sm:w-64 lg:!bottom-6 lg:right-6 lg:w-72" style={position}>
-      <video ref={video} src={VIDEO_SRC} autoPlay muted loop playsInline preload="metadata" className="block aspect-video w-full bg-black object-cover" />
-      <div className="absolute right-2 top-2 flex gap-1.5">
+    <aside
+      aria-label="Promotional video"
+      hidden={overForm}
+      className="fixed right-4 top-[var(--vp-top)] z-30 w-40 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 transition-[top] duration-300 motion-reduce:transition-none sm:bottom-[calc(5rem+env(safe-area-inset-bottom))] sm:top-auto sm:w-60 lg:!bottom-6 lg:right-6 lg:w-72"
+      style={{ ['--vp-top' as string]: dockTop ? '4.75rem' : 'calc(100dvh - 5rem - env(safe-area-inset-bottom) - 5.625rem)' }}
+    >
+      <video ref={video} src={VIDEO_SRC} muted loop playsInline preload="metadata" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} className="block aspect-video w-full bg-black object-cover" />
+      <button type="button" onClick={togglePlay} aria-label={playing ? 'Pause video' : 'Play video'} className="absolute inset-0 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-white">
+        {!playing && (
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur">
+            <Play className="h-5 w-5" aria-hidden="true" />
+          </span>
+        )}
+      </button>
+      <div className="absolute right-1.5 top-1.5 flex gap-1">
         <button type="button" onClick={toggleMute} aria-label={muted ? 'Unmute video' : 'Mute video'} className={btn}>
           {muted ? <VolumeX className="h-4 w-4" aria-hidden="true" /> : <Volume2 className="h-4 w-4" aria-hidden="true" />}
         </button>
         <button type="button" onClick={fullscreen} aria-label="View video full screen" className={btn}>
           <Maximize2 className="h-4 w-4" aria-hidden="true" />
         </button>
-        <button type="button" onClick={() => setOpened(false)} aria-label="Close video" className={btn}>
+        <button type="button" onClick={close} aria-label="Close video" className={btn}>
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
