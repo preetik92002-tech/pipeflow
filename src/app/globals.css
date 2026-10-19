@@ -211,7 +211,55 @@
 /* ------------------------------------------------------------------ */
 @layer components {
   .container-wide {
-    @apply mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-10;
+    @apply mx-auto max-w-[80rem] px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ---- Public design system ------------------------------------------------------------------
+   * Navy (ink) carries structure and type, white and cool paper are the surfaces, brand red is kept
+   * for the main customer action. One vertical rhythm for every section so pages read in steps. */
+  .section-y {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+  .section-y-sm {
+    @apply py-10 sm:py-12 lg:py-14;
+  }
+  .ui-h2 {
+    @apply font-display text-display-lg font-semibold text-ink;
+  }
+  .ui-h3 {
+    @apply font-display text-xl font-semibold leading-snug text-ink;
+  }
+  .ui-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-terra;
+  }
+  .ui-card {
+    @apply rounded-xl border border-line bg-white;
+  }
+  .ui-card-link {
+    @apply rounded-xl border border-line bg-white transition-[border-color,box-shadow,transform] duration-200 hover:border-navy-400/40 hover:shadow-card-hover focus-visible:shadow-card-hover motion-safe:hover:-translate-y-0.5;
+  }
+
+  /* Buttons: 44px tall (comfortable touch target), one radius, clear hover/active/disabled states. */
+  .ui-btn {
+    @apply inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg px-5 text-[0.95rem] font-semibold leading-tight transition-[background-color,color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:translate-y-px disabled:pointer-events-none disabled:opacity-50;
+  }
+  .ui-btn-primary {
+    @apply bg-terra text-white shadow-sm hover:bg-terra-dark focus-visible:ring-terra;
+  }
+  .ui-btn-secondary {
+    @apply border border-ink/25 bg-white text-ink hover:border-ink hover:bg-paper focus-visible:ring-ink;
+  }
+  .ui-btn-dark {
+    @apply bg-ink text-white hover:bg-navy-700 focus-visible:ring-ink;
+  }
+  .ui-btn-on-dark {
+    @apply border border-white/50 text-white hover:border-white hover:bg-white hover:text-ink focus-visible:ring-white focus-visible:ring-offset-ink;
+  }
+  .ui-btn-sm {
+    @apply min-h-[2.5rem] px-4 text-sm;
+  }
+  .ui-link {
+    @apply inline-flex items-center gap-1.5 font-semibold text-ink underline decoration-ink/25 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra;
   }
 
   /* Chhota uppercase label har section heading ke upar, laal line ke saath. */
