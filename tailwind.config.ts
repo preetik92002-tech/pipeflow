@@ -113,6 +113,7 @@ const config: Config = {
       },
       maxWidth: {
         '8xl': '88rem',
+        prose: '68ch',
       },
     },
   },
