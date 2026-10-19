@@ -26,6 +26,7 @@ vi.mock('@/lib/forms/spamProtection', async (actual) => ({
 }))
 
 import { POST } from '@/app/api/service-requests/route'
+import { GET as getAdminLeads } from '@/app/api/admin/leads/route'
 import { toPrefill } from '@/lib/requests/prefill'
 
 const dir = path.join(__dirname, '../../supabase/migrations')
