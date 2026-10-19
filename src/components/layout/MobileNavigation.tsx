@@ -98,45 +98,74 @@ export function MobileNavigation({ isOpen, onClose, items, cta, contractors, joi
 
         <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto overscroll-contain px-2 py-2">
           <ul>
-            {items.map((item, i) => {
-              const isActive = isActivePath(pathname, item.href)
+            {items.map((item) => {
+              const active = isActivePath(pathname, item.href) || item.children.some((c) => isActivePath(pathname, c.href))
+              const open = expanded === item.href
+              const rowCls = cn('flex min-h-[3rem] flex-1 items-center rounded-lg px-3 text-[1.02rem] font-semibold', active ? 'text-terra' : 'text-ink')
               return (
-                <li
-                  key={item.href}
-                  className={cn(
-                    'border-b border-line transition-[opacity,transform] duration-500 ease-out-expo motion-reduce:transition-none',
-                    isOpen ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'
+                <li key={item.href} className="border-b border-line/70 last:border-b-0">
+                  <div className="flex items-center">
+                    <Link href={item.href} aria-current={pathname === item.href ? 'page' : undefined} className={rowCls}>
+                      {item.label}
+                    </Link>
+                    {item.children.length > 0 && (
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        aria-controls={`m-${item.href}`}
+                        aria-label={`Show ${item.label} pages`}
+                        onClick={() => setExpanded(open ? null : item.href)}
+                        className="flex h-11 w-11 flex-none items-center justify-center rounded-lg text-ink/70 hover:bg-paper"
+                      >
+                        <ChevronDown className={cn('h-5 w-5 transition-transform duration-200', open && 'rotate-180')} aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                  {item.children.length > 0 && (
+                    <ul id={`m-${item.href}`} hidden={!open} className="pb-2 pl-3">
+                      {item.children.map((c) => (
+                        <li key={c.href}>
+                          <Link
+                            href={c.href}
+                            aria-current={pathname === c.href ? 'page' : undefined}
+                            className={cn('flex min-h-[2.75rem] items-center rounded-lg px-3 text-[0.95rem]', pathname === c.href ? 'font-semibold text-terra' : 'text-neutral-700')}
+                          >
+                            {c.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                  style={{ transitionDelay: isOpen ? `${80 + i * 35}ms` : '0ms' }}
-                >
-                  <Link
-                    href={item.href}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cn('flex items-center justify-between py-4 font-display text-xl font-medium', isActive ? 'text-terra' : 'text-ink')}
-                  >
-                    {item.label}
-                    <ArrowRight className="h-4 w-4 opacity-40" aria-hidden="true" />
-                  </Link>
                 </li>
               )
             })}
           </ul>
         </nav>
 
-        <div className="flex-shrink-0 space-y-3 border-t border-line p-5" style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}>
-          <Link href={config.bookService.href} className="btn-primary !py-3 w-full">
-            {config.bookService.label}
+        <div className="flex-shrink-0 space-y-2 border-t border-line p-4" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <Link href={cta.href} className="ui-btn ui-btn-primary w-full">
+            {cta.label}
           </Link>
           {hasRealPhone(phone) && (
-            <a href={`tel:${phone}`} className="btn-outline !py-3 w-full">
+            <a href={`tel:${phone}`} className="ui-btn ui-btn-secondary w-full">
               <Phone className="h-4 w-4" aria-hidden="true" />
               {phone}
             </a>
           )}
-          <Link href={config.joinPro.href} className="flex items-center justify-center gap-2 py-2 text-sm font-semibold text-neutral-600 hover:text-ink">
-            <HardHat className="h-4 w-4" aria-hidden="true" />
-            {config.joinPro.label}
-          </Link>
+          {(contractors || joinPro) && (
+            <p className="flex flex-wrap items-center justify-center gap-x-4 text-sm font-semibold text-neutral-600">
+              {contractors && (
+                <Link href={contractors.href} className="inline-flex min-h-[2.75rem] items-center hover:text-ink">
+                  For Contractors
+                </Link>
+              )}
+              {joinPro && joinPro.href !== contractors?.href && (
+                <Link href={joinPro.href} className="inline-flex min-h-[2.75rem] items-center hover:text-ink">
+                  {joinPro.label}
+                </Link>
+              )}
+            </p>
+          )}
         </div>
       </div>
     </>
