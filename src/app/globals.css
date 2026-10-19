@@ -140,16 +140,16 @@
 @layer components {
   /* Styles for rich text written in the page editor (no typography plugin in this project). */
   .cms-prose {
-    @apply text-[1.0625rem] leading-[1.75] text-neutral-700;
+    @apply text-[1.02rem] leading-[1.7] text-neutral-700;
   }
   .cms-prose > * + * {
     @apply mt-4;
   }
   .cms-prose h2 {
-    @apply font-display text-display-md font-normal text-ink mt-10;
+    @apply font-display text-display-md font-semibold text-ink mt-8;
   }
   .cms-prose h3 {
-    @apply font-display text-xl font-medium text-ink mt-8;
+    @apply font-display text-xl font-semibold text-ink mt-6;
   }
   .cms-prose h4 {
     @apply font-display text-lg font-medium text-ink mt-6;
