@@ -69,6 +69,7 @@ export default function AdminLeadsPage() {
         customerType: typeof row.customer_type === 'string' ? row.customer_type : undefined,
         business: (row.details as { business?: LeadItem['business'] } | null)?.business,
         attachments: Array.isArray(row.attachment_links) ? (row.attachment_links as LeadItem['attachments']) : [],
+        attachmentError: Boolean(row.attachment_error),
         preferredDate: typeof row.preferred_date === 'string' ? row.preferred_date : undefined, preferredTime: typeof row.preferred_time === 'string' ? row.preferred_time : undefined,
         utmSource: typeof row.utm_source === 'string' ? row.utm_source : undefined, utmMedium: typeof row.utm_medium === 'string' ? row.utm_medium : undefined,
         utmCampaign: typeof row.utm_campaign === 'string' ? row.utm_campaign : undefined, gclid: typeof row.gclid === 'string' ? row.gclid : undefined,
