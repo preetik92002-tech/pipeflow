@@ -70,6 +70,11 @@ beforeAll(async () => {
 })
 beforeEach(async () => {
   await db.exec('truncate leads')
+  state.storedFiles = []
+  state.removedPaths = []
+  state.failInsert = false
+  state.failClient = false
+  state.adminAuth = { authenticated: false, authorized: false, user: null }
 })
 
 const base = {
