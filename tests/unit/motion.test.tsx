@@ -34,21 +34,29 @@ describe('SplitWords (hero headline)', () => {
     expect(renderToStaticMarkup(<SplitWords text="  A   B " />).replace(/<[^>]+>/g, '')).toBe('A B')
     expect(renderToStaticMarkup(<SplitWords text="" />)).toBe('')
   })
-  it('is what the hero heading uses, so the h1 is still one heading with its words', () => {
+  it('page heroes render the heading as one plain h1 (no per-word entrance animation)', () => {
     const html = render([hero()], ctx('service'))
     expect(count(html, '<h1')).toBe(1)
-    expect(html).toContain('class="word"')
+    expect(html).not.toContain('class="word"')
+    expect(html.replace(/<[^>]+>/g, ' ')).toContain('Trusted Plumbing &amp; HVAC Services in Denver &amp; Boulder')
   })
 })
 
 describe('hero markup contract', () => {
-  it('home hero is the text-led hero with one heading and the request form', () => {
+  it('home hero is a compact photo hero: one heading, two actions, and the quick request form kept out of it', () => {
     const html = render([hero({ buttons: [{ label: 'Request Service', href: '/book-service', variant: 'primary' }] })], ctx('home'))
     expect(html).not.toContain('aria-roledescription="carousel"')
     expect(count(html, '<h1')).toBe(1)
     expect(html).toContain('Reliable Plumbing &amp; HVAC Solutions for Your Home and Business')
-    expect(html).toContain('Water Heater Repair')
+    const start = html.indexOf('<section data-hero')
+    const heroHtml = html.slice(start, html.indexOf('</section>', start))
+    expect(heroHtml).toContain('href="/book-service"')
+    expect(heroHtml).toContain('href="#services"')
+    expect(heroHtml).not.toContain('<form')
+    // the quick start (service, ZIP, property type) still exists, lower on the page
+    expect(html).toContain('data-quick-request')
     expect(html).toContain('e.g. 80202')
+    expect(html).toContain('Water Heater Repair')
   })
   it('photo hero exposes the hooks the scroll timeline needs', () => {
     const html = render([hero()], ctx('service'))
@@ -70,7 +78,7 @@ describe('hero markup contract', () => {
   })
 })
 
-describe('home "How it works" flow chart', () => {
+describe('home page composition', () => {
   const home = ctx('home')
   it('puts every step in the DOM, in order, as a real ordered list with arrows between them', () => {
     const html = render([steps(4)], home)
