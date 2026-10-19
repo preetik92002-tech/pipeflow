@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 import { initAttribution, trackEvent } from '@/lib/analytics/tracker'
 import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 
