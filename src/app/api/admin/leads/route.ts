@@ -33,7 +33,7 @@ export async function GET() {
         attachment_links = (data ?? []).flatMap((d) => (d.signedUrl && d.path ? [{ name: d.path.split('/').pop() ?? 'file', url: d.signedUrl }] : []))
         attachment_error = Boolean(error) || attachment_links.length !== paths.length
       }
-      return { ...lead, attachment_links, record_kind: 'lead' }
+      return { ...lead, attachment_links, attachment_error, record_kind: 'lead' }
     }))
     const bookings = (bookingResult.data ?? []).map((booking) => ({
       id: booking.id, lead_id: booking.booking_id, name: booking.name, phone: booking.phone, email: booking.email,
