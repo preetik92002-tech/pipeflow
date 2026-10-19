@@ -818,53 +818,54 @@ export function ReviewsSection({ reviews, stats, tone = 'white' }: { reviews: Re
   const has = reviews.length > 0
   const average = stats?.average ?? null
   return (
-    <section className="bg-gradient-to-b from-navy-800 to-navy-900 pb-14 text-white sm:pb-20" aria-labelledby="home-reviews" data-reviews>
-      <div className={`relative isolate overflow-hidden bg-gradient-to-br from-brand-blue to-navy-700 pt-12 sm:pt-16 ${has ? 'pb-28 lg:pb-32' : 'pb-12 sm:pb-16'}`}>
-        <div className="absolute inset-y-0 right-0 -z-10 hidden w-[52%] [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)] md:block" aria-hidden="true">
-          <CmsImage src={HERO_BANNERS.van} decorative sizes="55vw" className="object-cover object-right" />
-          <div className="absolute inset-0 bg-navy-900/35" />
-        </div>
-        <div className="container-wide">
-          <div className="max-w-xl" data-reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/80">Customer Reviews</p>
-            <h2 id="home-reviews" className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+    <section className={`${toneBg[tone]} ${has ? 'section-y' : 'py-10 sm:py-12'}`} aria-labelledby="home-reviews" data-reviews>
+      <div className="container-wide">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="ui-kicker">Customer reviews</p>
+            <h2 id="home-reviews" className="mt-2 font-display text-display-md font-semibold text-ink">
               What Customers Are Saying
             </h2>
-            <p className="mt-4 text-lead text-white/85">Authentic customer reviews collected through the platform or verified sources.</p>
-            {!has && (
-              <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm font-semibold ring-1 ring-white/25">
-                <Clock className="h-4 w-4 flex-none" aria-hidden="true" />
-                Customer reviews will appear here as they become available.
-              </p>
-            )}
           </div>
+          {has && stats && stats.count > 0 && (
+            <p className="text-sm text-neutral-600">
+              {average !== null && (
+                <>
+                  <span className="font-semibold text-ink">{average.toFixed(1)}</span> average from{' '}
+                </>
+              )}
+              {stats.count} customer review{stats.count === 1 ? '' : 's'}
+            </p>
+          )}
         </div>
-      </div>
-      {has && (
-        <div className="container-wide -mt-20 lg:-mt-24">
-          <ul className="flex flex-wrap justify-center gap-5">
-            {reviews.map((r, i) => (
-              <li key={i} className="w-full md:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.85rem)]">
-                <figure className="flex h-full flex-col overflow-hidden rounded-3xl bg-white text-ink shadow-2xl shadow-black/25">
-                  <div className="flex flex-1 flex-col p-6 sm:p-8">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-2xl tracking-wider text-amber-500" aria-label={`${r.rating} out of 5 stars`}>
+        {!has && (
+          <p className="mt-4 flex max-w-2xl items-start gap-2.5 rounded-xl border border-dashed border-line bg-paper/60 px-4 py-3 text-[0.95rem] text-neutral-600">
+            <Clock className="mt-0.5 h-4 w-4 flex-none text-neutral-500" aria-hidden="true" />
+            Authentic customer reviews collected through the platform or verified sources will appear here as they become available.
+          </p>
+        )}
+        {has && (
+          <ul className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {reviews.slice(0, 3).map((r, i) => (
+              <li key={i}>
+                <figure className="ui-card flex h-full flex-col p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    {r.rating > 0 && (
+                      <p className="text-lg tracking-wide text-amber-500" aria-label={`${r.rating} out of 5 stars`}>
                         {'★'.repeat(r.rating)}
                         <span className="text-neutral-300">{'★'.repeat(5 - r.rating)}</span>
                       </p>
-                      {r.source && SOURCE_LABEL[r.source] && (
-                        <span className="rounded-full bg-mist px-3 py-1 text-xs font-bold text-neutral-700">{SOURCE_LABEL[r.source]}</span>
-                      )}
-                    </div>
-                    <blockquote className="mt-4 flex-1 text-[0.98rem] leading-relaxed text-neutral-700">“{r.text}”</blockquote>
+                    )}
+                    {r.source && SOURCE_LABEL[r.source] && <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-semibold text-neutral-700">{SOURCE_LABEL[r.source]}</span>}
                   </div>
-                  <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-line bg-paper px-6 py-4 sm:px-8">
-                    <span className="text-sm font-bold">
+                  <blockquote className="mt-3 flex-1 text-[0.95rem] leading-relaxed text-neutral-700">“{r.text}”</blockquote>
+                  <figcaption className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-sm">
+                    <span className="font-semibold text-ink">
                       {r.name}
                       {r.city && <span className="font-normal text-neutral-600"> · {r.city}</span>}
                     </span>
                     <span className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
-                      {r.service && <span className="rounded-full bg-brand-blue/10 px-3 py-1 font-semibold text-brand-blue">{r.service}</span>}
+                      {r.service && <span className="rounded-full bg-brand-blue/10 px-2.5 py-0.5 font-semibold text-brand-blue">{r.service}</span>}
                       {r.date && <span>{r.date}</span>}
                     </span>
                   </figcaption>
@@ -872,48 +873,7 @@ export function ReviewsSection({ reviews, stats, tone = 'white' }: { reviews: Re
               </li>
             ))}
           </ul>
-          {stats && stats.count > 0 && (
-            <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-center gap-6 rounded-3xl bg-white/10 px-6 py-6 text-center ring-1 ring-white/20 backdrop-blur sm:flex-row sm:gap-12">
-              <p>
-                <span className="block font-display text-4xl font-bold">{stats.count}</span>
-                <span className="text-sm text-white/80">customer review{stats.count === 1 ? '' : 's'}</span>
-              </p>
-              {average !== null && (
-                <p>
-                  <span className="block font-display text-4xl font-bold">{average.toFixed(1)}</span>
-                  <span className="text-sm text-white/80">
-                    <span className="text-amber-400" aria-hidden="true">★★★★★</span> average rating
-                  </span>
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </section>
-  )
-}
-
-/** Home page only, last section before the footer: invites plumbing and HVAC companies to the contractor pages. */
-export function CompanyMarketingCta() {
-  return (
-    <section className="bg-navy-900 py-16 text-white sm:py-20" aria-labelledby="company-cta">
-      <div className="container-wide">
-        <h2 id="company-cta" className="max-w-3xl font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-          Are You a Plumbing or HVAC Company?
-        </h2>
-        <p className="mt-4 max-w-2xl text-lead leading-relaxed text-white/85">We also help plumbing and HVAC companies grow their reputation, search visibility, and leads.</p>
-        <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-          <SmartLink href="/for-contractors" className="btn-primary !px-7 !py-3.5 text-base focus-visible:ring-offset-navy-900">
-            View Marketing Services
-          </SmartLink>
-          <SmartLink
-            href="/for-contractors"
-            className="inline-flex items-center justify-center rounded-lg border-2 border-white px-7 py-3.5 text-base font-semibold text-white transition hover:bg-white hover:text-navy-900 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-900 active:scale-95"
-          >
-            Request a Marketing Consultation
-          </SmartLink>
-        </div>
+        )}
       </div>
     </section>
   )
