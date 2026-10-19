@@ -339,6 +339,12 @@ export default function AdminLeadsPage() {
               </div>
             )}
 
+            {selectedLead.attachmentError && (
+              <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                Some attachment links could not be loaded. Refresh the records and try again.
+              </p>
+            )}
+
             {selectedLead.attachments.length > 0 && (
               <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 text-xs">
                 <p className="font-bold text-navy-900 mb-1">Photos and videos (links expire in an hour):</p>
