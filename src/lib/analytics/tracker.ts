@@ -151,7 +151,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
         break
       case 'phone_click':
       case 'email_click':
-        window.fbq('track', 'Contact', payload)
+        window.fbq('track', 'Contact', privacySafeParams(payload))
         break
       case 'view_service':
       case 'blog_view':
