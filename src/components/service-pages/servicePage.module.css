@@ -95,7 +95,7 @@
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 .cta:hover {
-  background: #22c9c0;
+  background: #a31818;
   transform: translateY(-1px);
 }
 .cta:active {
@@ -122,7 +122,7 @@
 }
 .flow path {
   fill: none;
-  stroke: var(--teal);
+  stroke: #3b82d4;
   stroke-width: 3;
   stroke-linecap: round;
   stroke-dasharray: 10 12;
