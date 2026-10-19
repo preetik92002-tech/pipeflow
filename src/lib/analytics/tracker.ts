@@ -147,7 +147,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
         break
       case 'start_booking':
       case 'start_quote':
-        window.fbq('track', 'InitiateCheckout', payload)
+        window.fbq('track', 'InitiateCheckout', privacySafeParams(payload))
         break
       case 'phone_click':
       case 'email_click':
