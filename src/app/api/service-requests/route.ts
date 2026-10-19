@@ -49,7 +49,10 @@ async function verifiedAttachments(paths: string[]): Promise<{
         }
       }
       const { data: blob, error } = await storage.download(path)
-      if (error || !blob) throw new Error('download failed')
+      if (error || !blob) {
+        unavailable = true
+        continue
+      }
       const head = new Uint8Array(await blob.slice(0, 16).arrayBuffer())
       const kind = sniffType(head)
       if (!kind || (kind === 'video') !== mime.startsWith('video/')) throw new Error('type mismatch')
