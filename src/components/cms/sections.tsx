@@ -209,75 +209,87 @@ export function ContentBlockSection({ data, tone }: { data: SectionData<'content
   const hasImage = data.image !== '' && data.imagePosition !== 'none'
   const number = /^\d{1,2}$/.test(data.label) ? pad2(Number(data.label)) : null
   const id = `cb-${slug(data.heading)}`
+  const label = number ? <span className="ui-kicker">Step {number}</span> : data.label && <p className="ui-kicker">{data.label}</p>
 
   if (hasImage) {
     return (
       <Band tone={tone} labelledBy={id}>
-        <div className="container-wide grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div data-clip className={`photo-frame aspect-[4/3] !rounded-[2.5rem] !rounded-br-[5rem] lg:aspect-[5/4] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
+        <div className="container-wide grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
+          <div data-clip className={`photo-frame aspect-[16/10] lg:aspect-[4/3] ${data.imagePosition === 'right' ? 'lg:order-2' : ''}`}>
             <div data-parallax="6" className="absolute inset-0">
               <CmsImage src={data.image} alt={data.imageAlt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
             </div>
           </div>
-          <div data-reveal>
-            {number ? <p className="font-display text-sm font-medium tracking-[0.2em] text-terra">{number}</p> : data.label && <p className="eyebrow">{data.label}</p>}
-            <h2 id={id} data-lines className="mt-4 font-display text-display-lg font-normal text-ink">
+          <div>
+            {label}
+            <h2 id={id} data-lines className="mt-2 font-display text-display-lg font-semibold text-ink">
               {data.heading}
             </h2>
-            <RichTextRenderer doc={data.content} className="cms-prose mt-6" />
-            {data.button && <CmsButtons buttons={[data.button]} />}
+            <RichTextRenderer doc={data.content} className="cms-prose mt-4" />
+            {data.button && <CmsButtons buttons={[data.button]} className="mt-6" />}
           </div>
         </div>
       </Band>
     )
   }
 
-  // Bina image: editorial do-column layout — heading baayein (sticky), content daayein.
+  // Bina image: a readable column; long lists flow into two columns on wide screens.
   return (
-    <Band tone={tone} labelledBy={id} className="relative overflow-hidden">
-      <Avatar pose={(data.heading.length % 2 === 0 ? 2 : 4) as 2 | 4} className="pointer-events-none absolute -bottom-6 right-4 hidden h-72 w-auto opacity-[0.1] lg:block" />
-      <div className="container-wide relative grid gap-x-16 gap-y-8 lg:grid-cols-12">
-        <div className="lg:col-span-5" data-reveal>
-          <div className="lg:sticky lg:top-32">
-            {number ? (
-              <p
-                className="font-display text-[clamp(3.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-transparent [-webkit-text-stroke:1.5px_theme(colors.terra.DEFAULT)]"
-                aria-hidden="true"
-              >
-                {number}
-              </p>
-            ) : (
-              data.label && <p className="eyebrow">{data.label}</p>
-            )}
-            <h2 id={id} data-lines className={`font-display text-display-lg font-normal text-ink ${number ? 'mt-5' : data.label ? 'mt-4' : ''}`}>
-              {data.heading}
-            </h2>
-          </div>
-        </div>
-        <div className="lg:col-span-7" data-reveal style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
-          <RichTextRenderer doc={data.content} className="cms-prose max-w-2xl" />
-          {data.button && <CmsButtons buttons={[data.button]} />}
+    <Band tone={tone} labelledBy={id}>
+      <div className="container-wide">
+        <div className="max-w-4xl">
+          {label}
+          <h2 id={id} data-lines className={`font-display text-display-lg font-semibold text-ink ${label ? 'mt-2' : ''}`}>
+            {data.heading}
+          </h2>
+          <RichTextRenderer doc={data.content} className="cms-prose cms-lists-2 mt-4" />
+          {data.button && <CmsButtons buttons={[data.button]} className="mt-6" />}
         </div>
       </div>
     </Band>
   )
 }
 
-/** Kai chhote content blocks lagataar hon (jaise home par Residential / Commercial / Find a Pro) to ek row. */
+/**
+ * Consecutive text blocks (Repair / Replacement / Installation, or Residential / Commercial / Find a Pro) as one row of
+ * cards instead of a tall stack of full-width sections. Each card keeps its full content and its button.
+ */
 export function ContentBlockGroup({ blocks, tone }: { blocks: SectionData<'contentBlock'>[]; tone: Tone }) {
+  const cols = blocks.length >= 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
   return (
-    <section className={`${toneBg[tone]} py-16 sm:py-20`}>
+    <section className={`${toneBg[tone]} section-y-sm`}>
       <div className="container-wide">
-        {/* Dividers ek hairline ke roop mein: grid ka background line colour, cells apna tone. */}
-        <div className={`grid gap-px overflow-hidden border border-line bg-line ${blocks.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
-          {blocks.map((b, i) => (
-            <div key={i} className={`${tone === 'paper' ? 'bg-paper' : 'bg-white'} flex flex-col p-8 sm:p-10`} data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
-              {b.label && <p className="eyebrow">{b.label}</p>}
-              <h2 className="mt-4 font-display text-display-md font-normal text-ink">{b.heading}</h2>
-              <RichTextRenderer doc={b.content} className="cms-prose mt-4 flex-1 !text-base" />
-              {b.button && <CmsButtons buttons={[b.button]} asLinks className="mt-8" />}
-            </div>
-          ))}
+        <div className={`grid gap-4 md:grid-cols-2 ${cols}`}>
+          {blocks.map((b, i) => {
+            const number = /^\d{1,2}$/.test(b.label) ? pad2(Number(b.label)) : null
+            return (
+              <article key={i} className={`ui-card flex flex-col p-5 sm:p-6 ${blocks.length === 3 ? 'md:last:col-span-2 lg:last:col-span-1' : ''}`} aria-labelledby={`cbg-${slug(b.heading)}`}>
+                {number ? (
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-sm font-bold text-white" aria-hidden="true">
+                    {Number(b.label)}
+                  </span>
+                ) : (
+                  b.label && <p className="ui-kicker">{b.label}</p>
+                )}
+                <h2 id={`cbg-${slug(b.heading)}`} className={`font-display text-display-md font-semibold text-ink ${number || b.label ? 'mt-3' : ''}`}>
+                  {b.heading}
+                </h2>
+                {JSON.stringify(b.content).length > 900 ? (
+                  <ExpandOnDesktop summary={`More about ${b.heading.toLowerCase()}`}>
+                    <RichTextRenderer doc={b.content} className="cms-prose cms-prose-sm mt-1 lg:mt-3" />
+                  </ExpandOnDesktop>
+                ) : (
+                  <RichTextRenderer doc={b.content} className="cms-prose cms-prose-sm mt-3 flex-1" />
+                )}
+                {b.button && (
+                  <SmartLink href={b.button.href} className="group mt-5 inline-flex items-center gap-1.5 self-start font-semibold text-terra hover:text-terra-dark">
+                    <span className="underline decoration-terra/30 underline-offset-4 group-hover:decoration-terra">{b.button.label}</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </SmartLink>
+                )}
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>
