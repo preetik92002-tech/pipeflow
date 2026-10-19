@@ -17,6 +17,48 @@ export function AnalyticsProvider() {
   const gaId = analytics.enabled && configuredGaId && /^G-[A-Z0-9]+$/.test(configuredGaId) ? configuredGaId : undefined
   const metaPixelId = analytics.enabled ? (analytics.metaPixelId || process.env.NEXT_PUBLIC_META_PIXEL_ID) : undefined
 
+  pathnameRef.current = pathname
+
+  const sendPageView = useCallback((path: string) => {
+    const reportKey = `${gaId}:${path}`
+    if (typeof window.gtag !== 'function' || lastReportedPath.current === path || window.__pipeflowGaLastPage === reportKey) return
+    const pageLocation = `${window.location.origin}${path}`
+    const pageReferrer = lastReportedPath.current
+      ? `${window.location.origin}${lastReportedPath.current}`
+      : (document.referrer ? new URL(document.referrer).origin : undefined)
+    // Set sanitized defaults too, so GA custom events never inherit query
+    // strings from the browser's current URL as page context.
+    window.gtag('set', { page_location: pageLocation, page_referrer: pageReferrer })
+    window.gtag('event', 'page_view', {
+      page_path: path,
+      page_location: pageLocation,
+      page_referrer: pageReferrer,
+      page_title: document.title,
+    })
+    lastReportedPath.current = path
+    window.__pipeflowGaLastPage = reportKey
+  }, [gaId])
+
+  const initializeGa = useCallback(() => {
+    if (!gaId) return
+    window.dataLayer = window.dataLayer || []
+    window.gtag = window.gtag || function gtag(...args: unknown[]) { window.dataLayer?.push(args) }
+
+    // The public layout survives client navigation. This guard also avoids a
+    // duplicate config call if React remounts the provider during navigation.
+    if (window.__pipeflowGaConfigured !== gaId) {
+      window.gtag('js', new Date())
+      window.gtag('config', gaId, { send_page_view: false })
+      window.__pipeflowGaConfigured = gaId
+    }
+    gaReady.current = true
+    sendPageView(pathnameRef.current)
+  }, [gaId, sendPageView])
+
+  useEffect(() => {
+    if (gaReady.current) sendPageView(pathname)
+  }, [pathname, sendPageView])
+
   useEffect(() => {
     // Initialize attribution storage on initial load
     initAttribution()
