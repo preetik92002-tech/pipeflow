@@ -636,15 +636,10 @@ function LinkRows({ links }: { links: { label: string; href: string }[] }) {
   return (
     <ul className="border-t border-line">
       {links.map((l, i) => (
-        <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
-          <SmartLink href={l.href} className="group flex min-h-[3.5rem] items-center justify-between gap-4 py-4 sm:gap-6 sm:py-5">
-            <span className="font-display text-lg font-medium leading-snug text-ink transition-colors group-hover:text-terra sm:text-xl">{l.label}</span>
-            <span
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center border border-line transition-all duration-300 ease-out-expo group-hover:border-terra group-hover:bg-terra group-hover:text-white"
-              aria-hidden="true"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </span>
+        <li key={i} className="border-b border-line">
+          <SmartLink href={l.href} className="group flex min-h-[3.25rem] items-center justify-between gap-4 py-3">
+            <span className="font-semibold leading-snug text-ink transition-colors group-hover:text-terra sm:text-lg">{l.label}</span>
+            <ArrowRight className="h-4 w-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:text-terra" aria-hidden="true" />
           </SmartLink>
         </li>
       ))}
@@ -652,22 +647,22 @@ function LinkRows({ links }: { links: { label: string; href: string }[] }) {
   )
 }
 
-export function LinkListSection({ data, tone, ctx, look }: { data: SectionData<'linkList'>; tone: Tone; ctx: PageContext; look?: Look }) {
+export function LinkListSection({ data, tone, ctx }: { data: SectionData<'linkList'>; tone: Tone; ctx: PageContext }) {
   if (!data.links.length) return null
   const id = `links-${slug(data.heading)}`
-  // City page: services ki list ke saath ek lambi city photo (Denver / Boulder).
+  // City page: the list of services beside a photo of the city (Denver / Boulder).
   if (ctx.kind === 'location' && ctx.cityPhoto) {
     return (
       <Band tone={tone} labelledBy={id}>
-        <div className="container-wide grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="container-wide grid items-center gap-8 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-6">
             <SectionHeader heading={data.heading} id={id} />
-            <div className="mt-10">
+            <div className="mt-6">
               <LinkRows links={data.links} />
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div data-clip className="photo-frame aspect-[4/3] lg:aspect-[4/5]">
+            <div data-clip className="photo-frame aspect-[16/10] lg:aspect-[4/3]">
               <div data-parallax="6" className="absolute inset-0">
                 <CmsImage src={ctx.cityPhoto.src} alt={ctx.cityPhoto.alt} sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
               </div>
@@ -677,52 +672,37 @@ export function LinkListSection({ data, tone, ctx, look }: { data: SectionData<'
       </Band>
     )
   }
-  // Service-area lists: dark rounded panel with the places in columns and a pin-in-circle graphic.
+  // Service-area lists: the places in columns on a navy panel.
   if (/\b(areas?|cities|city|neighbou?rhoods?|locations?|communities|serving)\b/i.test(data.heading) && data.links.length >= 4) {
     return (
-      <Band tone={tone} labelledBy={id} className="!py-12 sm:!py-16">
+      <section className={`bg-ink text-white ${pad}`} aria-labelledby={id} data-dark>
         <div className="container-wide">
-          <div className="grid gap-10 overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 to-navy-700 p-8 text-white sm:p-12 lg:grid-cols-12" data-reveal>
-            <div className="lg:col-span-7">
-              <p className="text-sm font-semibold uppercase tracking-widest text-white/70">Service areas</p>
-              <h2 id={id} className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-                {data.heading}
-              </h2>
-              <ul className="mt-8 columns-2 gap-8 sm:columns-3 [&>li]:mb-2.5">
-                {data.links.map((l, i) => (
-                  <li key={i} className="break-inside-avoid">
-                    <SmartLink href={l.href} className="inline-flex items-center gap-2 text-[0.95rem] text-white/90 transition-colors hover:text-white">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-brand-red" aria-hidden="true" />
-                      <span className="link-grow">{l.label}</span>
-                    </SmartLink>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="hidden items-center justify-center lg:col-span-5 lg:flex" aria-hidden="true">
-              <div className="relative flex h-72 w-72 items-center justify-center rounded-full border-4 border-white/90 bg-brand-blue/30">
-                <span className="absolute inset-6 rounded-full border border-dashed border-white/30" />
-                <span className="absolute inset-16 rounded-full border border-dashed border-white/20" />
-                <MapPin className="h-16 w-16 text-brand-red drop-shadow-lg" />
-              </div>
-            </div>
-          </div>
+          <SectionHeader eyebrow="Service areas" heading={data.heading} id={id} light />
+          <ul className="mt-6 columns-2 gap-8 sm:columns-3 lg:columns-4 [&>li]:mb-2.5">
+            {data.links.map((l, i) => (
+              <li key={i} className="break-inside-avoid">
+                <SmartLink href={l.href} className="inline-flex items-center gap-2 text-[0.95rem] text-white/90 hover:text-white hover:underline hover:underline-offset-4">
+                  <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-terra-light" aria-hidden="true" />
+                  {l.label}
+                </SmartLink>
+              </li>
+            ))}
+          </ul>
         </div>
-      </Band>
+      </section>
     )
   }
-  // Service list: icon button cards, no photos.
+  // Service list (category pages, related services): compact link cards with the page's photo or an icon.
   return (
-    <Band tone={tone} labelledBy={id} look={look} className={look?.dark ? (look.slant === 'c' ? 'slant-pad-c' : 'slant-pad') : '!py-12 sm:!py-16'}>
+    <Band tone={tone} labelledBy={id}>
       <div className="container-wide">
-        <SectionHeader heading={data.heading} id={id} center />
-        <ul className="mt-12 flex flex-wrap justify-center gap-x-5 gap-y-12 sm:gap-x-6">
+        <SectionHeader heading={data.heading} id={id} />
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {data.links.map((l, i) => (
-            <ServiceButtonCard key={i} href={l.href} title={l.label} index={i} />
+            <ServiceLinkCard key={i} href={l.href} title={l.label} />
           ))}
         </ul>
       </div>
-      {look?.bar && <QuestionsBar />}
     </Band>
   )
 }
