@@ -1,18 +1,16 @@
 'use client'
 
-import { useEffect, useId, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { SERVICES, ZIP_ERROR, isServiceZip } from '@/lib/requests/schema'
+import { useNavigation } from '@/components/layout/NavigationProvider'
 
-const DEFAULT_SERVICE = 'plumbing:water-heater-repair'
-
-/** Background slides (decorative: the headline and copy carry the meaning). Slide 2 is intentionally not used. */
+/** Hero photographs (decorative: the headline and copy carry the meaning). Slide 2 is intentionally not used. */
 const SLIDES = ['/images/hero/slide-1.png', '/images/hero/slide-3.png']
 const SLIDE_MS = 7000
 
-/** Two photos that crossfade slowly behind the hero. With reduced motion the first photo stays still. */
-function HeroBackdrop() {
+/** Two photos that crossfade slowly. With reduced motion the first photo stays still. */
+function HeroPhotos() {
   const [index, setIndex] = useState(0)
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -34,7 +32,7 @@ function HeroBackdrop() {
   }, [])
 
   return (
-    <div className="pointer-events-none absolute inset-0 -z-20 select-none" aria-hidden="true" data-hero-backdrop>
+    <>
       {SLIDES.map((src, i) => (
         <Image
           key={src}
@@ -43,23 +41,13 @@ function HeroBackdrop() {
           fill
           sizes="100vw"
           priority={i === 0}
-          loading="eager"
-          className={`object-cover object-[72%_center] transition-opacity duration-[1600ms] ease-in-out motion-reduce:transition-none ${i === index ? 'opacity-100' : 'opacity-0'}`}
+          loading={i === 0 ? undefined : 'eager'}
+          className={`object-cover object-[78%_center] transition-opacity duration-[1600ms] ease-in-out motion-reduce:transition-none lg:object-right ${i === index ? 'opacity-100' : 'opacity-0'}`}
         />
       ))}
-      {/* Navy wash keeps the white text and the form readable over either photo. */}
-      <div className="absolute inset-0 bg-navy-900/75 lg:bg-gradient-to-r lg:from-navy-900/90 lg:via-navy-900/60 lg:to-navy-900/35" />
-    </div>
+    </>
   )
 }
-
-/** Every service the request flow supports, as "category:value" options (the flow's own catalog, nothing extra). */
-const OPTIONS = (['plumbing', 'hvac'] as const).flatMap((category) =>
-  SERVICES[category].map((s) => ({ key: `${category}:${s.value}`, label: s.label, group: category === 'plumbing' ? 'Plumbing' : 'HVAC' }))
-)
-
-const field =
-  'mt-1.5 w-full rounded-lg border border-white/20 bg-navy-800 px-3.5 py-3 text-base text-white placeholder:text-white/45 focus:border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 aria-[invalid=true]:border-red-400'
 
 /**
  * Home hero: text on the left, a compact request form on the right. The form only collects what the
