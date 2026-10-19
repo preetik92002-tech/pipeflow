@@ -29,7 +29,8 @@ describe('hero link into /book-service', () => {
 
 describe('company marketing CTA', () => {
   it('sends both buttons to /for-contractors', () => {
-    const html = renderToStaticMarkup(<CompanyMarketingCta />)
+    const page = renderToStaticMarkup(<SectionRenderer sections={[]} ctx={{ kind: 'home', crumbs: [] }} />)
+    const html = page.slice(page.indexOf('id="company-cta"'), page.indexOf('id="home-final"'))
     expect(html.match(/href="\/for-contractors"/g)?.length).toBe(2)
     expect(html).not.toContain('/join-us')
     expect(html).toContain('View Marketing Services')
