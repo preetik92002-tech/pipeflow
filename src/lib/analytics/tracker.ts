@@ -165,7 +165,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
 
   // Debug logging in development
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Analytics Event] ${event}`, payload)
+    console.log(`[Analytics Event] ${event}`, privacySafeParams(payload))
   }
 }
 
