@@ -7,20 +7,21 @@
   --line: #d5e1ea;
   --navy: #0b2545;
   --navy2: #13376a;
-  --teal: #19b5ad;
-  --on-teal: #04203a;
-  --teal-ink: #0a7e79;
+  /* Same brand system as the rest of the site: brand red for the main action, brand blue for links and icons. */
+  --teal: #c41e1e;
+  --on-teal: #ffffff;
+  --teal-ink: #1f5fad;
   --on-navy: #eaf3fb;
   color: var(--ink);
   background: var(--bg);
-  font-family: 'Public Sans', var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-inter), 'Public Sans', system-ui, sans-serif;
   line-height: 1.65;
 }
 .page h1,
 .page h2,
 .page h3,
 .page h4 {
-  font-family: 'Bricolage Grotesque', var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), 'Bricolage Grotesque', system-ui, sans-serif;
   color: inherit;
   line-height: 1.15;
   letter-spacing: -0.01em;
