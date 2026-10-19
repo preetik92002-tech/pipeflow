@@ -84,27 +84,26 @@ export function VideoPopup() {
   if (!opened) {
     if (overForm) return null
     return (
-      <button
-        type="button"
-        onClick={() => setOpened(true)}
-        aria-label="Watch our video"
-        className="fixed right-4 z-40 flex animate-rise items-center gap-2 rounded-full bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white shadow-xl ring-1 ring-white/25 transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white lg:bottom-6 lg:right-6"
-        style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
-      >
-        <Play className="h-4 w-4" aria-hidden="true" />
-        Watch our video
-      </button>
+      <div className="fixed right-4 z-40 flex animate-rise items-center overflow-hidden rounded-full bg-navy-900 text-white shadow-xl ring-1 ring-white/25 lg:!bottom-6 lg:right-6" style={position}>
+        <button type="button" onClick={() => setOpened(true)} aria-label="Watch our video" className="flex min-h-[2.75rem] items-center gap-2 py-2 pl-4 pr-3 text-sm font-semibold hover:bg-white/10">
+          <Play className="h-4 w-4" aria-hidden="true" />
+          Watch our video
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            dismissedThisLoad = true
+            setVisible(false)
+          }}
+          aria-label="Hide the video button"
+          className="flex h-11 w-10 items-center justify-center border-l border-white/15 text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
     )
   }
 
-  const close = () => {
-    if (home) {
-      setOpened(false)
-      return
-    }
-    closedThisLoad = true
-    setVisible(false)
-  }
   const toggleMute = () => {
     const v = video.current
     if (!v) return
@@ -120,10 +119,10 @@ export function VideoPopup() {
     else v.webkitEnterFullscreen?.()
   }
 
-  const btn = 'flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-white'
+  const btn = 'flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-white'
 
   return (
-    <aside aria-label="Promotional video" className="fixed bottom-20 right-4 z-40 w-44 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 sm:w-56 lg:bottom-6 lg:right-6 lg:w-72">
+    <aside aria-label="Promotional video" className="fixed right-4 z-40 w-56 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 sm:w-64 lg:!bottom-6 lg:right-6 lg:w-72" style={position}>
       <video ref={video} src={VIDEO_SRC} autoPlay muted loop playsInline preload="metadata" className="block aspect-video w-full bg-black object-cover" />
       <div className="absolute right-2 top-2 flex gap-1.5">
         <button type="button" onClick={toggleMute} aria-label={muted ? 'Unmute video' : 'Mute video'} className={btn}>
@@ -132,7 +131,7 @@ export function VideoPopup() {
         <button type="button" onClick={fullscreen} aria-label="View video full screen" className={btn}>
           <Maximize2 className="h-4 w-4" aria-hidden="true" />
         </button>
-        <button type="button" onClick={close} aria-label="Close video" className={btn}>
+        <button type="button" onClick={() => setOpened(false)} aria-label="Close video" className={btn}>
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
