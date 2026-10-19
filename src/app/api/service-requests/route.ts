@@ -20,6 +20,8 @@ async function verifiedAttachments(paths: string[]): Promise<{
   const kept: string[] = []
   let firstName: string | null = null
   let firstSize: number | null = null
+  let invalid = false
+  let unavailable = false
   for (const path of paths) {
     try {
       const [folder, name] = path.split('/')
