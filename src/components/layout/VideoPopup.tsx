@@ -71,43 +71,39 @@ export function VideoPopup() {
     return () => window.removeEventListener('scroll', sync)
   }, [pathname])
 
-  // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start playback by hand.
+  // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start
+  // playback by hand. Visitors who ask for reduced motion get the player paused, with a play button.
+  const visible = ready && !closed && !onRequestPage
   useEffect(() => {
     const v = video.current
-    if (!opened || !v) return
+    if (!visible || !v) return
     v.muted = true
     setMuted(true)
-    void v.play().catch(() => {})
-  }, [opened])
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) userPaused.current = true
+    if (!userPaused.current) void v.play().catch(() => {})
+  }, [visible])
 
-  if (!visible || onRequestPage) return null
+  // Pause while hidden behind a form and resume afterwards, unless the visitor paused it themselves.
+  useEffect(() => {
+    const v = video.current
+    if (!visible || !v) return
+    if (overForm) v.pause()
+    else if (!userPaused.current) void v.play().catch(() => {})
+  }, [overForm, visible])
 
-  // Fixed controls sit above the mobile Request Service bar, and in the corner on desktop.
-  const position = { bottom: 'calc(5rem + env(safe-area-inset-bottom))' }
+  if (!visible) return null
 
-  if (!opened) {
-    if (overForm) return null
-    return (
-      <div className="fixed right-4 z-40 flex animate-rise items-center overflow-hidden rounded-full bg-navy-900 text-white shadow-xl ring-1 ring-white/25 lg:!bottom-6 lg:right-6" style={position}>
-        <button type="button" onClick={() => setOpened(true)} aria-label="Watch our video" className="flex min-h-[2.75rem] items-center gap-2 py-2 pl-4 pr-3 text-sm font-semibold hover:bg-white/10">
-          <Play className="h-4 w-4" aria-hidden="true" />
-          Watch our video
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            dismissedThisLoad = true
-            setVisible(false)
-          }}
-          aria-label="Hide the video button"
-          className="flex h-11 w-10 items-center justify-center border-l border-white/15 text-white/70 hover:bg-white/10 hover:text-white"
-        >
-          <X className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
-    )
+  const togglePlay = () => {
+    const v = video.current
+    if (!v) return
+    if (v.paused) {
+      userPaused.current = false
+      void v.play().catch(() => {})
+    } else {
+      userPaused.current = true
+      v.pause()
+    }
   }
-
   const toggleMute = () => {
     const v = video.current
     if (!v) return
