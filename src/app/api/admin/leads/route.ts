@@ -31,6 +31,7 @@ export async function GET() {
       if (paths.length) {
         const { data, error } = await storage.createSignedUrls(paths, 3600)
         attachment_links = (data ?? []).flatMap((d) => (d.signedUrl && d.path ? [{ name: d.path.split('/').pop() ?? 'file', url: d.signedUrl }] : []))
+        attachment_error = Boolean(error) || attachment_links.length !== paths.length
       }
       return { ...lead, attachment_links, record_kind: 'lead' }
     }))
