@@ -42,7 +42,31 @@ beforeAll(async () => {
   await db.exec('ALTER TABLE public.leads ALTER COLUMN zip_code DROP NOT NULL;')
   const fields = readFileSync(path.join(dir, '20261010000000_service_request_fields.sql'), 'utf8')
   await db.exec(fields.match(/ALTER TABLE public\.leads[\s\S]*?;/)![0])
-  state.client = pgliteSupabase(db)
+  const supabase = pgliteSupabase(db)
+  state.client = {
+    ...supabase,
+    from(table: string) {
+      if (table === 'leads') {
+        return {
+          insert: async (row: Record<string, unknown>) => state.failInsert
+            ? { data: null, error: { message: 'private database detail' } }
+            : supabase.from(table).insert(row),
+          select: () => ({
+            order: async () => ({ data: (await db.query<Record<string, unknown>>('select * from leads order by created_at desc')).rows, error: null }),
+          }),
+        }
+      }
+      if (table === 'bookings') return { select: () => ({ order: async () => ({ data: [], error: null }) }) }
+      return supabase.from(table)
+    },
+    storage: {
+      from: () => ({
+        list: async () => ({ data: state.storedFiles, error: null }),
+        download: async () => ({ data: new Blob([Uint8Array.from([0xff, 0xd8, 0xff, ...Array(13).fill(0)])]), error: null }),
+        remove: async (paths: string[]) => { state.removedPaths.push(...paths); return { data: paths, error: null } },
+      }),
+    },
+  }
 })
 beforeEach(async () => {
   await db.exec('truncate leads')
