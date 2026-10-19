@@ -47,27 +47,27 @@ export function Footer() {
   ].filter((s) => s.href)
 
   return (
-    <footer className="relative isolate overflow-hidden bg-ink text-white" role="contentinfo">
-      <div className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[32rem] w-[32rem] bg-terra/15 blur-3xl" aria-hidden="true" />
-
-      {/* Har page ka apna CTA section upar hota hai, isliye footer mein dobara CTA nahi (duplicate lagta tha). */}
-      <div className="container-wide grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-12 lg:py-20">
+    <footer className="bg-ink pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-white lg:pb-0" role="contentinfo">
+      <div className="container-wide grid gap-x-8 gap-y-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:py-14">
         <div className="sm:col-span-2 lg:col-span-4">
-          <Link href="/" aria-label={`${company.name} — Home`} className="inline-block bg-white px-4 py-3 transition-transform duration-300 hover:-translate-y-0.5">
-            <Image src="/assets/logo.png" alt="" width={1024} height={426} sizes="180px" className="h-auto w-[170px]" />
+          <Link href="/" aria-label={`${company.name} — Home`} className="inline-block rounded-lg bg-white px-3 py-2">
+            <Image src="/assets/logo.png" alt="" width={1024} height={426} sizes="140px" className="h-auto w-[128px]" />
           </Link>
-          <p className="mt-6 max-w-sm leading-relaxed text-white/65">{company.tagline} Request plumbing and HVAC service from local professionals serving Denver and Boulder.</p>
-          <ul className="mt-6 space-y-3 text-[0.95rem] text-white/80">
+          <p className="mt-5 max-w-sm text-[0.92rem] leading-relaxed text-white/70">
+            {company.name} helps customers explore plumbing and HVAC services in Denver, Boulder and nearby communities, and send a service request.
+          </p>
+          <ul className="mt-5 space-y-2 text-[0.92rem] text-white/80">
             {hasRealPhone(company.phone) && (
-              <li className="flex items-center gap-3">
+              <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 text-terra-light" aria-hidden="true" />
-                <a href={`tel:${company.phone}`} className="link-grow">
+                <a href={`tel:${company.phone}`} className="hover:underline">
                   {company.phone}
                 </a>
               </li>
             )}
-            {company.email && (
-              <li className="flex items-center gap-3">
+            {/* The default address in src/lib/config/site.ts is marked as a placeholder: only a confirmed address is shown. */}
+            {company.email && company.email !== PLACEHOLDER_EMAIL && (
+              <li className="flex items-center gap-2.5">
                 <Mail className="h-4 w-4 text-terra-light" aria-hidden="true" />
                 <a href={`mailto:${company.email}`} className="link-grow">
                   {company.email}
