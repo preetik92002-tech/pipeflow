@@ -1,28 +1,32 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { hasRealPhone } from '@/lib/config/contact'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { X, Phone, ArrowRight, HardHat } from 'lucide-react'
+import { ChevronDown, Phone, X } from 'lucide-react'
+import { hasRealPhone } from '@/lib/config/contact'
 import { cn } from '@/lib/cn'
-import type { NavItem, CTAConfig } from '@/types'
+import type { MenuItem } from '@/lib/cms-pages/menu'
 import { isActivePath } from './Navigation'
 
 interface MobileNavigationProps {
   isOpen: boolean
   /** restoreFocus: true jab user ne khud band kiya (Escape / close button). */
   onClose: (restoreFocus: boolean) => void
-  items: NavItem[]
-  config: CTAConfig
+  items: MenuItem[]
+  cta: { label: string; href: string }
+  contractors?: { label: string; href: string }
+  joinPro?: { label: string; href: string }
   phone: string
 }
 
-export function MobileNavigation({ isOpen, onClose, items, config, phone }: MobileNavigationProps) {
+/** Slide-in menu for phones and tablets. Groups open in place (disclosures) so the list stays short. */
+export function MobileNavigation({ isOpen, onClose, items, cta, contractors, joinPro, phone }: MobileNavigationProps) {
   const pathname = usePathname()
   const panel = useRef<HTMLDivElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
+  const [expanded, setExpanded] = useState<string | null>(null)
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
