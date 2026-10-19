@@ -158,7 +158,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
         window.fbq('track', 'ViewContent', privacySafeParams(payload))
         break
       default:
-        window.fbq('trackCustom', event, payload)
+        window.fbq('trackCustom', event, privacySafeParams(payload))
         break
     }
   }
