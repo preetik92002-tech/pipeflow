@@ -135,7 +135,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
 
   // 1. Google Analytics 4
   if (typeof window.gtag === 'function') {
-    window.gtag('event', event, payload)
+    window.gtag('event', event, privacySafeParams(payload))
   }
 
   // 2. Meta Pixel
