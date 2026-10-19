@@ -50,24 +50,10 @@ export interface PageContext {
   liveHrefs?: ReadonlySet<string>
 }
 
-/** Optional look for a section: dark navy band with slanted (criss-cross) top and bottom edges, optionally ending with the "Questions?" bar. */
-export interface Look {
-  dark: boolean
-  slant: 'a' | 'b' | 'c' // c = straight top edge (right under the hero), slanted bottom
-  bar?: boolean
-}
-
 const toneBg: Record<Tone, string> = { white: 'bg-white', paper: 'bg-paper' }
-const pad = 'py-20 sm:py-24 lg:py-28'
+const pad = 'section-y'
 
-function Band({ tone, children, className = '', labelledBy, look }: { tone: Tone; children: React.ReactNode; className?: string; labelledBy?: string; look?: Look }) {
-  if (look?.dark) {
-    return (
-      <section className={`slant-band slant-${look.slant} soft-texture text-ink ${className}`} aria-labelledby={labelledBy}>
-        {children}
-      </section>
-    )
-  }
+function Band({ tone, children, className = '', labelledBy }: { tone: Tone; children: React.ReactNode; className?: string; labelledBy?: string }) {
   return (
     <section className={`${toneBg[tone]} ${pad} ${className}`} aria-labelledby={labelledBy}>
       {children}
@@ -95,21 +81,13 @@ function SectionHeader({
   if (!heading && !intro) return null
   return (
     <div className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`}>
-      {eyebrow && (
-        <p data-reveal="fade" className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>
-          {eyebrow}
-        </p>
-      )}
+      {eyebrow && <p className={`ui-kicker ${light ? '!text-terra-light' : ''}`}>{eyebrow}</p>}
       {heading && (
-        <h2 id={id} data-lines className={`font-display ${compact ? 'text-display-md' : 'text-display-lg'} font-normal ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-4' : ''}`}>
+        <h2 id={id} data-lines className={`font-display ${compact ? 'text-display-md' : 'text-display-lg'} font-semibold ${light ? 'text-white' : 'text-ink'} ${eyebrow ? 'mt-2' : ''}`}>
           {heading}
         </h2>
       )}
-      {intro && (
-        <p data-reveal style={{ '--reveal-delay': '160ms' } as React.CSSProperties} className={`mt-5 text-lead ${light ? 'text-white/75' : 'text-neutral-600'}`}>
-          {intro}
-        </p>
-      )}
+      {intro && <p className={`mt-3 max-w-prose text-lead ${center ? 'mx-auto' : ''} ${light ? 'text-white/75' : 'text-neutral-600'}`}>{intro}</p>}
     </div>
   )
 }
@@ -121,14 +99,15 @@ const slug = (s: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 60)
+const paragraphs = (text: string) => text.split(/\n{2,}/).filter((p) => p.trim())
 
 // ------------------------------------------------------------------ hero
 
 function Breadcrumbs({ crumbs, light }: { crumbs: Crumb[]; light: boolean }) {
   if (crumbs.length < 2) return null
   return (
-    <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-sm ${light ? 'text-white/70' : 'text-neutral-600'}`}>
+    <nav aria-label="Breadcrumb" className="mb-4">
+      <ol className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.85rem] ${light ? 'text-white/70' : 'text-neutral-600'}`}>
         {crumbs.map((c, i) => (
           <li key={i} className="flex items-center gap-2">
             {i > 0 && (
@@ -137,7 +116,7 @@ function Breadcrumbs({ crumbs, light }: { crumbs: Crumb[]; light: boolean }) {
               </span>
             )}
             {c.href && i < crumbs.length - 1 ? (
-              <SmartLink href={c.href} className={`link-grow ${light ? 'hover:text-white' : 'hover:text-ink'}`}>
+              <SmartLink href={c.href} className={`underline-offset-4 hover:underline ${light ? 'hover:text-white' : 'hover:text-ink'}`}>
                 {c.label}
               </SmartLink>
             ) : (
@@ -152,26 +131,11 @@ function Breadcrumbs({ crumbs, light }: { crumbs: Crumb[]; light: boolean }) {
   )
 }
 
-function HeroCopy({ data, first, light, center }: { data: SectionData<'hero'>; first: boolean; light: boolean; center: boolean }) {
-  return (
-    <>
-      {data.eyebrow && <p className={`eyebrow ${light ? 'eyebrow-light' : ''} ${center ? 'justify-center' : ''}`}>{data.eyebrow}</p>}
-      <h1 id={first ? 'page-title' : undefined} className={`hero-h1 mt-5 font-display text-display-2xl font-normal ${light ? 'text-white' : 'text-ink'}`}>
-        <SplitWords text={data.heading} />
-      </h1>
-      {data.subtitle && <p className={`mt-6 max-w-2xl text-lead ${center ? 'mx-auto' : ''} ${light ? 'text-white/85' : 'text-neutral-700'}`}>{data.subtitle}</p>}
-      {data.intro && (
-        <div className={`mt-5 max-w-2xl space-y-3 leading-relaxed ${center ? 'mx-auto' : ''} ${light ? 'text-white/70' : 'text-neutral-600'}`}>
-          {data.intro.split(/\n{2,}/).map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-        </div>
-      )}
-      <CmsButtons buttons={data.buttons} onDark={light} center={center} />
-    </>
-  )
-}
-
+/**
+ * Page hero for every CMS page except the homepage. A compact banner: the wide photo shows on the right (desktop) or as a
+ * short band on top (phones), the heading, subtitle and buttons sit on navy. Longer introduction text moves to an
+ * overview strip right below, beside a relevant photo, so the banner stays short and the text gets an image to balance it.
+ */
 export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; first: boolean; ctx: PageContext }) {
   const center = data.align === 'center'
   // The banner is chosen from the hero's wording; the page's stored image is left untouched.
