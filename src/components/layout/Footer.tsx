@@ -69,71 +69,45 @@ export function Footer() {
             {company.email && company.email !== PLACEHOLDER_EMAIL && (
               <li className="flex items-center gap-2.5">
                 <Mail className="h-4 w-4 text-terra-light" aria-hidden="true" />
-                <a href={`mailto:${company.email}`} className="link-grow">
+                <a href={`mailto:${company.email}`} className="hover:underline">
                   {company.email}
                 </a>
               </li>
             )}
-            <li className="flex items-center gap-3">
+            <li className="flex items-center gap-2.5">
               <MapPin className="h-4 w-4 text-terra-light" aria-hidden="true" />
-              <span>Serving Denver &amp; Boulder, {company.state}</span>
+              <span>Service areas: Denver &amp; Boulder, {company.state}</span>
             </li>
           </ul>
         </div>
-        <div className="lg:col-span-2">
-          <Column title="Services" links={nav.footerServices} />
-        </div>
-        <div className="lg:col-span-2">
-          <Column title="Locations" links={nav.footerAreas} />
-        </div>
-        <div className="lg:col-span-2">
-          <Column title="Company" links={nav.footerCompany} />
-        </div>
-        <div className="lg:col-span-2">
-          <Column title="Resources" links={nav.footerResources} />
+        <div className={`grid grid-cols-2 gap-x-6 gap-y-8 sm:col-span-2 md:grid-cols-3 lg:col-span-8 ${columns.length >= 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
+          {columns.map((c) => (
+            <Column key={c.title} title={c.title} links={c.links} />
+          ))}
         </div>
       </div>
 
       <div className="border-t border-white/10">
-        <div className="container-wide flex flex-col items-center justify-between gap-4 py-6 text-sm text-white/50 sm:flex-row">
-          <p>
-            &copy; {year} {company.name} All rights reserved.
+        <div className="container-wide flex flex-col gap-3 py-5 text-[0.8rem] text-white/55 md:flex-row md:items-center md:justify-between">
+          <p className="max-w-3xl leading-relaxed">
+            &copy; {year} {company.name.replace(/\.$/, '')}. Service availability, pricing, scheduling and terms vary by location, service type and provider. A website request is not an emergency line: for gas, carbon monoxide or flooding hazards, call 911 or your utility.
           </p>
-          <div className="flex items-center gap-2">
-            {social.facebook && (
-              <a
-                href={social.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${company.name} on Facebook`}
-                className="p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-              >
-                <Facebook className="h-4 w-4" aria-hidden="true" />
-              </a>
-            )}
-            {social.instagram && (
-              <a
-                href={social.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${company.name} on Instagram`}
-                className="p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-              >
-                <Instagram className="h-4 w-4" aria-hidden="true" />
-              </a>
-            )}
-            {social.google && (
-              <a
-                href={social.google}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${company.name} on Google`}
-                className="p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-              >
-                <Star className="h-4 w-4" aria-hidden="true" />
-              </a>
-            )}
-          </div>
+          {socials.length > 0 && (
+            <div className="flex items-center gap-1">
+              {socials.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${company.name} on ${label}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-white/65 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </footer>
