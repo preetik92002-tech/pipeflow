@@ -184,6 +184,18 @@
   .cms-prose blockquote {
     @apply border-l-[3px] border-terra pl-5 font-display text-xl leading-snug text-ink;
   }
+  /* Long lists (6+ items) flow into two columns on wider screens, so a page section is not a tall single column. */
+  @media (min-width: 768px) {
+    .cms-lists-2 ul:has(> li:nth-child(6)) {
+      column-count: 2;
+      column-gap: 2.5rem;
+    }
+    .cms-lists-2 ul:has(> li:nth-child(6)) > li {
+      break-inside: avoid;
+      margin-top: 0;
+      margin-bottom: 0.6rem;
+    }
+  }
   .cms-prose-invert {
     @apply text-white/80;
   }
