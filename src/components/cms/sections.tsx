@@ -511,71 +511,51 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
 export function StepsSection({ data, tone = 'paper' }: { data: SectionData<'steps'>; ctx: PageContext; tone?: Tone }) {
   const id = `steps-${slug(data.heading)}`
   const n = data.steps.length
-  // Home page, 3-6 steps: a flow chart (illustrated nodes joined by arrows). Other pages keep the plain step grid below.
-  if (ctx.kind === 'home' && n >= 3 && n <= 6) {
-    const poses = [1, 3, 2, 4] as const
-    return (
-      <section data-flow className="relative isolate overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 py-16 text-white sm:py-24" aria-labelledby={id}>
-        {/* background: dotted texture, soft blue glows and dashed rings instead of a photo */}
-        <div className="pointer-events-none absolute inset-0 -z-10 opacity-70" aria-hidden="true" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1.2px)', backgroundSize: '9px 9px' }} />
-        <div className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden="true" />
-        <div className="pointer-events-none absolute -right-20 bottom-0 -z-10 h-80 w-80 rounded-full bg-brand-red/20 blur-3xl" aria-hidden="true" />
-        <div className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[28rem] w-[28rem] rounded-full border border-dashed border-white/15" aria-hidden="true" />
-        <div className="container-wide">
-          <div className="mx-auto max-w-3xl text-center" data-reveal>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white/90">How it works</p>
-            <h2 id={id} className="mt-5 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              {data.heading}
-            </h2>
-            <p className="mt-4 text-lead text-white/80">{data.intro || `${n} simple steps from your first request to a scheduled visit.`}</p>
-          </div>
-          <ol className="mt-14 flex flex-col items-stretch gap-2 lg:flex-row lg:items-start lg:gap-0">
-            {data.steps.map((step, i) => (
-              <li key={i} className="relative flex flex-1 flex-col items-center lg:flex-row lg:items-start" data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties}>
-                <div className="flex w-full max-w-sm flex-col items-center rounded-3xl bg-white/10 px-6 pb-7 pt-6 text-center ring-1 ring-white/20 backdrop-blur-sm lg:max-w-none lg:flex-1">
-                  <span className="relative flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-xl ring-8 ring-white/10">
-                    <Avatar pose={poses[i % poses.length]} className="h-24 w-auto max-w-[5.5rem] object-contain" />
-                    <span className="absolute -right-1 -top-1 flex h-9 w-9 items-center justify-center rounded-full bg-brand-red text-base font-extrabold text-white ring-4 ring-navy-800">{i + 1}</span>
-                  </span>
-                  <h3 className="mt-5 font-display text-xl font-bold">{step.title}</h3>
-                  {step.text && <p className="mt-2 leading-relaxed text-white/75">{step.text}</p>}
-                </div>
-                {i < n - 1 && (
-                  <span className="flex flex-none items-center justify-center py-3 text-white/70 lg:px-2 lg:py-0 lg:pt-20" aria-hidden="true">
-                    <ArrowRight className="h-8 w-8 rotate-90 lg:rotate-0" />
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-          <p className="mx-auto mt-10 max-w-2xl text-center text-white/75" data-reveal>
-            Describe your project once and we help match you with local plumbing and HVAC professionals in Denver and Boulder.
-          </p>
-        </div>
-      </section>
-    )
-  }
-  const cols = n === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
+  const cols = n % 3 === 0 || n === 5 ? 'lg:grid-cols-3' : n >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-2'
   return (
-    <section className={`relative isolate overflow-hidden bg-ink text-white ${pad}`} aria-labelledby={id}>
+    <section className={`${toneBg[tone]} ${pad}`} aria-labelledby={id}>
       <div className="container-wide">
-        <div className="relative">
-          <SectionHeader heading={data.heading} intro={data.intro} light id={id} />
-          <Avatar pose={2} className="pointer-events-none absolute -top-2 right-0 hidden h-36 w-auto xl:block" />
-        </div>
-        <ol className={`mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 ${cols}`}>
+        <SectionHeader eyebrow="How it works" heading={data.heading} intro={data.intro} id={id} />
+        <ol className={`mt-8 grid gap-3 sm:grid-cols-2 ${cols}`}>
           {data.steps.map((step, i) => (
-            <li key={i} className="relative border-t border-white/15 pt-7" data-reveal style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
-              <span data-step-line className="absolute -top-px left-0 h-px w-full origin-left bg-terra-light" style={{ transform: 'scaleX(0.16)' }} aria-hidden="true" />
-              <span className="font-display text-sm font-medium tracking-[0.2em] text-terra-light">Step {pad2(i + 1)}</span>
-              <h3 className="mt-3 font-display text-xl font-medium text-white">{step.title}</h3>
-              {step.text && <p className="mt-3 leading-relaxed text-white/70">{step.text}</p>}
+            <li key={i} className="ui-card relative overflow-hidden p-5">
+              <span data-step-line className="absolute inset-x-0 top-0 h-1 bg-terra/80" aria-hidden="true" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-bold text-white" aria-hidden="true">
+                {i + 1}
+              </span>
+              <h3 className="mt-3 font-semibold text-ink">{step.title}</h3>
+              {step.text && <p className="mt-1.5 text-[0.93rem] leading-relaxed text-neutral-600">{step.text}</p>}
             </li>
           ))}
         </ol>
-        <CmsButtons buttons={data.buttons} onDark className="mt-14" />
+        <CmsButtons buttons={data.buttons} className="mt-6" />
       </div>
     </section>
+  )
+}
+
+// ------------------------------------------------------------------ faq
+
+/** One accessible FAQ list (native disclosure: keyboard and screen-reader support built in). Used by every page that has questions. */
+export function FaqAccordion({ items, className = '' }: { items: { question: string; answer: string }[]; className?: string }) {
+  return (
+    <div className={`divide-y divide-line rounded-xl border border-line bg-white ${className}`}>
+      {items.map((item, i) => (
+        <details key={i} className="faq-item group">
+          <summary className="flex min-h-[3.25rem] cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 text-left text-[0.98rem] font-semibold text-ink hover:text-terra sm:px-5 [&::-webkit-details-marker]:hidden">
+            <span>{item.question}</span>
+            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-line text-ink transition-transform duration-200 group-open:rotate-45 group-open:border-terra group-open:text-terra" aria-hidden="true">
+              <Plus className="h-3.5 w-3.5" />
+            </span>
+          </summary>
+          <div className="max-w-prose space-y-2.5 px-4 pb-4 text-[0.95rem] leading-relaxed text-neutral-700 sm:px-5">
+            {item.answer.split(/\n{2,}/).map((p, j) => (
+              <p key={j}>{p}</p>
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
   )
 }
 
