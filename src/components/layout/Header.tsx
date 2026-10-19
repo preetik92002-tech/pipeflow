@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Menu, Phone } from 'lucide-react'
@@ -9,16 +9,25 @@ import { MobileNavigation } from './MobileNavigation'
 import { AnnouncementBar } from './AnnouncementBar'
 import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
+import { buildMenu } from '@/lib/cms-pages/menu'
 import { useNavigation } from './NavigationProvider'
 import { cn } from '@/lib/cn'
 import { useSiteSettings } from './SiteSettingsProvider'
 
+/**
+ * One compact bar: logo, main menu (lg and up) and the customer action. The contractor link sits apart from
+ * Request Service and is styled as a plain text link, so the two journeys never look like the same action.
+ */
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const menuButton = useRef<HTMLButtonElement>(null)
   const { company, announcementMessages } = useSiteSettings()
   const nav = useNavigation()
+  const menu = useMemo(() => buildMenu(nav), [nav])
+  const mobileMenu = useMemo(() => buildMenu(nav, { includeHome: true }), [nav])
+  // The contractor journey, taken from the admin-managed footer links (never invented here).
+  const contractors = [...nav.footerCompany, ...nav.footerResources].find((l) => l.href === '/for-contractors')
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16)
