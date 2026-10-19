@@ -169,6 +169,25 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
   }
 }
 
+/** Drop contact/request details and URL query data before sending any analytics event. */
+function privacySafeParams(params: Record<string, unknown>): Record<string, unknown> {
+  const blocked = new Set(['phone_number', 'email_address', 'zip_code', 'service_area', 'city', 'address'])
+  const safe: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(params)) {
+    if (blocked.has(key.toLowerCase())) continue
+    if (key === 'referrer' && typeof value === 'string') {
+      try {
+        safe.referrer = new URL(value).origin
+      } catch {
+        // Omit malformed referrer strings rather than forwarding arbitrary data.
+      }
+      continue
+    }
+    safe[key] = value
+  }
+  return safe
+}
+
 // Global declaration for window.gtag and window.fbq
 declare global {
   interface Window {
