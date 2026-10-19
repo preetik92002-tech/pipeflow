@@ -64,41 +64,38 @@ export function Header() {
           <Navigation items={menu} className="mx-auto hidden lg:block" />
           <span className="flex-1 lg:hidden" aria-hidden="true" />
 
-            <div className="hidden flex-shrink-0 items-center gap-3 lg:flex">
-              {hasRealPhone(company.phone) && (
-                <a href={`tel:${company.phone}`} className="group inline-flex items-center gap-2 px-2 text-sm font-semibold text-ink" aria-label={`Call ${company.phone}`}>
-                  <Phone className="h-4 w-4 text-terra" aria-hidden="true" />
-                  <span className="link-grow hidden xl:inline">{company.phone}</span>
-                  <span className="xl:hidden">Call</span>
-                </a>
-              )}
-              <Link href={nav.cta.href} className="btn-primary !px-5 !py-2.5">
-                {nav.cta.label}
+          <div className="hidden flex-shrink-0 items-center gap-4 lg:flex">
+            {contractors && (
+              <Link href={contractors.href} className="hidden text-sm font-semibold text-neutral-600 hover:text-ink xl:inline">
+                For Contractors
               </Link>
-            </div>
+            )}
+            {hasRealPhone(company.phone) && (
+              <a href={`tel:${company.phone}`} className="inline-flex items-center gap-2 text-sm font-semibold text-ink" aria-label={`Call ${company.phone}`}>
+                <Phone className="h-4 w-4 text-terra" aria-hidden="true" />
+                <span className="hidden xl:inline">{company.phone}</span>
+              </a>
+            )}
+            <Link href={nav.cta.href} className="ui-btn ui-btn-primary ui-btn-sm">
+              {nav.cta.label}
+            </Link>
+          </div>
 
-            <button
-              ref={menuButton}
-              type="button"
-              aria-label="Open navigation menu"
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-menu"
-              onClick={() => setMobileMenuOpen(true)}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-800 text-white shadow-md transition-transform active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terra lg:hidden"
-            >
-              <Menu className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
+          <button
+            ref={menuButton}
+            type="button"
+            aria-label="Open navigation menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setMobileMenuOpen(true)}
+            className="-mr-1 flex h-11 w-11 items-center justify-center rounded-lg text-ink hover:bg-paper lg:hidden"
+          >
+            <Menu className="h-6 w-6" aria-hidden="true" />
+          </button>
         </div>
-        <div className="hidden bg-gradient-to-b from-brand-blue to-navy-700 shadow-md lg:block">
-          <div className="container-wide">
-            <Navigation items={nav.header} variant="bar" />
-          </div>
-        </div>
-        <div className="h-[3px] w-full bg-gradient-to-r from-brand-blue via-navy-700 to-brand-red" aria-hidden="true" />
       </header>
 
-      <MobileNavigation isOpen={mobileMenuOpen} onClose={closeMenu} items={nav.header} config={{ ...siteConfig.ctas, bookService: nav.cta }} phone={company.phone} />
+      <MobileNavigation isOpen={mobileMenuOpen} onClose={closeMenu} items={mobileMenu} cta={nav.cta} contractors={contractors} joinPro={siteConfig.ctas.joinPro} phone={company.phone} />
     </>
   )
 }
