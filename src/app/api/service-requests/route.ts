@@ -63,7 +63,7 @@ async function verifiedAttachments(paths: string[]): Promise<{
       firstName ??= name
       firstSize ??= size
     } catch {
-      await storage.remove([path]).catch(() => undefined)
+      unavailable = true
     }
   }
   return { kept, firstName, firstSize }
