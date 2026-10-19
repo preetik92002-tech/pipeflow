@@ -734,54 +734,32 @@ export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; t
 /** Reviews an editor typed into a page. Only what was entered is shown; with none, nothing renders. */
 export function TestimonialsSection({ data, tone }: { data: SectionData<'testimonials'>; tone: Tone }) {
   if (!data.items.length) return null
-  const rated = data.items.filter((t) => t.rating)
-  const average = rated.length ? (rated.reduce((n, t) => n + (t.rating ?? 0), 0) / rated.length).toFixed(1) : null
+  const id = `t-${slug(data.heading)}`
   return (
-    <section className="bg-gradient-to-b from-navy-800 to-navy-900 pb-16 text-white sm:pb-20 lg:pb-24">
-      <div className="relative isolate overflow-hidden bg-gradient-to-br from-brand-blue to-navy-700 pb-24 pt-14 sm:pt-20 lg:pb-28">
-        <div className="absolute inset-y-0 right-0 -z-10 hidden w-[58%] [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)] md:block" aria-hidden="true">
-          <CmsImage src={HERO_BANNERS.van} decorative sizes="60vw" className="object-cover object-right" />
-        </div>
-        <div className="container-wide" data-reveal>
-          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Reviews</p>
-          <h2 className="mt-3 max-w-md font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{data.heading}</h2>
-          {average && (
-            <p className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-white/15 px-5 py-3 ring-1 ring-white/25 backdrop-blur">
-              <GoogleG />
-              <span className="font-display text-3xl font-bold">{average}</span>
-              <span className="text-sm text-white/90">
-                <span className="block text-amber-300" aria-hidden="true">★★★★★</span>
-                Based on {data.items.length} review{data.items.length === 1 ? '' : 's'}
-              </span>
-            </p>
-          )}
-        </div>
-      </div>
-      <div className="container-wide -mt-14 sm:-mt-16">
-        <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <Band tone={tone} labelledBy={id}>
+      <div className="container-wide">
+        <SectionHeader eyebrow="Reviews" heading={data.heading} id={id} />
+        <ul className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {data.items.map((t, i) => (
-            <li key={i} className="flex flex-col overflow-hidden rounded-2xl bg-white text-ink shadow-xl shadow-black/20" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-              <div className="flex flex-1 flex-col p-6 sm:p-8">
+            <li key={i}>
+              <figure className="ui-card flex h-full flex-col p-5">
                 {t.rating && (
-                  <p className="text-xl tracking-widest text-amber-500" aria-label={`${t.rating} out of 5 stars`}>
+                  <p className="text-lg tracking-wide text-amber-500" aria-label={`${t.rating} out of 5 stars`}>
                     {'★'.repeat(t.rating)}
-                    {'☆'.repeat(5 - t.rating)}
+                    <span className="text-neutral-300">{'★'.repeat(5 - t.rating)}</span>
                   </p>
                 )}
-                <blockquote className="mt-4 flex-1 text-[0.95rem] leading-relaxed text-neutral-700">“{t.quote}”</blockquote>
-              </div>
-              <div className="flex items-center justify-between gap-3 border-t border-line px-6 py-4 sm:px-8">
-                <p className="text-sm font-bold text-ink">
+                <blockquote className="mt-3 flex-1 text-[0.95rem] leading-relaxed text-neutral-700">“{t.quote}”</blockquote>
+                <figcaption className="mt-4 border-t border-line pt-3 text-sm font-semibold text-ink">
                   {t.name}
                   {t.location && <span className="font-normal text-neutral-600"> · {t.location}</span>}
-                </p>
-                <GoogleG />
-              </div>
+                </figcaption>
+              </figure>
             </li>
           ))}
         </ul>
       </div>
-    </section>
+    </Band>
   )
 }
 
