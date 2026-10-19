@@ -30,7 +30,7 @@ export function Header() {
   const contractors = [...nav.footerCompany, ...nav.footerResources].find((l) => l.href === '/for-contractors')
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 16)
+    const handleScroll = () => setIsScrolled(window.scrollY > 8)
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -46,37 +46,23 @@ export function Header() {
     <>
       {announcementMessages.length > 0 && <AnnouncementBar messages={announcementMessages} />}
       <header
-        className={cn(
-          'sticky top-0 z-40 w-full transition-[background-color,box-shadow] duration-300',
-          isScrolled ? 'bg-white/90 shadow-[0_1px_0_rgba(11,23,40,0.06),0_12px_30px_-20px_rgba(11,23,40,0.45)] backdrop-blur-md' : 'bg-white'
-        )}
+        className={cn('sticky top-0 z-40 w-full border-b bg-white transition-[box-shadow,border-color] duration-200', isScrolled ? 'border-line shadow-nav' : 'border-transparent')}
         role="banner"
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
         >
           Skip to main content
         </a>
 
-        <div className="container-wide">
-          <div className={cn('flex items-center justify-between gap-4 transition-[height] duration-300 ease-out-expo', isScrolled ? 'h-12 lg:h-14' : 'h-14 lg:h-[84px]')}>
-            <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="group flex-shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-terra">
-              <Image
-                src="/assets/logo.png"
-                alt=""
-                width={1024}
-                height={426}
-                sizes="170px"
-                className={cn(
-                  'h-auto animate-logo-in object-contain transition-[width,transform] duration-300 ease-out-expo group-hover:-translate-y-0.5 group-hover:-rotate-1',
-                  isScrolled ? 'w-[118px] lg:w-[132px]' : 'w-[124px] sm:w-[140px] lg:w-[160px]'
-                )}
-                priority
-              />
-            </Link>
+        <div className="container-wide flex h-16 items-center gap-4 lg:h-[72px]">
+          <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="flex-shrink-0 rounded-md">
+            <Image src="/assets/logo.png" alt="" width={1024} height={426} sizes="150px" className="h-auto w-[112px] sm:w-[124px] lg:w-[136px]" priority />
+          </Link>
 
-            <span className="flex-1" aria-hidden="true" />
+          <Navigation items={menu} className="mx-auto hidden lg:block" />
+          <span className="flex-1 lg:hidden" aria-hidden="true" />
 
             <div className="hidden flex-shrink-0 items-center gap-3 lg:flex">
               {hasRealPhone(company.phone) && (
