@@ -485,42 +485,30 @@ export function ComparisonSection({ data, tone }: { data: SectionData<'compariso
   return (
     <Band tone={tone} labelledBy={id}>
       <div className="container-wide">
-        <div className="relative">
-          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
-          <Avatar pose={3} className="pointer-events-none absolute -top-6 right-0 hidden h-44 w-auto lg:block" />
+        <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+        <div className={`mt-8 grid gap-4 ${data.columns.length === 3 ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'}`}>
+          {data.columns.map((col, i) => (
+            <div key={i} className={`rounded-xl p-5 sm:p-6 ${i % 2 === 1 ? 'bg-ink text-white' : 'border border-line bg-white'}`}>
+              <h3 className={`font-display text-display-md font-semibold ${i % 2 === 1 ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
+              <ul className="mt-4 space-y-2.5">
+                {col.items.map((item, j) => (
+                  <li key={j} className={`flex gap-2.5 text-[0.95rem] leading-relaxed ${i % 2 === 1 ? 'text-white/85' : 'text-neutral-700'}`}>
+                    <Check className={`mt-1 h-4 w-4 flex-shrink-0 ${i % 2 === 1 ? 'text-terra-light' : 'text-terra'}`} aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-        <div className={`mt-12 grid gap-5 ${data.columns.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
-          {data.columns.map((col, i) => {
-            const dark = i % 2 === 1
-            return (
-              <div key={i} data-reveal style={{ '--reveal-delay': `${i * 110}ms` } as React.CSSProperties} className={`p-8 sm:p-10 ${dark ? 'bg-ink text-white' : 'rounded-2xl border border-line bg-white'}`}>
-                <h3 className={`font-display text-display-md font-normal ${dark ? 'text-white' : 'text-ink'}`}>{col.title}</h3>
-                <ul className="mt-7 space-y-4">
-                  {col.items.map((item, j) => (
-                    <li key={j} className={`flex gap-3 ${dark ? 'text-white/80' : 'text-neutral-700'}`}>
-                      <span className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center ${dark ? 'bg-white/10' : 'bg-mist'}`}>
-                        <Check className={`h-3.5 w-3.5 ${dark ? 'text-white' : 'text-terra'}`} aria-hidden="true" />
-                      </span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          })}
-        </div>
-        {data.outro && (
-          <p className="mt-10 max-w-3xl text-lead text-neutral-600" data-reveal>
-            {data.outro}
-          </p>
-        )}
-        <CmsButtons buttons={data.buttons} />
+        {data.outro && <p className="mt-6 max-w-prose text-[1.02rem] leading-relaxed text-neutral-600">{data.outro}</p>}
+        <CmsButtons buttons={data.buttons} className="mt-6" />
       </div>
     </Band>
   )
 }
 
-export function StepsSection({ data, ctx }: { data: SectionData<'steps'>; ctx: PageContext }) {
+export function StepsSection({ data, tone = 'paper' }: { data: SectionData<'steps'>; ctx: PageContext; tone?: Tone }) {
   const id = `steps-${slug(data.heading)}`
   const n = data.steps.length
   // Home page, 3-6 steps: a flow chart (illustrated nodes joined by arrows). Other pages keep the plain step grid below.
