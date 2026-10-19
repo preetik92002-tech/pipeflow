@@ -55,7 +55,10 @@ async function verifiedAttachments(paths: string[]): Promise<{
       }
       const head = new Uint8Array(await blob.slice(0, 16).arrayBuffer())
       const kind = sniffType(head)
-      if (!kind || (kind === 'video') !== mime.startsWith('video/')) throw new Error('type mismatch')
+      if (!kind || (kind === 'video') !== mime.startsWith('video/')) {
+        invalid = true
+        continue
+      }
       kept.push(path)
       firstName ??= name
       firstSize ??= size
