@@ -66,7 +66,7 @@ async function verifiedAttachments(paths: string[]): Promise<{
       unavailable = true
     }
   }
-  return { kept, firstName, firstSize }
+  return { kept, firstName, firstSize, invalid, unavailable }
 }
 
 export async function POST(request: NextRequest) {
