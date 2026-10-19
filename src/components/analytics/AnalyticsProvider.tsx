@@ -72,10 +72,7 @@ export function AnalyticsProvider() {
       if (href.startsWith('tel:')) {
         trackEvent('phone_click', { cta_location: target.getAttribute('aria-label') || 'unspecified' })
       } else if (href.startsWith('mailto:')) {
-        trackEvent('email_click', {
-          email_address: href.replace('mailto:', ''),
-          cta_location: target.getAttribute('aria-label') || 'unspecified',
-        })
+        trackEvent('email_click', { cta_location: target.getAttribute('aria-label') || 'unspecified' })
       }
     }
 
