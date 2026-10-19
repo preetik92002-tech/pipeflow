@@ -65,20 +65,23 @@ export function VideoPopup() {
       window.removeEventListener('scroll', onScroll)
       clearTimeout(t)
     }
-  }, [home])
+  }, [pathname])
 
   // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start playback by hand.
   useEffect(() => {
     const v = video.current
-    if (!visible || !(opened || !home) || !v) return
+    if (!opened || !v) return
     v.muted = true
     setMuted(true)
     void v.play().catch(() => {})
-  }, [visible, opened, home])
+  }, [opened])
 
-  if (!visible) return null
+  if (!visible || onRequestPage) return null
 
-  if (home && !opened) {
+  // Fixed controls sit above the mobile Request Service bar, and in the corner on desktop.
+  const position = { bottom: 'calc(5rem + env(safe-area-inset-bottom))' }
+
+  if (!opened) {
     if (overForm) return null
     return (
       <button
