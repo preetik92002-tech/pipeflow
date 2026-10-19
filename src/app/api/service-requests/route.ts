@@ -137,9 +137,11 @@ export async function POST(request: NextRequest) {
     utm_term: clean(r.utm_term) || null, utm_content: clean(r.utm_content) || null, gclid: clean(r.gclid) || null,
     fbclid: clean(r.fbclid) || null, referrer: clean(r.referrer) || null, landing_page: clean(r.landingPage) || null,
   }
-  const { error } = await createAdminClient().from('leads').insert(record)
-  if (error) {
-    console.error('[service-requests]', error.message)
+  try {
+    const { error } = await createAdminClient().from('leads').insert(record)
+    if (error) throw error
+  } catch {
+    console.error('[service-requests] database insert failed')
     return NextResponse.json({ error: 'We could not save your request. Please try again.' }, { status: 503 })
   }
   return NextResponse.json({ success: true, reference: reference.slice(3, 11).toUpperCase(), attachments: files.kept.length }, { status: 201 })
