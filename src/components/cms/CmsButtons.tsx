@@ -27,7 +27,7 @@ export function CmsButtons({
   onDark = false,
   center = false,
   asLinks = false,
-  className = 'mt-9',
+  className = 'mt-7',
 }: {
   buttons: CmsButton[]
   onDark?: boolean
