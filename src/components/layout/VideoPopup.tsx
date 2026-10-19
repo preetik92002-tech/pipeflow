@@ -5,16 +5,23 @@ import { usePathname } from 'next/navigation'
 import { Maximize2, Play, Volume2, VolumeX, X } from 'lucide-react'
 
 const VIDEO_SRC = '/assets/add.mp4'
-// Kept in memory only: closing hides it while the visitor browses, and it comes back on the next page load.
-let closedThisLoad = false
+// Kept in memory only: dismissing the launcher hides it while the visitor browses; it comes back on the next page load.
+let dismissedThisLoad = false
 
-/** Small autoplaying ad on public pages: muted at first (browsers require it), with mute/unmute, full screen and close. */
+/**
+ * The promotional video. It never opens over the page by itself: a small "Watch our video" launcher appears once the
+ * hero has scrolled away, and the player (muted at first, with mute/unmute, full screen and close) opens only when the
+ * visitor asks for it. Closing the player returns to the launcher; the launcher's own × hides it for this visit.
+ * The launcher steps aside while a request form is on screen, and does not appear on the request page itself.
+ */
 export function VideoPopup() {
+  const pathname = usePathname()
   const [visible, setVisible] = useState(false)
-  const home = usePathname() === '/'
-  // Home page: the video starts as a small launcher and only opens when the visitor asks for it. Other pages open it straight away.
   const [opened, setOpened] = useState(false)
   const [overForm, setOverForm] = useState(false)
+  const [muted, setMuted] = useState(true)
+  const video = useRef<HTMLVideoElement>(null)
+  const onRequestPage = pathname.startsWith('/book-service')
 
   // Home: the launcher steps aside while the hero request form is on screen (e.g. after scrolling back up to it).
   useEffect(() => {
