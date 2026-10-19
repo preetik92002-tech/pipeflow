@@ -43,7 +43,10 @@ async function verifiedAttachments(paths: string[]): Promise<{
           continue
         }
       } else {
-        if (size > IMAGE_MAX) throw new Error('too large')
+        if (size > IMAGE_MAX) {
+          invalid = true
+          continue
+        }
       }
       const { data: blob, error } = await storage.download(path)
       if (error || !blob) throw new Error('download failed')
