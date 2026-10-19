@@ -25,7 +25,11 @@ async function verifiedAttachments(paths: string[]): Promise<{
   for (const path of paths) {
     try {
       const [folder, name] = path.split('/')
-      const { data: listed } = await storage.list(folder, { limit: 20, search: name })
+      const { data: listed, error: listError } = await storage.list(folder, { limit: 20, search: name })
+      if (listError) {
+        unavailable = true
+        continue
+      }
       const info = listed?.find((f) => f.name === name)
       const size = Number((info?.metadata as { size?: number } | undefined)?.size ?? 0)
       if (!info || size < 12) throw new Error('missing')
