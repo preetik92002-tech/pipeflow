@@ -9,7 +9,13 @@ const BUCKET = 'service-requests'
 const clean = (v?: string | null) => (v ? sanitizeString(v) : '')
 
 /** Keeps only attachments that really are in storage, are within size limits and whose bytes match an allowed type. */
-async function verifiedAttachments(paths: string[]): Promise<{ kept: string[]; firstName: string | null; firstSize: number | null }> {
+async function verifiedAttachments(paths: string[]): Promise<{
+  kept: string[]
+  firstName: string | null
+  firstSize: number | null
+  invalid: boolean
+  unavailable: boolean
+}> {
   const storage = createAdminClient().storage.from(BUCKET)
   const kept: string[] = []
   let firstName: string | null = null
