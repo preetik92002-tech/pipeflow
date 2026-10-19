@@ -8,7 +8,13 @@ import { useSiteSettings } from '@/components/layout/SiteSettingsProvider'
 
 export function AnalyticsProvider() {
   const { analytics } = useSiteSettings()
-  const gaId = analytics.enabled ? (analytics.gaMeasurementId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) : undefined
+  const pathname = usePathname()
+  const pathnameRef = useRef(pathname)
+  const lastReportedPath = useRef<string | null>(null)
+  const gaReady = useRef(false)
+  const envGaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  const configuredGaId = envGaId || analytics.gaMeasurementId
+  const gaId = analytics.enabled && configuredGaId && /^G-[A-Z0-9]+$/.test(configuredGaId) ? configuredGaId : undefined
   const metaPixelId = analytics.enabled ? (analytics.metaPixelId || process.env.NEXT_PUBLIC_META_PIXEL_ID) : undefined
 
   useEffect(() => {
