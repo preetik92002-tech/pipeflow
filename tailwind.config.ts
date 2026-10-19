@@ -37,11 +37,12 @@ const config: Config = {
       },
       fontSize: {
         // Fluid display scale: badi screens par bade, mobile par bina tootey headings.
-        'display-2xl': ['clamp(2.6rem, 1.3rem + 5vw, 6rem)', { lineHeight: '1.0', letterSpacing: '-0.025em' }],
-        'display-xl': ['clamp(2.2rem, 1.3rem + 3.2vw, 4.2rem)', { lineHeight: '1.04', letterSpacing: '-0.022em' }],
-        'display-lg': ['clamp(1.85rem, 1.25rem + 2.1vw, 3.1rem)', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
-        'display-md': ['clamp(1.45rem, 1.15rem + 1.1vw, 2.1rem)', { lineHeight: '1.18', letterSpacing: '-0.02em' }],
-        lead: ['clamp(1.075rem, 1rem + 0.35vw, 1.3rem)', { lineHeight: '1.65' }],
+        // Restrained display scale: strong hierarchy without headings that wrap into five lines on a phone.
+        'display-2xl': ['clamp(1.9rem, 1.4rem + 2.6vw, 3.5rem)', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
+        'display-xl': ['clamp(1.85rem, 1.4rem + 1.9vw, 2.9rem)', { lineHeight: '1.1', letterSpacing: '-0.018em' }],
+        'display-lg': ['clamp(1.55rem, 1.25rem + 1.2vw, 2.25rem)', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
+        'display-md': ['clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem)', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
+        lead: ['clamp(1.02rem, 0.98rem + 0.2vw, 1.15rem)', { lineHeight: '1.65' }],
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
