@@ -84,23 +84,12 @@ export function AnalyticsProvider() {
     <>
       {/* Google Analytics 4 */}
       {gaId && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${gaId}', {
-                page_path: window.location.pathname,
-                send_page_view: true
-              });
-            `}
-          </Script>
-        </>
+        <Script
+          id="google-analytics"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          strategy="lazyOnload"
+          onReady={initializeGa}
+        />
       )}
 
       {/* Meta Pixel */}
