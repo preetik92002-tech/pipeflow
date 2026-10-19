@@ -774,79 +774,39 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
   return (
     <Band tone={tone}>
       <div className="container-wide">
-        <div className="relative">
-          <SectionHeader heading={data.heading} />
-          <Avatar pose={4} className="pointer-events-none absolute -top-4 right-0 hidden h-32 w-auto md:block lg:h-40" />
-        </div>
-        <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-center">
-        <dl className="grid gap-5 sm:grid-cols-2 lg:col-span-7">
-          {rows.map((r) => (
-            <div key={r.label} className="flex gap-4 rounded-2xl border border-line bg-white p-6" data-reveal>
-              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center bg-mist">
-                <r.icon className="h-5 w-5 text-terra" aria-hidden="true" />
-              </span>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">{r.label}</dt>
-                <dd className="mt-1 text-lg text-ink">
-                  {r.href ? (
-                    <a href={r.href} className="link-grow">
-                      {r.value}
-                    </a>
-                  ) : (
-                    r.value
-                  )}
-                </dd>
+        <SectionHeader heading={data.heading} />
+        <div className="mt-6 grid gap-6 lg:grid-cols-12 lg:items-center">
+          <dl className="grid gap-3 sm:grid-cols-2 lg:col-span-7">
+            {rows.map((r) => (
+              <div key={r.label} className="ui-card flex gap-4 p-4">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-paper">
+                  <r.icon className="h-5 w-5 text-terra" aria-hidden="true" />
+                </span>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-600">{r.label}</dt>
+                  <dd className="mt-1 text-ink">
+                    {r.href ? (
+                      <a href={r.href} className="hover:underline">
+                        {r.value}
+                      </a>
+                    ) : (
+                      r.value
+                    )}
+                  </dd>
+                </div>
               </div>
-            </div>
-          ))}
-        </dl>
-        <div className="rounded-3xl bg-gradient-to-br from-navy-900 to-navy-700 p-5 lg:col-span-5">
-          <FrontRangeMap className="mx-auto w-full max-w-md" />
-        </div>
+            ))}
+          </dl>
+          <div className="lg:col-span-5">
+            <FrontRangeMap className="mx-auto w-full max-w-md" />
+          </div>
         </div>
       </div>
     </Band>
   )
 }
 
-/**
- * Photo strip: scroll position se chalti hai (GSAP scrub), apne aap nahi. Poori tarah sajawati, isliye
- * screen readers se chhupi aur alt khaali. Sab photos alag hain.
- */
-const MARQUEE_PHRASES = [
-  'Expert Plumbing Repairs',
-  'AC Repair & Installation',
-  'Water Heater Services',
-  'Emergency Plumbing',
-  'Residential & Commercial',
-  'Denver & Boulder',
-  'Trusted Local Professionals',
-  'Easy Scheduling',
-]
-
-/** Thick brand-blue strip of bold text that scrolls right to left on its own (CSS only; the text is duplicated for a seamless loop). */
-export function TextMarquee() {
-  const run = (key: string, hidden: boolean) => (
-    <ul key={key} className="flex flex-none items-center" aria-hidden={hidden || undefined}>
-      {MARQUEE_PHRASES.map((t) => (
-        <li key={t} className="flex flex-none items-center whitespace-nowrap">
-          <span>{t}</span>
-          <span className="px-6 text-white/70 sm:px-9" aria-hidden="true">✦</span>
-        </li>
-      ))}
-    </ul>
-  )
-  return (
-    <section data-text-marquee className="relative z-[2] overflow-hidden bg-brand-blue text-white" aria-label="What we do">
-      <div className="text-marquee-track flex w-max items-center py-5 font-display text-2xl font-extrabold uppercase tracking-tight sm:py-7 sm:text-3xl lg:py-8 lg:text-[2.5rem]">
-        {run('a', false)}
-        {run('b', true)}
-      </div>
-    </section>
-  )
-}
-
-/** Customer reviews after the services. Real reviews only; a clearly labelled sample set shows in development builds when there are none. */
+/** Customer reviews after the services. Real reviews only: nothing is shown that is not in the record. */
 const SOURCE_LABEL: Record<string, string> = { google: 'Google', yelp: 'Yelp', bbb: 'BBB' }
 
 /**
