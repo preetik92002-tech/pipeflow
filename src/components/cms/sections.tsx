@@ -584,53 +584,40 @@ export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Ton
   const id = `cta-${slug(data.heading)}`
   if (data.tone === 'dark') {
     return (
-      <section className="bg-gradient-to-b from-navy-900 via-navy-800 to-navy-900 py-14 text-white sm:py-20" aria-labelledby={id}>
-        <div className="container-wide">
-          <div className="grid overflow-hidden rounded-3xl bg-navy-700/40 ring-1 ring-white/15 lg:grid-cols-2" data-reveal>
-            <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-14">
-              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-brand-blue-light/40 bg-brand-blue/30 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-brand-blue-lighter">
-                Same-day service available
-              </p>
-              <h2 id={id} className="mt-5 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                {data.heading}
-              </h2>
-              {data.text && (
-                <div className="mt-5 space-y-3 text-lead text-white/80">
-                  {data.text.split(/\n{2,}/).map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-                </div>
-              )}
-              <ul className="mt-6 grid gap-2 text-sm font-semibold text-white/90 sm:grid-cols-2">
-                {['Licensed local professionals', 'Easy online scheduling', 'Residential & commercial', 'Serving Denver & Boulder'].map((t) => (
-                  <li key={t} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 flex-shrink-0 text-brand-red" aria-hidden="true" />
-                    {t}
-                  </li>
+      <section className="bg-ink py-12 text-white sm:py-14" aria-labelledby={id} data-dark>
+        <div className="container-wide flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+          <div className="max-w-2xl">
+            <h2 id={id} className="font-display text-display-lg font-semibold text-white">
+              {data.heading}
+            </h2>
+            {data.text && (
+              <div className="mt-3 space-y-2 text-[1.02rem] leading-relaxed text-white/80">
+                {paragraphs(data.text).map((p, i) => (
+                  <p key={i}>{p}</p>
                 ))}
-              </ul>
-              <CmsButtons buttons={data.buttons} onDark className="mt-8" />
-            </div>
-            <div className="relative min-h-[240px] lg:min-h-full">
-              <CmsImage src={HERO_BANNERS.van} decorative sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover object-right" />
-              <div className="absolute inset-0 bg-gradient-to-r from-navy-800/60 to-transparent lg:from-navy-800/40" aria-hidden="true" />
-            </div>
+              </div>
+            )}
+            <p className="mt-3 flex items-start gap-2 text-sm text-white/60">
+              <Info className="mt-0.5 h-4 w-4 flex-none" aria-hidden="true" />
+              Submitting a request does not guarantee immediate service or provider availability.
+            </p>
           </div>
+          <CmsButtons buttons={data.buttons} onDark className="mt-0 flex-shrink-0" />
         </div>
       </section>
     )
   }
   return (
-    <section className={`${toneBg[tone]} py-16 sm:py-20`} aria-labelledby={id}>
+    <section className={`${toneBg[tone]} section-y-sm`} aria-labelledby={id}>
       <div className="container-wide">
-        <div className="flex flex-col gap-8 rounded-2xl border border-line bg-white p-8 sm:p-12 lg:flex-row lg:items-end lg:justify-between" data-reveal>
+        <div className="flex flex-col gap-5 rounded-xl border border-line bg-white p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
-            <h2 id={id} className="font-display text-display-lg font-normal text-ink">
+            <h2 id={id} className="font-display text-display-md font-semibold text-ink">
               {data.heading}
             </h2>
             {data.text && (
-              <div className="mt-4 space-y-2 text-lead text-neutral-600">
-                {data.text.split(/\n{2,}/).map((p, i) => (
+              <div className="mt-2 space-y-2 text-[1rem] leading-relaxed text-neutral-600">
+                {paragraphs(data.text).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
