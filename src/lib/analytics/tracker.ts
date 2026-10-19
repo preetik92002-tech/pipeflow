@@ -155,7 +155,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
         break
       case 'view_service':
       case 'blog_view':
-        window.fbq('track', 'ViewContent', payload)
+        window.fbq('track', 'ViewContent', privacySafeParams(payload))
         break
       default:
         window.fbq('trackCustom', event, payload)
