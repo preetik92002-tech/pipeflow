@@ -358,76 +358,87 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
   // "Serving Denver & Boulder": area cards beside a map of the service area.
   if (withImages && linked && /serving|service areas?|denver|boulder|locations?/i.test(data.heading) && n <= 3) {
     return (
-      <Band tone={tone} labelledBy={id} className="!py-14 sm:!py-20">
-        <div className="container-wide">
-          <div className="grid gap-8 overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 to-navy-700 p-6 text-white sm:p-10 lg:grid-cols-12 lg:items-center lg:gap-12" data-reveal>
-            <div className="lg:col-span-6">
-              <p className="text-sm font-semibold uppercase tracking-widest text-white/70">Service areas</p>
-              <h2 id={id} className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">{data.heading}</h2>
-              {data.intro && <p className="mt-3 text-white/80">{data.intro}</p>}
-              <ul className="mt-8 space-y-4">
-                {data.cards.map((card, i) => (
-                  <li key={i}>
-                    <SmartLink href={card.href} className="group flex items-center gap-4 rounded-2xl bg-white p-3 text-ink shadow-lg transition hover:-translate-y-1 hover:shadow-2xl">
-                      <span className="relative block h-20 w-24 flex-none overflow-hidden rounded-xl bg-mist sm:h-24 sm:w-32">
-                        {card.image && <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="128px" className="object-cover" />}
-                      </span>
-                      <span className="flex-1">
-                        <span className="block font-display text-xl font-bold">{card.title}</span>
-                        {card.text && <span className="mt-1 block text-sm leading-snug text-neutral-600">{card.text}</span>}
-                      </span>
-                      <span className="mr-1 inline-flex flex-none items-center gap-1 rounded-lg bg-brand-red px-3 py-2 text-xs font-bold text-white">
-                        Learn More <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                      </span>
-                    </SmartLink>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="lg:col-span-6">
-              <FrontRangeMap className="mx-auto w-full max-w-lg" />
-            </div>
+      <section className={`bg-ink text-white ${pad}`} aria-labelledby={id} data-dark>
+        <div className="container-wide grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12">
+          <div className="lg:col-span-6">
+            <SectionHeader eyebrow="Service areas" heading={data.heading} intro={data.intro} id={id} light />
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {data.cards.map((card, i) => (
+                <li key={i}>
+                  <SmartLink href={card.href} className="group flex h-full items-center gap-3 rounded-xl bg-white p-2.5 pr-4 text-ink transition-shadow hover:shadow-card-hover">
+                    <span className="relative block h-16 w-20 flex-none overflow-hidden rounded-lg bg-mist">
+                      {card.image && <CmsImage src={card.image} alt={card.imageAlt} decorative={!card.imageAlt} sizes="80px" className="object-cover" />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-semibold">{card.title}</span>
+                      {card.text && <span className="mt-0.5 line-clamp-2 text-[0.82rem] leading-snug text-neutral-600">{card.text}</span>}
+                    </span>
+                    <ArrowRight className="h-4 w-4 flex-none text-terra" aria-hidden="true" />
+                  </SmartLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="hidden lg:col-span-6 lg:block">
+            <FrontRangeMap className="mx-auto w-full max-w-md" />
           </div>
         </div>
-      </Band>
+      </section>
     )
   }
 
-  // Photo cards: the photo on top, the icon badge overlapping it, then title, text and a button.
+  // Photo cards: photo on top, then title, text and a "Learn more" link. Content-height cards, no forced blank space.
   if (withImages && linked) {
     return (
-      <Band tone={tone} labelledBy={id} look={look} className={look?.dark ? (look.slant === 'c' ? 'slant-pad-c' : 'slant-pad') : '!py-14 sm:!py-20'}>
+      <Band tone={tone} labelledBy={id}>
         <div className="container-wide">
-          <SectionHeader heading={data.heading} intro={data.intro} id={id} center />
-          <ul className="mt-14 flex flex-wrap justify-center gap-x-5 gap-y-12 sm:gap-x-6">
-            {data.cards.map((card, i) => (
-              <ServiceButtonCard key={i} href={card.href} title={card.title} text={card.text} index={i} image={card.image || undefined} imageAlt={card.imageAlt} />
-            ))}
+          <SectionHeader heading={data.heading} intro={data.intro} id={id} />
+          <ul className={`mt-8 grid gap-5 sm:grid-cols-2 ${n >= 3 ? 'lg:grid-cols-3' : ''}`}>
+            {data.cards.map((card, i) => {
+              const photo = card.image || SERVICE_PHOTOS[card.href]?.src
+              return (
+                <li key={i}>
+                  <SmartLink href={card.href} className="ui-card-link group flex h-full flex-col overflow-hidden">
+                    {photo && (
+                      <span className="relative block aspect-[16/9] w-full overflow-hidden bg-mist">
+                        <CmsImage src={photo} alt={card.imageAlt} decorative={!card.imageAlt} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
+                      </span>
+                    )}
+                    <span className="flex flex-1 flex-col p-5">
+                      <span className="ui-h3 group-hover:text-terra">{card.title}</span>
+                      {card.text && <span className="mt-2 text-[0.95rem] leading-relaxed text-neutral-600">{card.text}</span>}
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-terra">
+                        Learn more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                      </span>
+                    </span>
+                  </SmartLink>
+                </li>
+              )
+            })}
           </ul>
         </div>
-        {look?.bar && <QuestionsBar />}
       </Band>
     )
   }
 
-  // Bina photo, sab linked: article/guide index (badi text rows).
+  // Bina photo, sab linked: article/guide index (compact text rows).
   if (linked && data.cards.length > 0) {
     return (
       <Band tone={tone} labelledBy={id}>
-        <div className="container-wide grid gap-12 lg:grid-cols-12">
+        <div className="container-wide grid gap-6 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-4">
             <SectionHeader heading={data.heading} intro={data.intro} id={id} />
           </div>
           <ul className="border-t border-line lg:col-span-8">
             {data.cards.map((card, i) => (
-              <li key={i} className="border-b border-line" data-reveal style={{ '--reveal-delay': `${i * 60}ms` } as React.CSSProperties}>
-                <SmartLink href={card.href} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-5 py-6 sm:gap-8">
-                  <span className="font-display text-sm font-medium text-neutral-600">{pad2(i + 1)}</span>
+              <li key={i} className="border-b border-line">
+                <SmartLink href={card.href} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-4 py-4 sm:gap-6">
+                  <span className="text-sm font-medium tabular-nums text-neutral-500">{pad2(i + 1)}</span>
                   <span>
-                    <span className="block font-display text-xl font-normal text-ink transition-colors group-hover:text-terra sm:text-2xl">{card.title}</span>
-                    {card.text && <span className="mt-2 block text-neutral-600">{card.text}</span>}
+                    <span className="block font-semibold text-ink transition-colors group-hover:text-terra sm:text-lg">{card.title}</span>
+                    {card.text && <span className="mt-1 block text-[0.95rem] text-neutral-600">{card.text}</span>}
                   </span>
-                  <ArrowRight className="h-5 w-5 text-ink transition-transform duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-terra" aria-hidden="true" />
+                  <ArrowRight className="h-4 w-4 text-ink transition-transform group-hover:translate-x-0.5 group-hover:text-terra" aria-hidden="true" />
                 </SmartLink>
               </li>
             ))}
@@ -437,24 +448,24 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
     )
   }
 
-  // No photo, no link: tinted rounded tiles with a round icon and a bold title.
+  // No photo, no link: compact tiles with an icon and a title.
   const tileIcons = [Users, ShieldCheck, Clock, BadgeCheck, Wrench, Award, ThumbsUp, Home]
   return (
     <Band tone={tone} labelledBy={id}>
       <div className="container-wide">
         <SectionHeader heading={data.heading} intro={data.intro} id={id} />
-        <ul className="mt-10 flex flex-wrap justify-center gap-4">
+        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {data.cards.map((card, i) => {
             const Icon = tileIcons[i % tileIcons.length]
             return (
-              <li key={i} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.7rem)]" data-reveal style={{ '--reveal-delay': `${(i % 3) * 90}ms` } as React.CSSProperties}>
-                <CardShell card={card} className="flex h-full items-center gap-5 rounded-2xl bg-brand-blue/10 p-5 sm:p-6">
-                  <span className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-navy-700 text-white shadow-md">
-                    <Icon className="h-7 w-7" aria-hidden="true" />
+              <li key={i}>
+                <CardShell card={card} className="ui-card flex h-full items-start gap-4 p-4">
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-paper text-terra">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span>
-                    <h3 className="font-display text-lg font-bold leading-snug text-ink">{card.title}</h3>
-                    {card.text && <p className="mt-1 text-[0.95rem] leading-snug text-neutral-700">{card.text}</p>}
+                    <h3 className="font-semibold leading-snug text-ink">{card.title}</h3>
+                    {card.text && <p className="mt-1 text-[0.93rem] leading-snug text-neutral-600">{card.text}</p>}
                   </span>
                 </CardShell>
               </li>
@@ -466,8 +477,9 @@ export function FeatureCardsSection({ data, tone }: { data: SectionData<'feature
   )
 }
 
-// ------------------------------------------------------------------ comparison, steps, faq
+// ------------------------------------------------------------------ comparison, steps
 
+/** Side-by-side options (tank vs tankless, repair vs replace). Stacks into cards on phones: no sideways scrolling. */
 export function ComparisonSection({ data, tone }: { data: SectionData<'comparison'>; tone: Tone }) {
   const id = `cmp-${slug(data.heading)}`
   return (
