@@ -127,28 +127,29 @@ describe('photo data and cards', () => {
   it('the photo pool used for strips never repeats a photo shown elsewhere on the home page', () => {
     const onScreenElsewhere = [PHOTOS.plumberBathroom, PHOTOS.plumberUnderSink, PHOTOS.acCondenser, PHOTOS.houseBlossom, PHOTOS.technicianToolBelt, PHOTOS.denverRockies, PHOTOS.boulderFlatirons]
     for (const p of onScreenElsewhere) expect(MARQUEE_PHOTOS.map((m) => m.src), p.src).not.toContain(p.src)
+    expect(MARQUEE_PHOTOS).toHaveLength(8)
   })
   it('the hero image is fetched with high priority; other images are not', () => {
     const html = render([hero()], ctx('service'))
     expect(html).toMatch(/<img[^>]*fetchPriority="high"[^>]*images%2Fhero|<img[^>]*images%2Fhero[^>]*fetchPriority="high"/)
-    expect(render([cards(true)], ctx('home'))).not.toContain('fetchPriority="high"')
+    expect(render([cards(true)], ctx('page'))).not.toContain('fetchPriority="high"')
   })
-  it('photo cards keep their photo, with an icon badge and a Learn More button', () => {
-    const html = render([cards(true)], ctx('home'))
+  it('photo cards keep their photo and a Learn more link', () => {
+    const html = render([cards(true)], ctx('page'))
     expect(count(html, 'href="/plumbing"')).toBe(2)
-    expect(count(html, 'Learn More')).toBe(2)
+    expect(count(html, 'Learn more')).toBe(2)
     expect(count(html, '<img')).toBeGreaterThanOrEqual(2)
   })
 })
 
 describe('service cards', () => {
   const links = (hrefs: string[]) => ({ id: uuid(), type: 'linkList', data: { heading: 'Plumbing', links: hrefs.map((h, i) => ({ label: `Link ${i}`, href: h })) } })
-  it('shows each link as an icon card with a Learn More button and no photo', () => {
+  it('shows each link as a compact card with the page photo (decorative) and every destination', () => {
     const hrefs = ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair', '/plumbing/water-heater-replacement', '/plumbing/frozen-pipe-repair', '/plumbing/plumbing-fixes']
     const html = render([links(hrefs)], ctx('page'))
-    expect(count(html, 'Learn More')).toBe(5)
-    for (const h of hrefs) expect(html).toContain(`href="${h}"`)
+    for (const h of hrefs) expect(count(html, `href="${h}"`), h).toBe(1)
     expect(html).not.toMatch(/<img[^>]+alt="[^"]+"/)
+    expect(count(html, '<img')).toBe(5)
   })
   it('has a photo for each of the five required services', () => {
     for (const p of ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair', '/plumbing/frozen-pipe-repair', '/hvac/ac-repair', '/hvac/ac-installation']) expect(SERVICE_PHOTOS[p], p).toBeTruthy()
