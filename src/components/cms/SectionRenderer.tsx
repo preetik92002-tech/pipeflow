@@ -2,10 +2,11 @@ import type { Section, SectionData } from '@/lib/cms-pages/sections/schema'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
 import {
   HeroSection, RichTextSection, ContentBlockSection, ContentBlockGroup, GallerySection, FeatureCardsSection, ComparisonSection,
-  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, TextMarquee, ReviewsSection, SlantDivider, JunctionAvatar, CompanyMarketingCta,
-  type PageContext, type Tone, type Look,
+  StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, ReviewsSection,
+  type PageContext, type Tone,
 } from './sections'
 import { ServicePageTemplate } from '@/components/service-pages/ServicePageTemplate'
+import { HomeLayout } from '@/components/home/HomeLayout'
 
 const LEGACY_BETTER_WAY_CARDS = ['Local Options', 'Easy Service Requests', 'Photo Uploads', 'Convenient Scheduling', 'Residential & Commercial Support', 'Clear Professional Profiles'].join('|')
 const DEFAULT_CTX: PageContext = { kind: 'page', crumbs: [] }
@@ -35,11 +36,19 @@ export function isShortBlock(section: Section): section is Extract<Section, { ty
 
 type Item = { kind: 'one'; section: Section; index: number } | { kind: 'group'; id: string; blocks: SectionData<'contentBlock'>[] }
 
-/** Sections ko render units mein badalta hai: short content blocks ki lagataar run ek group ban jaati hai. */
+/** A text-only content block (no image beside it): consecutive ones are shown side by side as cards. */
+export function isTextBlock(section: Section): section is Extract<Section, { type: 'contentBlock' }> {
+  return section.type === 'contentBlock' && !(section.data.image && section.data.imagePosition !== 'none')
+}
+
+/**
+ * Sections ko render units mein badalta hai: consecutive text blocks (short ones, numbered steps like Repair /
+ * Replacement / Installation, or long ones) become one row of up to three cards instead of a tall stack of sections.
+ */
 export function layoutSections(sections: Section[]): Item[] {
   const items: Item[] = []
   for (let i = 0; i < sections.length; i++) {
-    if (isShortBlock(sections[i]) && i + 1 < sections.length && isShortBlock(sections[i + 1])) {
+    if (isTextBlock(sections[i]) && i + 1 < sections.length && isTextBlock(sections[i + 1])) {
       const run: Extract<Section, { type: 'contentBlock' }>[] = []
       while (i < sections.length && run.length < 3 && isShortBlock(sections[i])) run.push(sections[i++] as Extract<Section, { type: 'contentBlock' }>)
       i--
