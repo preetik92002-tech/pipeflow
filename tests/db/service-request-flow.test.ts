@@ -7,8 +7,19 @@ import { pgliteSupabase } from '../helpers/pglite-supabase'
 import { seedPages } from '../../supabase/seed/pages'
 
 // The real request route saving into a real `leads` table (built from the migrations).
-const state = vi.hoisted(() => ({ client: null as unknown }))
-vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => state.client }))
+const state = vi.hoisted(() => ({
+  client: null as unknown,
+  storedFiles: [] as Array<{ name: string; metadata?: { size?: number; mimetype?: string } }>,
+  removedPaths: [] as string[],
+  failInsert: false,
+  failClient: false,
+  adminAuth: { authenticated: false, authorized: false, user: null },
+}))
+vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => {
+  if (state.failClient) throw new Error('private database configuration detail')
+  return state.client
+} }))
+vi.mock('@/lib/supabase/auth', () => ({ verifyAdminAuth: async () => state.adminAuth }))
 vi.mock('@/lib/forms/spamProtection', async (actual) => ({
   ...(await actual<typeof import('@/lib/forms/spamProtection')>()),
   checkRateLimit: async () => ({ allowed: true }),
