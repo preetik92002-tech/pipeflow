@@ -44,14 +44,20 @@ export function StickyMobileCTA() {
       focused = false
       update()
     }
-    form.addEventListener('focusin', onIn)
-    form.addEventListener('focusout', onOut)
+    forms.forEach((f) => {
+      f.addEventListener('focusin', onIn)
+      f.addEventListener('focusout', onOut)
+    })
     return () => {
       io.disconnect()
-      form.removeEventListener('focusin', onIn)
-      form.removeEventListener('focusout', onOut)
+      forms.forEach((f) => {
+        f.removeEventListener('focusin', onIn)
+        f.removeEventListener('focusout', onOut)
+      })
     }
   }, [pathname])
+
+  if (pathname === nav.cta.href.split(/[?#]/)[0]) return null
 
   return (
     <div
@@ -62,14 +68,14 @@ export function StickyMobileCTA() {
       aria-label="Quick actions"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex gap-2 p-2.5">
+      <div className="flex gap-2 px-3 py-2">
         {hasPhone && (
-          <a href={`tel:${company.phone}`} className="btn-outline !min-h-[3rem] flex-none !px-5" aria-label={`Call ${company.phone}`}>
+          <a href={`tel:${company.phone}`} className="ui-btn ui-btn-secondary flex-none" aria-label={`Call ${company.phone}`}>
             <Phone className="h-4 w-4" aria-hidden="true" />
             Call
           </a>
         )}
-        <Link href={nav.cta.href} className="btn-primary !min-h-[3rem] flex-1">
+        <Link href={nav.cta.href} className="ui-btn ui-btn-primary flex-1">
           {nav.cta.label}
         </Link>
       </div>
