@@ -231,7 +231,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
         }
         throw new Error(body.error || 'We could not send your request.')
       }
-      trackEvent('submit_booking', { service_category: form.category, service_name: form.service, service_area: form.city, zip_code: form.zip })
+      trackEvent('submit_booking', { service_category: form.category, service_name: form.service })
       setDone({ reference: body.reference ?? '', attachments: body.attachments ?? 0 })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'We could not send your request.')
