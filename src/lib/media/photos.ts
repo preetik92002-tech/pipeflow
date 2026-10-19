@@ -128,3 +128,22 @@ export function heroBanner(...texts: (string | undefined)[]): string {
   if (/(blog|guide|tips|resources?|articles?)/.test(t)) return HERO_BANNERS.blog
   return HERO_BANNERS.van
 }
+
+/**
+ * A relevant stock photo for a service page, picked from its own wording (heading, crumbs). Used beside the page
+ * introduction when the editor has not chosen an image. Returns null when nothing fits, so no unrelated photo is shown.
+ */
+export function servicePhotoFor(...texts: (string | undefined)[]): Photo | null {
+  const t = texts.filter(Boolean).join(' ').toLowerCase()
+  if (/water heater|tankless/.test(t)) return PHOTOS.waterHeater
+  if (/frozen|freez|burst/.test(t)) return PHOTOS.mechanicalPipes
+  if (/mini.?split|ductless|ac install|air condition\w* install/.test(t)) return PHOTOS.miniSplit
+  if (/commercial/.test(t)) return PHOTOS.acUnitsWall
+  if (/ac|a\/c|air condition|cooling/.test(t)) return PHOTOS.acCondenser
+  if (/heating|furnace|boiler|heat pump/.test(t)) return PHOTOS.technicianEquipment
+  if (/maintenance|tune/.test(t)) return PHOTOS.technicianToolBelt
+  if (/hvac/.test(t)) return PHOTOS.acCondenser
+  if (/fix|repair|leak|drain|faucet/.test(t)) return PHOTOS.plumberUnderSink
+  if (/plumb/.test(t)) return PHOTOS.plumberSinkTrap
+  return null
+}
