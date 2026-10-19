@@ -137,45 +137,57 @@ function Breadcrumbs({ crumbs, light }: { crumbs: Crumb[]; light: boolean }) {
  * overview strip right below, beside a relevant photo, so the banner stays short and the text gets an image to balance it.
  */
 export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; first: boolean; ctx: PageContext }) {
-  const center = data.align === 'center'
-  // The banner is chosen from the hero's wording; the page's stored image is left untouched.
-  const banner = heroBanner(data.heading, data.eyebrow, ...ctx.crumbs.map((c) => c.href ?? c.label))
   if (ctx.kind === 'home') return <HomeHero labelId={first ? 'page-title' : undefined} />
+  const center = data.align === 'center'
+  // The banner is chosen from the hero's wording; an image chosen in the editor is shown in the overview strip.
+  const trail = ctx.crumbs.map((c) => c.href ?? c.label)
+  const banner = heroBanner(data.heading, data.eyebrow, ...trail)
+  const intro = paragraphs(data.intro)
+  const photo = data.image ? { src: data.image, alt: data.imageAlt } : ctx.cityPhoto ? { src: ctx.cityPhoto.src, alt: ctx.cityPhoto.alt } : servicePhotoFor(data.heading, ...trail)
   return (
-    <section data-hero className="relative isolate flex min-h-[460px] items-center overflow-hidden bg-navy-900 text-white lg:min-h-[560px]" aria-labelledby={first ? 'page-title' : undefined}>
-      <div className="absolute inset-0 -z-20 select-none">
-        <div className="absolute inset-0 hero-clip-reveal">
-          <div className="absolute inset-0 hero-photo-settle">
-            <div data-hero-media className="absolute inset-0">
-              <CmsImage src={banner} alt={data.imageAlt || 'Denver skyline and the Rocky Mountains behind a PipeFlow technician'} priority={first} sizes="100vw" className="object-cover object-[75%_center] sm:object-center" />
+    <>
+      <section data-hero className="relative isolate overflow-hidden bg-navy-900 text-white" aria-labelledby={first ? 'page-title' : undefined}>
+        <div className="relative aspect-[16/6] select-none sm:aspect-[16/5] lg:absolute lg:inset-0 lg:aspect-auto" aria-hidden="true">
+          <div className="absolute inset-0 hero-clip-reveal">
+            <div className="absolute inset-0 hero-photo-settle">
+              <div data-hero-media className="absolute inset-0">
+                <CmsImage src={banner} alt={data.imageAlt || 'Denver skyline and the Rocky Mountains behind a PipeFlow technician'} priority={first} sizes="100vw" className="object-cover object-right" />
+              </div>
             </div>
           </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-transparent to-transparent lg:bg-gradient-to-r lg:from-navy-900 lg:via-navy-900/70 lg:via-40% lg:to-transparent lg:to-75%" />
         </div>
-      </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy-900/90 via-navy-900/60 to-navy-900/10 sm:via-navy-900/30 sm:to-transparent" aria-hidden="true" />
-      <div className={`container-wide w-full py-16 sm:py-20 lg:py-24 ${center ? 'text-center' : ''}`}>
-        <Breadcrumbs crumbs={ctx.crumbs} light />
-        <div data-hero-content className={`hero-enter ${center ? 'mx-auto max-w-3xl' : 'max-w-2xl'}`}>
-          {data.eyebrow && (
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-blue-light/40 bg-brand-blue/30 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-brand-blue-lighter backdrop-blur-md">
-              {data.eyebrow}
-            </p>
-          )}
-          <h1 id={first ? 'page-title' : undefined} className="hero-h1 font-display text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-6xl">
-            <SplitWords text={data.heading} />
-          </h1>
-          {data.subtitle && <p className={`mt-5 text-base leading-relaxed text-neutral-200 lg:text-lg ${center ? 'mx-auto' : ''}`}>{data.subtitle}</p>}
-          {data.intro && (
-            <div className={`mt-4 space-y-3 leading-relaxed text-neutral-300 ${center ? 'mx-auto' : ''}`}>
-              {data.intro.split(/\n{2,}/).map((p, i) => (
+        <div className={`container-wide relative pb-8 pt-2 lg:flex lg:min-h-[380px] lg:items-center lg:py-12 ${center ? 'lg:justify-center lg:text-center' : ''}`}>
+          <div data-hero-content className={`hero-enter ${center ? 'mx-auto max-w-3xl' : 'max-w-2xl'}`}>
+            <Breadcrumbs crumbs={ctx.crumbs} light />
+            {data.eyebrow && <p className="ui-kicker !text-terra-light">{data.eyebrow}</p>}
+            <h1 id={first ? 'page-title' : undefined} className="hero-h1 mt-2 font-display text-display-xl font-semibold text-white [text-wrap:balance]">
+              {data.heading}
+            </h1>
+            {data.subtitle && <p className={`mt-3 max-w-prose text-[1.02rem] leading-relaxed text-white/85 lg:text-lg ${center ? 'mx-auto' : ''}`}>{data.subtitle}</p>}
+            <CmsButtons buttons={data.buttons} onDark center={center} className="mt-6" />
+          </div>
+        </div>
+      </section>
+      {intro.length > 0 && (
+        <section className="border-b border-line bg-white py-10 sm:py-12" aria-label="Overview">
+          <div className={`container-wide grid gap-6 lg:items-center lg:gap-12 ${photo ? 'lg:grid-cols-12' : ''}`}>
+            <div className={`space-y-3 text-[1.02rem] leading-relaxed text-neutral-700 ${photo ? 'lg:col-span-7' : 'max-w-prose'}`}>
+              {intro.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
             </div>
-          )}
-          <CmsButtons buttons={data.buttons} onDark center={center} className="mt-8" />
-        </div>
-      </div>
-    </section>
+            {photo && (
+              <div data-clip className="photo-frame relative aspect-[16/9] lg:col-span-5 lg:aspect-[3/2]">
+                <div data-parallax="4" className="absolute inset-0">
+                  <CmsImage src={photo.src} alt={photo.alt} sizes="(min-width: 1024px) 38vw, 100vw" className="object-cover" />
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+    </>
   )
 }
 
@@ -183,11 +195,10 @@ export function HeroSection({ data, first, ctx }: { data: SectionData<'hero'>; f
 
 export function RichTextSection({ data, tone }: { data: SectionData<'richText'>; tone: Tone }) {
   return (
-    <section className={`${toneBg[tone]} relative overflow-hidden py-16 sm:py-20`}>
-      <Avatar pose={3} className="pointer-events-none absolute -bottom-4 right-6 hidden h-72 w-auto opacity-[0.1] lg:block" />
-      <div className="container-wide relative">
-        <div data-reveal className="max-w-3xl">
-          <RichTextRenderer doc={data.content} className="cms-prose text-lead [&>h2:first-child]:mt-0 [&>h2:first-child]:text-display-lg" />
+    <section className={`${toneBg[tone]} section-y-sm`}>
+      <div className="container-wide">
+        <div className="max-w-3xl">
+          <RichTextRenderer doc={data.content} className="cms-prose cms-lists-2 [&>h2:first-child]:mt-0" />
         </div>
       </div>
     </section>
