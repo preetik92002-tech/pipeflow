@@ -80,55 +80,51 @@ describe('hero markup contract', () => {
 
 describe('home page composition', () => {
   const home = ctx('home')
-  it('puts every step in the DOM, in order, as a real ordered list with arrows between them', () => {
+  const links = (heading: string, hrefs: string[]) => ({ id: uuid(), type: 'linkList', data: { heading, links: hrefs.map((h, i) => ({ label: `Link ${i}`, href: h })) } })
+  const panels = { id: uuid(), type: 'featureCards', data: { heading: 'What Service Do You Need?', cards: [{ title: 'Plumbing Services', text: 'x', href: '/plumbing', image: '/art/hero-plumbing.svg' }, { title: 'HVAC Services', text: 'y', href: '/hvac', image: '/art/hero-plumbing.svg' }] } }
+  it('puts every step in the DOM, in order, as a real ordered list', () => {
     const html = render([steps(4)], home)
     expect(html).toContain('data-flow')
     const order = [1, 2, 3, 4].map((n) => html.indexOf(`Step title ${n}`))
     expect(order).toEqual([...order].sort((a, b) => a - b))
     expect(html).toContain('<ol')
     expect(html).toContain('Step text 3')
-    expect(count(html, '<svg')).toBe(3) // an arrow between each pair of the 4 steps
+    expect(count(html, '/images/mascot/')).toBe(0)
   })
-  it('uses the mascot illustrations, decorative, and has no button after the list', () => {
-    const html = render([steps(4)], home)
-    expect(count(html, '/images/mascot/')).toBe(4)
-    expect(html).not.toMatch(/<img[^>]+alt="[^"]+"/)
-    expect(html).not.toContain('Request Service')
+  it('introduces PipeFlowCo right after the hero and before the service selection', () => {
+    const html = render([hero(), panels], home)
+    const at = (s: string) => html.indexOf(s)
+    expect(at('id="home-intro"')).toBeGreaterThan(at('<section data-hero'))
+    expect(at('id="home-intro"')).toBeLessThan(at('id="services"'))
   })
-  it('is only used on the home page with 3 to 6 steps; everywhere else steps are a plain list with a filling hairline', () => {
+  it('shows Plumbing and HVAC once, as two panels with their stored service links, and no marquee', () => {
+    const html = render([hero(), panels, links('Plumbing', ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair']), links('HVAC', ['/hvac/ac-repair'])], home)
+    expect(count(html, 'What Service Do You Need?')).toBe(1)
+    for (const h of ['/plumbing/plumbing-repair', '/plumbing/water-heater-repair', '/hvac/ac-repair']) expect(count(html, `href="${h}"`), h).toBe(1)
+    expect(html).toContain('Explore Plumbing Services')
+    expect(html).toContain('Explore HVAC Services')
+    expect(html).not.toContain('data-text-marquee')
+  })
+  it('keeps the contractor journey separate from the customer request, with its own action', () => {
+    const html = render([hero()], home)
+    expect(html).toContain('Request a Marketing Consultation')
+    expect(html.indexOf('id="company-cta"')).toBeLessThan(html.indexOf('id="home-final"'))
+  })
+  it('renders stored sections it does not recognise instead of dropping them', () => {
+    const extra = { id: uuid(), type: 'richText', data: { content: doc('An admin paragraph') } }
+    expect(render([hero(), extra], home)).toContain('An admin paragraph')
+  })
+  it('everywhere else, steps are a plain numbered list with a hairline per step', () => {
     for (const c of [ctx('service'), ctx('page'), ctx('location')]) {
       const html = render([steps(4)], c)
       expect(html).not.toContain('data-flow')
       expect(count(html, 'data-step-line')).toBe(4)
     }
-    expect(render([steps(2)], home)).not.toContain('data-flow')
-    expect(render([steps(7)], home)).not.toContain('data-flow')
   })
 })
 
-describe('photo marquee and service tiles', () => {
-  it('adds one decorative marquee after the first photo tiles, on the home page only', () => {
-    const html = render([hero(), cards(true), cards(true)], ctx('home'))
-    expect(count(html, 'data-text-marquee')).toBe(1)
-    expect(html.indexOf('data-text-marquee')).toBeGreaterThan(html.indexOf('What Service Do You Need?'))
-    expect(render([hero(), cards(true)], ctx('service'))).not.toContain('data-text-marquee')
-    expect(render([hero(), cards(false)], ctx('home'))).not.toContain('data-text-marquee')
-  })
-  it('the text marquee has the exact phrases, star separators, and a hidden duplicate for a seamless loop', () => {
-    const html = render([cards(true)], ctx('home'))
-    const phrases = ['Expert Plumbing Repairs', 'AC Repair &amp; Installation', 'Water Heater Services', 'Emergency Plumbing', 'Residential &amp; Commercial', 'Denver &amp; Boulder', 'Trusted Local Professionals', 'Easy Scheduling']
-    let last = -1
-    for (const t of phrases) {
-      const at = html.indexOf(t)
-      expect(at, t).toBeGreaterThan(last)
-      last = at
-      expect(count(html, t)).toBe(2)
-    }
-    expect(count(html, '✦')).toBe(16)
-    expect(html).toContain('aria-hidden="true"')
-    expect(MARQUEE_PHOTOS).toHaveLength(8)
-  })
-  it('never repeats a photo that the home hero, service tiles or pinned story already show', () => {
+describe('photo data and cards', () => {
+  it('the photo pool used for strips never repeats a photo shown elsewhere on the home page', () => {
     const onScreenElsewhere = [PHOTOS.plumberBathroom, PHOTOS.plumberUnderSink, PHOTOS.acCondenser, PHOTOS.houseBlossom, PHOTOS.technicianToolBelt, PHOTOS.denverRockies, PHOTOS.boulderFlatirons]
     for (const p of onScreenElsewhere) expect(MARQUEE_PHOTOS.map((m) => m.src), p.src).not.toContain(p.src)
   })
