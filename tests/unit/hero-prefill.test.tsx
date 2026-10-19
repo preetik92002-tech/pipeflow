@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { toPrefill } from '@/lib/requests/prefill'
 import { SERVICES, isServiceZip, requestSchema } from '@/lib/requests/schema'
-import { CompanyMarketingCta } from '@/components/cms/sections'
+import { SectionRenderer } from '@/components/cms/SectionRenderer'
 
 describe('shared ZIP rule', () => {
   it('accepts 80xxx only, and the request schema agrees', () => {
