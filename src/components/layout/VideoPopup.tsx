@@ -5,26 +5,45 @@ import { usePathname } from 'next/navigation'
 import { Maximize2, Play, Volume2, VolumeX, X } from 'lucide-react'
 
 const VIDEO_SRC = '/assets/add.mp4'
-// Kept in memory only: dismissing the launcher hides it while the visitor browses; it comes back on the next page load.
-let dismissedThisLoad = false
+// Kept in memory only: closing the player hides it while the visitor browses; it comes back on the next page load.
+let closedThisLoad = false
 
 /**
- * The promotional video. It never opens over the page by itself: a small "Watch our video" launcher appears once the
- * hero has scrolled away, and the player (muted at first, with mute/unmute, full screen and close) opens only when the
- * visitor asks for it. Closing the player returns to the launcher; the launcher's own × hides it for this visit.
- * The launcher steps aside while a request form is on screen, and does not appear on the request page itself.
+ * The promotional video, as a small floating player that appears on its own once the page has loaded.
+ * It starts muted (browsers block audible autoplay) with a play/pause tap target over the video, plus mute,
+ * full screen and close. Closing hides it for the rest of this visit. It steps aside while a request form is
+ * on screen, does not appear on the request page itself, and sits above the mobile Request Service bar.
+ * The video is only mounted after the page has finished loading, so it never competes with the first paint.
  */
 export function VideoPopup() {
   const pathname = usePathname()
-  const [visible, setVisible] = useState(false)
-  const [opened, setOpened] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [closed, setClosed] = useState(closedThisLoad)
   const [overForm, setOverForm] = useState(false)
   const [muted, setMuted] = useState(true)
+  const [playing, setPlaying] = useState(false)
+  const [dockTop, setDockTop] = useState(false)
   const video = useRef<HTMLVideoElement>(null)
+  const userPaused = useRef(false)
   const onRequestPage = pathname.startsWith('/book-service')
 
+  // Appear automatically, but only after the page's own resources have loaded.
   useEffect(() => {
-    setOpened(false)
+    if (closedThisLoad) return
+    let t: ReturnType<typeof setTimeout> | undefined
+    const show = () => {
+      t = setTimeout(() => setReady(true), 600)
+    }
+    if (document.readyState === 'complete') show()
+    else window.addEventListener('load', show, { once: true })
+    return () => {
+      window.removeEventListener('load', show)
+      clearTimeout(t)
+    }
+  }, [])
+
+  // Step aside while a request form is on screen, so the player never covers what the visitor is filling in.
+  useEffect(() => {
     const forms = [...document.querySelectorAll('form[data-quick-request], form#request')]
     if (!forms.length) {
       setOverForm(false)
