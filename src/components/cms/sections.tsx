@@ -564,33 +564,11 @@ export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Ton
   const id = `faq-${slug(data.heading)}`
   return (
     <Band tone={tone} labelledBy={id}>
-      <div className="container-wide grid gap-12 lg:grid-cols-12">
+      <div className="container-wide grid gap-8 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-4">
-          <div className="lg:sticky lg:top-32">
-            <SectionHeader eyebrow="FAQ" heading={data.heading} id={id} />
-            <Avatar pose={1} className="mt-8 hidden h-44 w-auto lg:block" />
-          </div>
+          <SectionHeader eyebrow="FAQ" heading={data.heading} id={id} />
         </div>
-        <div className="border-t border-line lg:col-span-8" data-reveal>
-          {data.items.map((item, i) => (
-            <details key={i} className="faq-item group border-b border-line">
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left font-display text-lg font-medium text-ink transition-colors hover:text-terra sm:text-xl [&::-webkit-details-marker]:hidden">
-                {item.question}
-                <span
-                  className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center border border-line transition-all duration-300 ease-out-expo group-open:rotate-45 group-open:border-terra group-open:bg-terra group-open:text-white"
-                  aria-hidden="true"
-                >
-                  <Plus className="h-4 w-4" />
-                </span>
-              </summary>
-              <div className="max-w-3xl space-y-3 pb-7 pr-14 leading-relaxed text-neutral-700">
-                {item.answer.split(/\n{2,}/).map((p, j) => (
-                  <p key={j}>{p}</p>
-                ))}
-              </div>
-            </details>
-          ))}
-        </div>
+        <FaqAccordion items={data.items} className="lg:col-span-8" />
       </div>
     </Band>
   )
@@ -598,7 +576,10 @@ export function FaqSection({ data, tone }: { data: SectionData<'faq'>; tone: Ton
 
 // ------------------------------------------------------------------ calls to action
 
-
+/**
+ * Closing call to action. Shows only the editor's own heading, text and buttons plus the standard availability note:
+ * no badges or claims (licensing, same-day service) that the business has not confirmed.
+ */
 export function CtaSection({ data, tone }: { data: SectionData<'cta'>; tone: Tone }) {
   const id = `cta-${slug(data.heading)}`
   if (data.tone === 'dark') {
