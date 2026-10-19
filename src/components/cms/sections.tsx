@@ -810,10 +810,11 @@ export function ContactInfoSection({ data, tone }: { data: SectionData<'contactI
 const SOURCE_LABEL: Record<string, string> = { google: 'Google', yelp: 'Yelp', bbb: 'BBB' }
 
 /**
- * Customer reviews (home page and service pages). Always renders; with no active reviews it shows a small empty state.
- * Cards show only fields that exist; the count and average come from the same real reviews, and nothing else is claimed.
+ * Customer reviews (home page and service pages). Real, active reviews from the testimonials table only.
+ * With none, a single quiet line says so instead of a large empty band. Cards show only fields that exist;
+ * the count and average come from the same real reviews, and nothing else is claimed.
  */
-export function ReviewsSection({ reviews, stats }: { reviews: ReviewItem[]; stats?: ReviewStats; tone?: Tone }) {
+export function ReviewsSection({ reviews, stats, tone = 'white' }: { reviews: ReviewItem[]; stats?: ReviewStats; tone?: Tone }) {
   const has = reviews.length > 0
   const average = stats?.average ?? null
   return (
