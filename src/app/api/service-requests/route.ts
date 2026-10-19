@@ -32,7 +32,10 @@ async function verifiedAttachments(paths: string[]): Promise<{
       }
       const info = listed?.find((f) => f.name === name)
       const size = Number((info?.metadata as { size?: number } | undefined)?.size ?? 0)
-      if (!info || size < 12) throw new Error('missing')
+      if (!info || size < 12) {
+        invalid = true
+        continue
+      }
       const mime = String((info.metadata as { mimetype?: string } | undefined)?.mimetype ?? '')
       if (mime.startsWith('video/')) {
         if (size > VIDEO_MAX) throw new Error('too large')
