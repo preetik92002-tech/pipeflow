@@ -27,6 +27,7 @@ interface LeadItem {
   customerType?: string
   business?: { name?: string; propertyType?: string; equipment?: string }
   attachments: Array<{ name: string; url: string }>
+  attachmentError: boolean
   preferredDate?: string
   preferredTime?: string
   utmSource?: string
