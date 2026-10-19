@@ -5,20 +5,22 @@ import Image from 'next/image'
 import { Facebook, Instagram, Mail, MapPin, Phone, Star } from 'lucide-react'
 import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
+import { footerColumns } from '@/lib/cms-pages/menu'
 import { useSiteSettings } from './SiteSettingsProvider'
 import { useNavigation } from './NavigationProvider'
-import type { NavItem } from '@/types'
+import type { NavLink } from '@/lib/cms-pages/navigation-schema'
 
-function Column({ title, links }: { title: string; links: NavItem[] }) {
-  if (!links.length) return null
+const PLACEHOLDER_EMAIL = 'hello@pipeflowco.com'
+
+function Column({ title, links }: { title: string; links: NavLink[] }) {
   return (
     <div>
-      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">{title}</h2>
-      <ul className="mt-5 space-y-3">
+      <h2 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-white/55">{title}</h2>
+      <ul className="mt-3 space-y-1">
         {links.map((link) => (
           <li key={`${link.label}-${link.href}`}>
-            <Link href={link.href} className="text-[0.95rem] text-white/80 transition-colors hover:text-white">
-              <span className="link-grow">{link.label}</span>
+            <Link href={link.href} className="inline-flex min-h-[2rem] items-center text-[0.92rem] text-white/80 transition-colors hover:text-white hover:underline hover:underline-offset-4">
+              {link.label}
             </Link>
           </li>
         ))}
@@ -29,7 +31,7 @@ function Column({ title, links }: { title: string; links: NavItem[] }) {
 
 /**
  * Footer. Sirf confirm ki hui jaankari: phone tabhi jab Settings mein asli number ho, aur koi
- *"24/7" ya response-time ka daawa nahi (business ne confirm nahi kiya).
+ *"24/7" ya response-time ka daawa nahi (business ne confirm nahi kiya). Links come from Admin > Navigation, grouped by topic.
  */
 export function Footer() {
   const year = new Date().getFullYear()
@@ -37,6 +39,12 @@ export function Footer() {
   const { company: staticCompany, social } = siteConfig
   const { company: liveCompany } = useSiteSettings()
   const company = { ...staticCompany, ...liveCompany }
+  const columns = footerColumns(nav)
+  const socials = [
+    { href: social.facebook, label: 'Facebook', Icon: Facebook },
+    { href: social.instagram, label: 'Instagram', Icon: Instagram },
+    { href: social.google, label: 'Google', Icon: Star },
+  ].filter((s) => s.href)
 
   return (
     <footer className="relative isolate overflow-hidden bg-ink text-white" role="contentinfo">
