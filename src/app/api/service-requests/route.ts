@@ -91,7 +91,21 @@ export async function POST(request: NextRequest) {
   // Bots get the same answer as people, but nothing is saved.
   if (checkSpam({ honeypotValue: r.website_url_hp, submittedAt: r.formOpenedAt }).isSpam) return NextResponse.json({ success: true }, { status: 200 })
 
-  const files = r.attachments.length ? await verifiedAttachments(r.attachments) : { kept: [], firstName: null, firstSize: null }
+  let files: Awaited<ReturnType<typeof verifiedAttachments>>
+  try {
+    files = r.attachments.length
+      ? await verifiedAttachments(r.attachments)
+      : { kept: [], firstName: null, firstSize: null, invalid: false, unavailable: false }
+  } catch {
+    console.error('[service-requests] attachment verification unavailable')
+    return NextResponse.json({ error: 'We could not verify the attachments. Please try again shortly.' }, { status: 503 })
+  }
+  if (files.unavailable) {
+    return NextResponse.json({ error: 'We could not verify the attachments. Please try again shortly.' }, { status: 503 })
+  }
+  if (files.invalid || files.kept.length !== r.attachments.length) {
+    return NextResponse.json({ error: 'One or more attachments could not be verified. Remove them and upload them again.' }, { status: 400 })
+  }
   const business = r.customerType === 'business' && r.business
     ? { name: clean(r.business.name), propertyType: clean(r.business.propertyType), equipment: clean(r.business.equipment) }
     : null
