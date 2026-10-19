@@ -152,7 +152,17 @@
     @apply font-display text-xl font-semibold text-ink mt-6;
   }
   .cms-prose h4 {
-    @apply font-display text-lg font-medium text-ink mt-6;
+    @apply font-display text-lg font-semibold text-ink mt-5;
+  }
+  /* Smaller prose for cards. */
+  .cms-prose-sm {
+    @apply text-[0.95rem] leading-relaxed;
+  }
+  .cms-prose-sm > * + * {
+    @apply mt-3;
+  }
+  .cms-prose-sm ul {
+    @apply space-y-1.5;
   }
   .cms-prose a {
     @apply font-semibold text-terra underline decoration-terra/30 underline-offset-4 transition-colors hover:decoration-terra;
