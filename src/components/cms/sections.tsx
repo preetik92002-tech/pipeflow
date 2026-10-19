@@ -714,14 +714,14 @@ export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; t
     <Band tone={tone}>
       <div className="container-wide">
         {data.heading && <SectionHeader heading={data.heading} />}
-        <ul className={`mt-10 grid gap-5 ${cols}`}>
+        <ul className={`mt-8 grid gap-4 ${cols}`}>
           {data.images.map((img, i) => (
-            <li key={i} data-reveal style={{ '--reveal-delay': `${(i % 4) * 70}ms` } as React.CSSProperties}>
+            <li key={i}>
               <figure>
                 <div className="photo-frame aspect-[4/3]">
                   <CmsImage src={img.src} alt={img.alt} sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
                 </div>
-                {img.caption && <figcaption className="mt-3 text-sm text-neutral-600">{img.caption}</figcaption>}
+                {img.caption && <figcaption className="mt-2 text-sm text-neutral-600">{img.caption}</figcaption>}
               </figure>
             </li>
           ))}
@@ -731,16 +731,8 @@ export function GallerySection({ data, tone }: { data: SectionData<'gallery'>; t
   )
 }
 
-/** Sirf asli, admin dwara daale gaye reviews dikhte hain; khaali ho to section render hi nahi hota. */
-function GoogleG() {
-  return (
-    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white font-bold" aria-label="Google">
-      <span className="bg-gradient-to-br from-[#4285F4] via-[#EA4335] to-[#34A853] bg-clip-text text-lg text-transparent">G</span>
-    </span>
-  )
-}
-
-export function TestimonialsSection({ data }: { data: SectionData<'testimonials'>; tone: Tone }) {
+/** Reviews an editor typed into a page. Only what was entered is shown; with none, nothing renders. */
+export function TestimonialsSection({ data, tone }: { data: SectionData<'testimonials'>; tone: Tone }) {
   if (!data.items.length) return null
   const rated = data.items.filter((t) => t.rating)
   const average = rated.length ? (rated.reduce((n, t) => n + (t.rating ?? 0), 0) / rated.length).toFixed(1) : null
