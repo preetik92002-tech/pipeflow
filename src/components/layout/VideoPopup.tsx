@@ -61,29 +61,14 @@ export function VideoPopup() {
     return () => io.disconnect()
   }, [pathname])
 
+  // On phones the hero's call-to-action buttons sit exactly where a bottom-corner player would land. While the page is
+  // still at the top, park the player over the hero photo instead, then let it slide down to the corner on scroll.
   useEffect(() => {
-    if (dismissedThisLoad) return
-    setVisible(false)
-    let t: ReturnType<typeof setTimeout> | undefined
-    const show = () => {
-      t = setTimeout(() => setVisible(true), 1500)
-    }
-    // Keep the first screen (hero text and buttons) clear; offer the video once the hero has mostly scrolled away.
-    const heroGone = () => {
-      const hero = document.querySelector('[data-hero]')
-      return !hero || hero.getBoundingClientRect().bottom < window.innerHeight * 0.6
-    }
-    const onScroll = () => {
-      if (!heroGone()) return
-      window.removeEventListener('scroll', onScroll)
-      show()
-    }
-    if (heroGone()) show()
-    else window.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      clearTimeout(t)
-    }
+    const hasHero = !!document.querySelector('[data-hero]')
+    const sync = () => setDockTop(hasHero && window.scrollY < 80)
+    sync()
+    window.addEventListener('scroll', sync, { passive: true })
+    return () => window.removeEventListener('scroll', sync)
   }, [pathname])
 
   // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start playback by hand.
