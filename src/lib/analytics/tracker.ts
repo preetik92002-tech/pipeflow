@@ -194,5 +194,7 @@ declare global {
     gtag?: (...args: unknown[]) => void
     fbq?: (...args: unknown[]) => void
     dataLayer?: unknown[]
+    __pipeflowGaConfigured?: string
+    __pipeflowGaLastPage?: string
   }
 }
