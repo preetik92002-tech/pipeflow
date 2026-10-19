@@ -23,28 +23,33 @@ export function VideoPopup() {
   const video = useRef<HTMLVideoElement>(null)
   const onRequestPage = pathname.startsWith('/book-service')
 
-  // Home: the launcher steps aside while the hero request form is on screen (e.g. after scrolling back up to it).
   useEffect(() => {
-    const form = home ? document.querySelector('section[data-hero] form') : null
-    if (!form) return
-    const io = new IntersectionObserver(([entry]) => setOverForm(entry.isIntersecting))
-    io.observe(form)
+    setOpened(false)
+    const forms = [...document.querySelectorAll('form[data-quick-request], form#request')]
+    if (!forms.length) {
+      setOverForm(false)
+      return
+    }
+    const seen = new Set<Element>()
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) seen.add(e.target)
+        else seen.delete(e.target)
+      }
+      setOverForm(seen.size > 0)
+    })
+    forms.forEach((f) => io.observe(f))
     return () => io.disconnect()
-  }, [home])
-  const [muted, setMuted] = useState(true)
-  const video = useRef<HTMLVideoElement>(null)
+  }, [pathname])
 
   useEffect(() => {
-    if (closedThisLoad) return
+    if (dismissedThisLoad) return
+    setVisible(false)
     let t: ReturnType<typeof setTimeout> | undefined
     const show = () => {
       t = setTimeout(() => setVisible(true), 1500)
     }
-    if (!home) {
-      show()
-      return () => clearTimeout(t)
-    }
-    // Home page: keep the first screen (hero text, buttons and request form) clear; show the ad once the hero has mostly scrolled away.
+    // Keep the first screen (hero text and buttons) clear; offer the video once the hero has mostly scrolled away.
     const heroGone = () => {
       const hero = document.querySelector('[data-hero]')
       return !hero || hero.getBoundingClientRect().bottom < window.innerHeight * 0.6
