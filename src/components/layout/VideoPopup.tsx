@@ -118,9 +118,15 @@ export function VideoPopup() {
     if (v.requestFullscreen) void v.requestFullscreen().catch(() => {})
     else v.webkitEnterFullscreen?.()
   }
+  const close = () => {
+    closedThisLoad = true
+    setClosed(true)
+  }
 
-  const btn = 'flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-white'
+  const btn = 'flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-white sm:h-9 sm:w-9'
 
+  // Phones: under the header while docked, otherwise just above the mobile Request Service bar and the device's bottom
+  // inset (the 5.625rem is the video's height at w-40). Tablet and desktop: bottom-right corner.
   return (
     <aside aria-label="Promotional video" className="fixed right-4 z-40 w-56 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 sm:w-64 lg:!bottom-6 lg:right-6 lg:w-72" style={position}>
       <video ref={video} src={VIDEO_SRC} autoPlay muted loop playsInline preload="metadata" className="block aspect-video w-full bg-black object-cover" />
