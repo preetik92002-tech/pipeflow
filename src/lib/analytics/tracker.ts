@@ -143,7 +143,7 @@ export function trackEvent(event: AnalyticsEvent, params: EventParams = {}) {
     switch (event) {
       case 'submit_booking':
       case 'submit_quote':
-        window.fbq('track', 'Lead', payload)
+        window.fbq('track', 'Lead', privacySafeParams(payload))
         break
       case 'start_booking':
       case 'start_quote':
