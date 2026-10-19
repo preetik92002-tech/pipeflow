@@ -38,7 +38,10 @@ async function verifiedAttachments(paths: string[]): Promise<{
       }
       const mime = String((info.metadata as { mimetype?: string } | undefined)?.mimetype ?? '')
       if (mime.startsWith('video/')) {
-        if (size > VIDEO_MAX) throw new Error('too large')
+        if (size > VIDEO_MAX) {
+          invalid = true
+          continue
+        }
       } else {
         if (size > IMAGE_MAX) throw new Error('too large')
       }
