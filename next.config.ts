@@ -33,6 +33,9 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  // Self-contained server (.next/standalone) for the shared host: no next.config.ts transpile
+  // and no full node_modules install at runtime.
+  output: 'standalone',
   turbopack: { root: process.cwd() },
   images: {
     remotePatterns: [

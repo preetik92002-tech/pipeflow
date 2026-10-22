@@ -1,5 +1,6 @@
 {
   "extends": "next/core-web-vitals",
+  "ignorePatterns": ["release/", ".next/"],
   "plugins": ["@typescript-eslint"],
   "rules": {
     "react/no-unescaped-entities": "off"

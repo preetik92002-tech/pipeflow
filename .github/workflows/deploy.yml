@@ -1,0 +1,65 @@
+name: Deploy
+
+# Manual only. Pick the GitHub environment (secrets are stored per environment). Configure required
+# reviewers on "production" in Settings > Environments.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pipeflow-release
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$DEPLOY_PORT" "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - name: Upload and activate release
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          HEALTH_URL: ${{ vars.DEPLOY_HEALTH_URL }}
+        run: |
+          REMOTE="$DEPLOY_USER@$DEPLOY_HOST"
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -o BatchMode=yes"
+          RELEASE_ID="$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA::7}"
+          # Relative remote paths resolve to the account home directory (~/tmp exists on cPanel).
+          scp $SSH_OPTS -P "$DEPLOY_PORT" pipeflow-release.tgz scripts/deploy-remote.sh "$REMOTE:tmp/"
+          ssh $SSH_OPTS -p "$DEPLOY_PORT" "$REMOTE" \
+            "bash tmp/deploy-remote.sh '$DEPLOY_PATH' '$RELEASE_ID' \"\$HOME/tmp/pipeflow-release.tgz\" '$HEALTH_URL'; rc=\$?; rm -f tmp/deploy-remote.sh; exit \$rc"
+      - name: Verify from outside
+        if: ${{ vars.DEPLOY_HEALTH_URL != '' }}
+        env:
+          HEALTH_URL: ${{ vars.DEPLOY_HEALTH_URL }}
+        run: curl -fsS -o /dev/null -D - "$HEALTH_URL" | head -n 12

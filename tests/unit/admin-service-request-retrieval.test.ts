@@ -114,6 +114,6 @@ describe('service request admin retrieval', () => {
     state.leadError = { message: 'query failed' }
     const response = await GET()
     expect(response.status).toBe(503)
-    expect(await response.json()).toMatchObject({ error: 'query failed' })
+    expect(await response.json()).toMatchObject({ error: 'Unable to load leads.' })
   })
 })
