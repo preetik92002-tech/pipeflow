@@ -1,0 +1,4 @@
+[build.environment]
+  # Next.js embeds these public Supabase values in browser bundles by design.
+  # Keep scanning enabled for all other values, including SUPABASE_SERVICE_ROLE_KEY.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"
