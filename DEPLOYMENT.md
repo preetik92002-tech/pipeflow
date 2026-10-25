@@ -1,5 +1,25 @@
 # Deployment (Namecheap shared hosting, cPanel Node.js)
 
+## Netlify deployment
+
+Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and
+`SUPABASE_SERVICE_ROLE_KEY` in the Netlify project's environment variables, never
+in committed files. The public variables must be available during builds; the
+service-role key must be available to server functions at runtime.
+
+Next.js intentionally embeds `NEXT_PUBLIC_*` values in browser bundles. The
+`netlify.toml` configuration excludes only the public Supabase URL and anonymous
+key from secrets scanning. Scanning remains enabled for other values, including
+the service-role key, whose client module is protected by `server-only`.
+Use only an anonymous/public key for `NEXT_PUBLIC_SUPABASE_ANON_KEY`; never put a
+service-role or secret key in a public variable. Public database access continues
+to depend on Supabase Row Level Security policies.
+
+If a subsequent deploy identifies `SUPABASE_SERVICE_ROLE_KEY`, inspect the exact
+reported file and remove the exposure rather than expanding the scanning
+exception. Rotate that key if it was exposed. Local `.env` files are already
+ignored; `.env.example` is the tracked template.
+
 ## Architecture
 - `npm run build` runs `next build --webpack` with `output: 'standalone'`. `scripts/package-release.mjs`
   assembles `release/` (standalone server, `.next/static`, `public`) and validates it.
