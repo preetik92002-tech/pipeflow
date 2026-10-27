@@ -50,7 +50,7 @@ export function Footer() {
     <footer className="bg-ink pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-white lg:pb-0" role="contentinfo">
       <div className="container-wide grid gap-x-8 gap-y-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:py-14">
         <div className="sm:col-span-2 lg:col-span-4">
-          <Link href="/" aria-label={`${company.name} — Home`} className="inline-block rounded-lg bg-white px-3 py-2">
+          <Link href="/" aria-label={`${company.name} — Home`} className="inline-block rounded-lg">
             <Image src="/assets/logo.png" alt="" width={1024} height={426} sizes="140px" className="h-auto w-[128px]" />
           </Link>
           <p className="mt-5 max-w-sm text-[0.92rem] leading-relaxed text-white/70">
