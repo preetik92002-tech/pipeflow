@@ -27,9 +27,7 @@ export interface PageHeroProps {
 }
 
 function HeroLink({ cta, primary }: { cta: PageHeroCTA; primary: boolean }) {
-  const cls = primary
-    ? 'inline-flex items-center justify-center gap-2 rounded-xl bg-brand-red px-6 py-3.5 text-xs font-bold tracking-wide text-white shadow-lg shadow-brand-red/20 transition-all duration-200 hover:bg-brand-red-dark sm:text-sm'
-    : 'inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-xs font-bold tracking-wide text-white backdrop-blur-md transition-all duration-200 hover:bg-white/20 sm:text-sm'
+  const cls = primary ? 'ui-btn ui-btn-primary flex-1 sm:flex-none' : 'ui-btn ui-btn-on-dark flex-1 sm:flex-none'
   const inner = (
     <>
       {cta.label}
@@ -49,19 +47,19 @@ function HeroLink({ cta, primary }: { cta: PageHeroCTA; primary: boolean }) {
 /** Listing pages (blog) ka hero: poori chaudai ki photo, bayein taraf text, neeche gehra overlay. */
 export function PageHero({ imageSrc, imageAlt, eyebrow, title, description, primaryCta, secondaryCta, className = '', priority = true }: PageHeroProps) {
   return (
-    <section className={`relative isolate flex min-h-[min(70svh,620px)] items-end overflow-hidden bg-ink text-white ${className}`} aria-label={title}>
+    <section className={`relative isolate flex min-h-[min(52svh,440px)] items-end overflow-hidden bg-ink text-white sm:min-h-[min(60svh,520px)] ${className}`} aria-label={title}>
       <div className="absolute inset-0 -z-20 hero-photo-settle">
         <CmsImage src={imageSrc} alt={imageAlt} priority={priority} sizes="100vw" className="object-cover" />
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/60 to-ink/25" aria-hidden="true" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/40 to-transparent" aria-hidden="true" />
-      <div className="container-wide w-full pb-14 pt-28 sm:pb-20">
+      <div className="container-wide w-full pb-10 pt-20 sm:pb-16 sm:pt-28">
         <div className="hero-enter max-w-3xl">
-          {eyebrow && <p className="eyebrow eyebrow-light">{eyebrow}</p>}
-          <h1 className="mt-5 font-display text-display-xl font-normal">{title}</h1>
-          <p className="mt-6 max-w-2xl text-lead text-white/80">{description}</p>
+          {eyebrow && <p className="ui-kicker !text-terra-light">{eyebrow}</p>}
+          <h1 className="mt-3 font-display text-display-xl font-semibold">{title}</h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lead">{description}</p>
           {(primaryCta || secondaryCta) && (
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-7 flex gap-3 sm:flex-wrap">
               {primaryCta && <HeroLink cta={primaryCta} primary />}
               {secondaryCta && <HeroLink cta={secondaryCta} primary={false} />}
             </div>
