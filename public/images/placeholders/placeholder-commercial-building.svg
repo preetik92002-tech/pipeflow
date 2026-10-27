@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Placeholder: the outside of a commercial building in Denver">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A3566"/><stop offset="1" stop-color="#0F2040"/></linearGradient></defs>
+  <rect width="1200" height="900" fill="url(#g)"/>
+  <path d="M0 700 L260 470 L420 600 L640 380 L900 620 L1200 430 V900 H0Z" fill="#132952"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" opacity=".92">
+    <path d="M430 690 V250 H770 V690"/>
+    <path d="M380 690 H820"/>
+    <path d="M500 330 h50 M650 330 h50 M500 420 h50 M650 420 h50 M500 510 h50 M650 510 h50"/>
+    <path d="M570 690 V600 H630 V690"/>
+    <rect x="690" y="200" width="60" height="50" rx="6"/>
+  </g>
+</svg>
