@@ -17,6 +17,22 @@ interface ArticlePageProps {
 
 export const revalidate = 300 // ISR safety-net TTL; admin edits invalidate instantly via revalidatePath
 
+/**
+ * Without this, every article has no build-time shell, so each one renders fully dynamic
+ * (Cache-Control: private, no-store) regardless of `revalidate` above — see the matching
+ * comment in app/(site)/[[...path]]/page.tsx for the full explanation. Falls back to today's
+ * fully-dynamic behavior, never fails the build, if this read fails.
+ */
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  try {
+    const posts = await getPublishedBlogs()
+    return posts.map((p) => ({ slug: p.slug }))
+  } catch (error) {
+    console.error('[blog article] generateStaticParams could not list published posts:', error instanceof Error ? error.message : error)
+    return []
+  }
+}
+
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params
   const row = await getPublishedBlogBySlug(slug)
