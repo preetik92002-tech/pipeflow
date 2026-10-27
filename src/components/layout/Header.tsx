@@ -7,6 +7,7 @@ import { Menu, Phone } from 'lucide-react'
 import { Navigation } from './Navigation'
 import { MobileNavigation } from './MobileNavigation'
 import { AnnouncementBar } from './AnnouncementBar'
+import { ThemeToggle } from './ThemeToggle'
 import { hasRealPhone } from '@/lib/config/contact'
 import { siteConfig } from '@/lib/config/site'
 import { buildMenu } from '@/lib/cms-pages/menu'
@@ -57,16 +58,18 @@ export function Header() {
         </a>
 
         <div className="container-wide flex h-16 items-center gap-4 lg:h-[72px]">
-          <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="flex-shrink-0 rounded-md">
+          <Link href="/" aria-label={`${siteConfig.company.name} — Home`} className="flex-shrink-0 rounded-lg">
             <Image src="/assets/logo.png" alt="" width={1024} height={426} sizes="150px" className="h-auto w-[112px] sm:w-[124px] lg:w-[136px]" priority />
           </Link>
 
           <Navigation items={menu} className="mx-auto hidden lg:block" />
           <span className="flex-1 lg:hidden" aria-hidden="true" />
 
+          <ThemeToggle className="flex-shrink-0" />
+
           <div className="hidden flex-shrink-0 items-center gap-4 lg:flex">
             {contractors && (
-              <Link href={contractors.href} className="hidden text-sm font-semibold text-neutral-600 hover:text-ink xl:inline">
+              <Link href={contractors.href} className="hidden text-sm font-semibold text-neutral-600 hover:text-ink dark:hover:text-[#EAF1FB] xl:inline">
                 For Contractors
               </Link>
             )}
@@ -88,7 +91,7 @@ export function Header() {
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMobileMenuOpen(true)}
-            className="-mr-1 flex h-11 w-11 items-center justify-center rounded-lg text-ink hover:bg-paper lg:hidden"
+            className="-mr-1 flex h-11 w-11 items-center justify-center rounded-lg text-ink hover:bg-paper dark:hover:bg-[#132952] lg:hidden"
           >
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
