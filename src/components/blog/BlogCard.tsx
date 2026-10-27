@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, Clock, ArrowRight, User } from 'lucide-react'
+import { Clock, ArrowRight } from 'lucide-react'
 import type { BlogPost } from '@/lib/blog/types'
 import { formatShortDate } from '@/lib/date'
 
@@ -9,67 +9,50 @@ interface BlogCardProps {
   priority?: boolean
 }
 
+/**
+ * Article card in the site's one card style. Phones: a compact row (thumbnail beside the title) so a list of posts
+ * is not a stack of full-width photos. From 640px: thumbnail on top, excerpt and a read link below.
+ */
 export function BlogCard({ post, priority = false }: BlogCardProps) {
   const formattedDate = formatShortDate(post.publishedAt)
 
   return (
-    <article className="group flex flex-col bg-white border border-line/80 overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
-      {/* Featured Image */}
-      <Link href={`/blog/${post.slug}`} className="relative aspect-[16/10] overflow-hidden bg-mist block" tabIndex={-1} aria-hidden="true">
+    <article className="ui-card group relative flex gap-4 overflow-hidden p-3 transition-shadow hover:shadow-card-hover sm:flex-col sm:gap-0 sm:p-0">
+      <div className="relative h-24 w-28 flex-none overflow-hidden rounded-lg bg-mist sm:aspect-[16/10] sm:h-auto sm:w-full sm:rounded-none">
         <Image
           src={post.featuredImage || '/art/hero-plumbing.svg'}
-          alt={post.featuredImageAlt || post.title}
+          alt={post.featuredImageAlt || ''}
           fill
           priority={priority}
-          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover object-center transition-transform duration-500 motion-safe:group-hover:scale-105"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 112px"
         />
-        <div className="absolute top-4 left-4">
-          <span className="bg-ink/90 text-white px-3 py-1 text-2xs font-bold uppercase tracking-wider backdrop-blur-xs">{post.categoryName}</span>
-        </div>
-      </Link>
+        <span className="absolute left-3 top-3 hidden rounded-full bg-ink/90 px-3 py-1 text-xs font-semibold text-white sm:inline-block">{post.categoryName}</span>
+      </div>
 
-      {/* Content */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Meta Header */}
-        <div className="flex items-center gap-3 text-2xs text-neutral-400 mb-2.5">
+      <div className="flex min-w-0 flex-1 flex-col sm:p-6">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-600">
+          <time dateTime={post.publishedAt}>{formattedDate}</time>
           <span className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" aria-hidden="true" />
-            <time dateTime={post.publishedAt}>{formattedDate}</time>
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+            {post.readingTimeMinutes} min read
           </span>
-          <span>&bull;</span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" aria-hidden="true" />
-            <span>{post.readingTimeMinutes} min read</span>
-          </span>
-        </div>
+        </p>
 
-        {/* Title */}
-        <h3 className="text-xl font-bold text-ink mb-2 group-hover:text-terra transition-colors line-clamp-2 leading-snug">
-          <Link href={`/blog/${post.slug}`} className="focus-visible:outline-2 focus-visible:outline-terra">
+        <h3 className="mt-1.5 line-clamp-3 font-display text-lg font-semibold leading-snug text-ink transition-colors group-hover:text-terra sm:mt-2 sm:line-clamp-2 sm:text-xl">
+          {/* The whole card is the link target (the ::after covers it), so it is one tap stop. */}
+          <Link href={`/blog/${post.slug}`} className="after:absolute after:inset-0 after:content-['']">
             {post.title}
           </Link>
         </h3>
 
-        {/* Excerpt */}
-        <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed mb-6 line-clamp-3 flex-1">{post.excerpt}</p>
+        <p className="ui-body mt-2 hidden flex-1 text-neutral-600 sm:block">
+          <span className="line-clamp-3">{post.excerpt}</span>
+        </p>
 
-        {/* Author & CTA Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-line mt-auto">
-          <span className="text-2xs text-neutral-500 flex items-center gap-1.5 font-medium truncate max-w-[160px]">
-            <User className="h-3 w-3 text-neutral-400 flex-shrink-0" />
-            <span className="truncate">{post.author}</span>
-          </span>
-
-          <Link
-            href={`/blog/${post.slug}`}
-            className="inline-flex items-center gap-1 text-xs font-bold text-terra group-hover:text-terra-dark transition-colors"
-            aria-label={`Read article: ${post.title}`}
-          >
-            <span>Read Article</span>
-            <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
+        <span className="mt-5 hidden items-center gap-1.5 border-t border-line pt-4 text-[0.95rem] font-semibold text-terra sm:inline-flex" aria-hidden="true">
+          Read the article <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </span>
       </div>
     </article>
   )
