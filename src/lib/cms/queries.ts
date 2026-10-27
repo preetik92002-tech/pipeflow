@@ -51,25 +51,62 @@ export interface ReviewRow { name: string; city?: string; rating: number; text: 
  */
 export async function getActiveReviews(limit = 6, forPath?: { path: string; title: string }): Promise<{ items: ReviewRow[]; count: number; average: number | null }> {
   try {
-    const supabase = createPublicClient()
-    const { data, error } = await supabase.from('testimonials').select('*').eq('active', true).order('created_at', { ascending: false }).limit(200)
-    if (error) return { items: [], count: 0, average: null }
-    const rows = forPath ? relevantRows(data ?? [], forPath) : data ?? []
-    const items: ReviewRow[] = rows.slice(0, limit).map((row) => ({
-      name: row.reviewer_name as string,
-      city: (row.reviewer_city as string | null) || undefined,
-      rating: Math.min(5, Math.max(1, Number(row.rating ?? 5))),
-      text: row.review_text as string,
-      service: (row.service_name as string | null) || undefined,
-      date: (row.date as string | null) || undefined,
-      verified: Boolean(row.verified),
-      source: (row.source as string | null) || undefined,
-    }))
-    const rated = rows.map((r) => Number(r.rating)).filter((n) => Number.isFinite(n) && n >= 1 && n <= 5)
-    return { items, count: rows.length, average: rated.length ? rated.reduce((a, n) => a + n, 0) / rated.length : null }
+    const rows = await activeReviewRows()
+    const relevant = forPath ? relevantRows(rows, forPath) : rows
+    return { items: relevant.slice(0, limit).map(toReviewRow), count: relevant.length, average: averageOf(relevant) }
   } catch {
     return { items: [], count: 0, average: null }
   }
+}
+
+export interface ReviewSummary {
+  items: ReviewRow[]
+  count: number
+  average: number | null
+  verified: number
+  /** How many reviews gave each rating, index 0 = 1 star ... index 4 = 5 stars. */
+  distribution: [number, number, number, number, number]
+}
+
+/** Every active review for /reviews, with figures computed from exactly those reviews. Empty on any error. */
+export async function getReviewSummary(): Promise<ReviewSummary> {
+  const empty: ReviewSummary = { items: [], count: 0, average: null, verified: 0, distribution: [0, 0, 0, 0, 0] }
+  try {
+    const rows = await activeReviewRows()
+    const items = rows.map(toReviewRow)
+    const distribution = [0, 0, 0, 0, 0] as ReviewSummary['distribution']
+    for (const r of items) distribution[r.rating - 1]++
+    return { items, count: items.length, average: averageOf(rows), verified: items.filter((r) => r.verified).length, distribution }
+  } catch {
+    return empty
+  }
+}
+
+type TestimonialRow = Record<string, unknown> & { service_name?: string | null }
+
+async function activeReviewRows(): Promise<TestimonialRow[]> {
+  const supabase = createPublicClient()
+  const { data, error } = await supabase.from('testimonials').select('*').eq('active', true).order('created_at', { ascending: false }).limit(200)
+  if (error) throw error
+  return (data ?? []) as TestimonialRow[]
+}
+
+function toReviewRow(row: TestimonialRow): ReviewRow {
+  return {
+    name: row.reviewer_name as string,
+    city: (row.reviewer_city as string | null) || undefined,
+    rating: Math.min(5, Math.max(1, Number(row.rating ?? 5))),
+    text: row.review_text as string,
+    service: (row.service_name as string | null) || undefined,
+    date: (row.date as string | null) || undefined,
+    verified: Boolean(row.verified),
+    source: (row.source as string | null) || undefined,
+  }
+}
+
+function averageOf(rows: TestimonialRow[]): number | null {
+  const rated = rows.map((r) => Number(r.rating)).filter((n) => Number.isFinite(n) && n >= 1 && n <= 5)
+  return rated.length ? rated.reduce((a, n) => a + n, 0) / rated.length : null
 }
 
 /** Reviews for a service page: same service name first, else the same category (plumbing / hvac). Nothing else is claimed to be relevant. */
