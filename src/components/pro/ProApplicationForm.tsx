@@ -90,7 +90,7 @@ export function ProApplicationForm() {
   if (submitted) {
     return (
       <div className="bg-white border border-line p-8 sm:p-12 text-center shadow-xl animate-fade-in max-w-xl mx-auto">
-        <div className="w-16 h-16 bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-4 border border-green-200">
+        <div className="w-16 h-16 bg-green-50 text-green-600 flex items-center justify-center mx-auto mb-4 border border-green-200 dark:bg-green-950/30 dark:text-[#86efac] dark:border-green-400/30">
           <CheckCircle2 className="h-8 w-8" />
         </div>
         <h2 className="text-2xl font-bold font-display text-ink mb-2">Application Submitted!</h2>
@@ -120,7 +120,7 @@ export function ProApplicationForm() {
 
       <div className="border-b border-line pb-4">
         <h3 className="text-xl font-bold font-display text-ink">Trade Partner Application</h3>
-        <p className="text-xs text-neutral-500 mt-0.5">Join our network of licensed Colorado plumbers, HVAC mechanics, and service contractors.</p>
+        <p className="mt-0.5 text-sm text-neutral-600">Join our network of licensed Colorado plumbers, HVAC mechanics, and service contractors.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -200,7 +200,9 @@ export function ProApplicationForm() {
               type="button"
               onClick={() => toggleArea(city)}
               className={`px-3 py-1 text-xs font-semibold border transition-all ${
-                selectedAreas.includes(city) ? 'bg-ink text-white border-ink' : 'bg-paper text-neutral-600 border-line hover:border-neutral-300'
+                selectedAreas.includes(city)
+                  ? 'bg-ink text-white border-ink dark:bg-[#1A3566] dark:border-[#1A3566]'
+                  : 'bg-paper text-neutral-600 border-line hover:border-neutral-300 dark:hover:border-white/30'
               }`}
             >
               {city}
@@ -235,7 +237,7 @@ export function ProApplicationForm() {
             </button>
           </div>
         ) : (
-          <label className="border-2 border-dashed border-neutral-300 hover:border-terra p-4 text-center cursor-pointer block transition-colors bg-paper/50 text-xs">
+          <label className="border-2 border-dashed border-neutral-300 hover:border-terra p-4 text-center cursor-pointer block transition-colors bg-paper/50 dark:bg-[#132952]/50 text-xs">
             <input type="file" accept=".pdf,.doc,.docx,.jpg,.png" onChange={handleDocUpload} className="hidden" />
             <Upload className="h-5 w-5 text-neutral-400 mx-auto mb-1" />
             <span className="text-neutral-600 font-medium">Click to select resume or license document</span>
@@ -244,7 +246,7 @@ export function ProApplicationForm() {
       </div>
 
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+        <div className="p-3 bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 dark:bg-red-950/40 dark:border-red-400/30 dark:text-[#f3a6a0]">
           <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           <span>{errorMessage}</span>
         </div>
