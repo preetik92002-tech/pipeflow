@@ -2,6 +2,8 @@
 .page {
   --bg: #ffffff;
   --surface: #f2f7fa;
+  --card: #ffffff;
+  --input-border: #9fb3c6;
   --ink: #0b2545;
   --muted: #4a5f78;
   --line: #d5e1ea;
@@ -12,10 +14,28 @@
   --on-teal: #ffffff;
   --teal-ink: #1f5fad;
   --on-navy: #eaf3fb;
+  --safety-bg: #fff7ed;
+  --safety-border: #fed7aa;
   color: var(--ink);
   background: var(--bg);
   font-family: var(--font-inter), 'Public Sans', system-ui, sans-serif;
   line-height: 1.65;
+}
+/* Dark mode: the toggle sets "dark" on <html>; these redefine the page's own tokens so every rule below (all of
+   which already reads from var(--ink)/var(--line)/etc.) repaints without its own copy of every rule. The hero and
+   final bands stay on --navy, which was already dark, so they are unchanged. */
+:global(html.site.dark) .page {
+  --bg: #0b1728;
+  --surface: #0f2040;
+  --card: #132952;
+  --input-border: rgba(255, 255, 255, 0.3);
+  --ink: #eaf1fb;
+  --muted: #aebbd0;
+  --line: rgba(255, 255, 255, 0.14);
+  --teal-ink: #93c5fd;
+  --on-teal: #ffffff;
+  --safety-bg: rgba(217, 119, 6, 0.18);
+  --safety-border: rgba(251, 191, 36, 0.4);
 }
 .page h1,
 .page h2,
@@ -166,7 +186,7 @@
   padding: 0;
 }
 .card {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 22px;
@@ -178,6 +198,12 @@
   max-width: 170px;
   height: auto;
   margin: 0 auto 12px;
+  /* The illustration's fill/stroke colours are fixed (not theme-aware), so it keeps its own light backdrop chip
+     rather than sitting directly on the card, which goes dark in dark mode. */
+  background: #eef3fa;
+  border-radius: 16px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 .card h3 {
   font-size: 1.15rem;
@@ -275,13 +301,13 @@
   margin-bottom: 14px;
 }
 .infoCard {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 18px;
 }
 .alt .infoCard {
-  background: #fff;
+  background: var(--card);
 }
 .infoCard h4 {
   margin: 0 0 8px;
@@ -295,7 +321,7 @@
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--card);
 }
 .tableWrap:focus-visible {
   outline: 3px solid var(--teal);
@@ -343,13 +369,13 @@
 }
 .safety {
   border-left-color: #c2410c;
-  background: #fff7ed;
-  border-color: #fed7aa;
+  background: var(--safety-bg);
+  border-color: var(--safety-border);
 }
 .details {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--card);
   margin-bottom: 10px;
 }
 .details summary {
@@ -385,7 +411,7 @@
 
 /* ---- request form ---- */
 .form {
-  background: #fff;
+  background: var(--card);
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -407,9 +433,9 @@
 .form input {
   width: 100%;
   padding: 11px 12px;
-  border: 1px solid #9fb3c6;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--card);
   color: var(--ink);
   font: inherit;
 }
