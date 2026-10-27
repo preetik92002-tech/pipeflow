@@ -3,6 +3,8 @@ import { BarChart3, BadgeCheck, ClipboardList, Inbox, MapPin, Star, UserRound, W
 import { ProApplicationForm } from '@/components/pro/ProApplicationForm'
 import { Accordion } from '@/components/ui/Accordion'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { CmsImage } from '@/components/cms/CmsImage'
+import { PHOTOS } from '@/lib/media/photos'
 
 export async function generateMetadata(): Promise<Metadata> {
   return genMeta({
@@ -41,54 +43,57 @@ const proFaqs = [
 export default function JoinUsPage() {
   return (
     <div className="min-h-screen bg-white">
-      <section className="relative isolate overflow-hidden bg-gradient-to-br from-ink via-ink to-ink text-white">
-        <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-96 w-96 bg-terra/30 blur-3xl" aria-hidden="true" />
-        <div className="container-site py-16 sm:py-20">
-          <div className="max-w-3xl">
-            <p className="mb-4 inline-flex items-center gap-2 border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-ink">
-              For plumbing &amp; HVAC professionals
-            </p>
-            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Grow Your Plumbing or HVAC Business in Denver &amp; Boulder</h1>
-            <p className="mt-5 text-lg leading-relaxed text-neutral-200">Build a professional online presence and connect with customers actively looking for plumbing and HVAC services.</p>
-            <a href="#application-form" className="btn-primary mt-8 !px-6 !py-3">
+      <section data-hero className="relative isolate overflow-hidden bg-ink text-white">
+        <div className="relative aspect-[16/7] sm:aspect-[16/6] lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-[46%]" aria-hidden="true">
+          <CmsImage src={PHOTOS.technicianToolBelt.src} alt="" priority sizes="(min-width: 1024px) 46vw, 100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent lg:bg-gradient-to-r lg:from-ink lg:via-ink/30 lg:to-transparent" />
+        </div>
+        <div className="container-site relative pb-10 pt-2 lg:flex lg:min-h-[420px] lg:items-center lg:py-16">
+          <div className="max-w-xl">
+            <p className="ui-kicker !text-terra-light">For plumbing and HVAC professionals</p>
+            <h1 className="mt-2 font-display text-display-xl font-semibold text-white">Grow Your Plumbing or HVAC Business in Denver &amp; Boulder</h1>
+            <p className="mt-4 text-base leading-relaxed text-white/85 lg:text-lg">Build a professional profile and connect with customers looking for plumbing and HVAC help.</p>
+            <a href="#application-form" className="ui-btn ui-btn-primary mt-6 w-full sm:w-auto">
               Create Your Professional Profile
             </a>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-line bg-paper py-14">
+      <section className="border-b border-line bg-paper section-y">
         <div className="container-site">
-          <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">What You Get</h2>
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="font-display text-display-lg font-semibold text-ink">What You Get</h2>
+          <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:mt-8 lg:grid-cols-4 lg:gap-6">
             {benefits.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="border border-line bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                <span className="mb-3 flex h-10 w-10 items-center justify-center bg-paper text-terra">
+              <li key={title} className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:gap-3.5">
+                <span className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-white text-terra ring-1 ring-line">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <h3 className="font-display text-base font-semibold text-ink">{title}</h3>
-                <p className="mt-1 text-sm text-neutral-600">{text}</p>
+                <div>
+                  <h3 className="font-sans text-base font-semibold leading-snug text-ink">{title}</h3>
+                  <p className="mt-1 hidden text-[0.95rem] leading-snug text-neutral-600 sm:block">{text}</p>
+                </div>
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      <section id="application-form" className="container-site scroll-mt-12 py-14">
+      <section id="application-form" className="container-site scroll-mt-12 section-y">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-8 text-center">
-            <h2 className="font-display text-3xl font-bold text-ink">Create Your Professional Profile</h2>
-            <p className="mt-2 text-sm text-neutral-500">Tell us about your company. We review every application.</p>
+          <div className="mb-6 text-center sm:mb-8">
+            <h2 className="font-display text-display-lg font-semibold text-ink">Create Your Professional Profile</h2>
+            <p className="ui-body mt-2 text-neutral-600">Tell us about your company. We review every application.</p>
           </div>
-          <div className="border border-line bg-white p-6 shadow-lg sm:p-10">
+          <div className="rounded-xl border border-line bg-white p-4 sm:p-10">
             <ProApplicationForm />
           </div>
         </div>
       </section>
 
-      <section className="border-t border-line bg-paper py-14">
+      <section className="border-t border-line bg-paper section-y">
         <div className="container-site max-w-4xl">
-          <h2 className="mb-8 text-center font-display text-2xl font-bold text-ink sm:text-3xl">Questions From Professionals</h2>
+          <h2 className="mb-6 text-center font-display text-display-lg font-semibold text-ink sm:mb-8">Questions From Professionals</h2>
           <Accordion items={proFaqs} />
         </div>
       </section>
