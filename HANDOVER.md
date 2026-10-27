@@ -11,6 +11,7 @@ The ordered SQL files in `supabase/migrations/` are the database change history.
 5. `20261012000000_remove_home_better_way_section.sql` – removes only the unchanged seeded homepage section into a draft
 6. `20261013000000_service_pages.sql` – creates missing service pages as drafts; existing paths are reported and left untouched
 7. `20261014000000_server_only_public_form_writes.sql` – removes direct public table inserts; validated server APIs remain the submission path
+8. `20261027000000_customer_review_submissions.sql` – lets customers write reviews on `/reviews`; they are saved hidden until approved in Admin > Customer Reviews, with the reviewer's email kept in a private table
 
 Older migrations (initial schema, rate limiting and so on) must already be applied.
 
