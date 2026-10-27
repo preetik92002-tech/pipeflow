@@ -71,13 +71,17 @@ function ContentBlockForm({ data, onChange, errors }: FormProps) {
       <TextField label="Small label (optional)" value={str(data.label)} onChange={(label) => set({ label })} max={60} hint='For example "1." or "Residential".' />
       <TextField label="Heading" value={str(data.heading)} onChange={(heading) => set({ heading })} max={180} error={errors.heading} />
       <RichTextEditor label="Text" value={data.content} onChange={(content) => set({ content })} />
-      <SelectField label="Image position" value={str(data.imagePosition) || 'none'} onChange={(imagePosition) => set({ imagePosition })} options={[{ value: 'none', label: 'No image' }, { value: 'left', label: 'Image on the left' }, { value: 'right', label: 'Image on the right' }]} />
-      {str(data.imagePosition) !== 'none' && str(data.imagePosition) !== '' && (
-        <>
-          <ImageField label="Image" value={str(data.image)} onChange={(image) => set({ image })} />
-          <TextField label="Image description (for screen readers)" value={str(data.imageAlt)} onChange={(imageAlt) => set({ imageAlt })} max={250} />
-        </>
-      )}
+      <SelectField
+        label="Image position"
+        value={str(data.imagePosition) || 'none'}
+        onChange={(imagePosition) => set({ imagePosition })}
+        options={[{ value: 'none', label: 'Card photo (or no image)' }, { value: 'left', label: 'Large, on the left' }, { value: 'right', label: 'Large, on the right' }]}
+      />
+      <ImageField label="Image (optional)" value={str(data.image)} onChange={(image) => set({ image })} />
+      <p className="-mt-2 text-xs text-neutral-600">
+        With “Card photo”, the image shows on top of this block’s card when it sits in a row of cards (for example the home page’s Residential, Commercial and Find a Pro cards). Large places it beside the text as its own section. Leave it empty to use a built-in photo where the layout needs one.
+      </p>
+      {str(data.image) && <TextField label="Image description (for screen readers)" value={str(data.imageAlt)} onChange={(imageAlt) => set({ imageAlt })} max={250} hint="Describe what the photo shows. Leave empty if it is only decoration." />}
       <ButtonsField buttons={button ? [button] : []} max={1} errors={errors} prefix="button" onChange={(b) => set({ button: b[0] ?? null })} />
     </div>
   )
