@@ -43,8 +43,9 @@ const STEPS = ['who', 'category', 'service', 'details', 'urgency', 'location', '
 type Step = (typeof STEPS)[number]
 
 const card =
-  'flex w-full items-center gap-4  border-2 border-line bg-white p-4 text-left transition hover:border-terra hover:shadow-md focus-visible:outline-2 data-[on=true]:border-terra data-[on=true]:bg-paper'
-const input = 'w-full  border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-900 placeholder:text-neutral-400 focus:border-terra focus:outline-none focus:ring-2 focus:ring-terra/30'
+  'flex w-full items-center gap-4  border-2 border-line bg-white p-4 text-left transition hover:border-terra hover:shadow-md focus-visible:outline-2 data-[on=true]:border-terra data-[on=true]:bg-paper dark:data-[on=true]:bg-[#132952]'
+const input =
+  'w-full  border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-900 dark:text-[#EAF1FB] placeholder:text-neutral-400 dark:placeholder:text-[#7688A6] focus:border-terra focus:outline-none focus:ring-2 focus:ring-terra/30'
 
 function Choice({ on, onClick, icon, title, hint }: { on: boolean; onClick: () => void; icon?: React.ReactNode; title: string; hint?: string }) {
   return (
@@ -245,7 +246,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
   if (done) {
     return (
       <div ref={top} className="mx-auto max-w-xl scroll-mt-24 border border-line bg-white p-8 text-center shadow-sm" role="status">
-        <CheckCircle2 className="mx-auto h-14 w-14 text-green-600" aria-hidden="true" />
+        <CheckCircle2 className="mx-auto h-14 w-14 text-green-600 dark:text-[#86efac]" aria-hidden="true" />
         <h2 className="mt-4 font-display text-2xl font-bold text-ink">Your request is in</h2>
         {done.reference && (
           <p className="mt-1 text-sm text-neutral-500">
@@ -264,7 +265,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
           </li>
         </ol>
         {form.urgency === 'emergency' && phone && (
-          <p className="mt-6 bg-red-50 p-3 text-sm text-red-800">
+          <p className="mt-6 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-800 dark:text-[#f3a6a0]">
             If water is flowing or there is a safety risk, close the main water shutoff and call{' '}
             <a className="font-bold underline" href={`tel:${phone}`}>
               {phone}
@@ -534,7 +535,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
         )}
 
         {error && (
-          <p role="alert" className="mt-5 bg-red-50 p-3 text-sm font-medium text-red-800">
+          <p role="alert" className="mt-5 bg-red-50 dark:bg-red-950/40 p-3 text-sm font-medium text-red-800 dark:text-[#f3a6a0]">
             {error}
           </p>
         )}
