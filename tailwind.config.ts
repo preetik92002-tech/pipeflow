@@ -2,6 +2,10 @@ import type { Config } from 'tailwindcss'
 import { palette } from './src/lib/design/tokens'
 
 const config: Config = {
+  // Dark mode is a manual toggle (ThemeToggle writes the "dark" class to <html>), not the OS setting alone, so a
+  // visitor's choice sticks. The site's own CSS does the actual dark styling (see "Dark mode" in globals.css),
+  // scoped to html.site.dark so it never touches the separately-themed admin.
+  darkMode: ['selector', '.dark'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
