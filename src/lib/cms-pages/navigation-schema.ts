@@ -9,7 +9,7 @@ const links = (max: number) => z.array(linkSchema).max(max)
 
 /** Menus shown on the public site. Edited in Admin > Navigation, stored as one JSON row. */
 export const navigationSchema = z.object({
-  header: links(8),
+  header: links(9),
   footerServices: links(12),
   footerAreas: links(12),
   footerCompany: links(12),
@@ -31,6 +31,7 @@ export const DEFAULT_NAVIGATION: Navigation = {
     { label: 'Find a Pro', href: '/find-a-pro' },
     { label: 'Denver', href: '/denver' },
     { label: 'Boulder', href: '/boulder' },
+    { label: 'Reviews', href: '/reviews' },
     { label: 'Resources', href: '/resources' },
   ],
   footerServices: [
