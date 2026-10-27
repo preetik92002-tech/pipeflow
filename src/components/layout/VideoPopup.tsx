@@ -12,8 +12,10 @@ let closedThisLoad = false
  * The promotional video, as a small floating player that appears on its own once the page has loaded.
  * It starts muted (browsers block audible autoplay) with a play/pause tap target over the video, plus mute,
  * full screen and close. Closing hides it for the rest of this visit. It steps aside while a request form is
- * on screen, does not appear on the request page itself, and sits above the mobile Request Service bar.
- * The video is only mounted after the page has finished loading, so it never competes with the first paint.
+ * on screen, does not appear on the request page itself, and sits above the Request Service bar on tablets.
+ * Phones never get it: on a narrow screen any floating player covers the hero, the content or the sticky bar,
+ * and the video would cost mobile data. The video is only mounted after the page has finished loading, so it
+ * never competes with the first paint.
  */
 export function VideoPopup() {
   const pathname = usePathname()
@@ -22,14 +24,13 @@ export function VideoPopup() {
   const [overForm, setOverForm] = useState(false)
   const [muted, setMuted] = useState(true)
   const [playing, setPlaying] = useState(false)
-  const [dockTop, setDockTop] = useState(false)
   const video = useRef<HTMLVideoElement>(null)
   const userPaused = useRef(false)
   const onRequestPage = pathname.startsWith('/book-service')
 
-  // Appear automatically, but only after the page's own resources have loaded.
+  // Appear automatically, but only after the page's own resources have loaded, and only on screens 640px and wider.
   useEffect(() => {
-    if (closedThisLoad) return
+    if (closedThisLoad || !window.matchMedia('(min-width: 640px)').matches) return
     let t: ReturnType<typeof setTimeout> | undefined
     const show = () => {
       t = setTimeout(() => setReady(true), 600)
@@ -59,16 +60,6 @@ export function VideoPopup() {
     })
     forms.forEach((f) => io.observe(f))
     return () => io.disconnect()
-  }, [pathname])
-
-  // On phones the hero's call-to-action buttons sit exactly where a bottom-corner player would land. While the page is
-  // still at the top, park the player over the hero photo instead, then let it slide down to the corner on scroll.
-  useEffect(() => {
-    const hasHero = !!document.querySelector('[data-hero]')
-    const sync = () => setDockTop(hasHero && window.scrollY < 80)
-    sync()
-    window.addEventListener('scroll', sync, { passive: true })
-    return () => window.removeEventListener('scroll', sync)
   }, [pathname])
 
   // React does not reliably write the muted attribute, and browsers refuse autoplay without it: set it and start
@@ -125,14 +116,12 @@ export function VideoPopup() {
 
   const btn = 'flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-white sm:h-9 sm:w-9'
 
-  // Phones: under the header while docked, otherwise just above the mobile Request Service bar and the device's bottom
-  // inset (the 5.625rem is the video's height at w-40). Tablet and desktop: bottom-right corner.
+  // Tablets: just above the Request Service bar and the device's bottom inset. Desktop (no bar): bottom-right corner.
   return (
     <aside
       aria-label="Promotional video"
       hidden={overForm}
-      className="fixed right-4 top-[var(--vp-top)] z-30 w-40 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 transition-[top] duration-300 motion-reduce:transition-none sm:bottom-[calc(5rem+env(safe-area-inset-bottom))] sm:top-auto sm:w-60 lg:!bottom-6 lg:right-6 lg:w-72"
-      style={{ ['--vp-top' as string]: dockTop ? '4.75rem' : 'calc(100dvh - 5rem - env(safe-area-inset-bottom) - 5.625rem)' }}
+      className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-30 w-52 animate-rise overflow-hidden rounded-xl bg-navy-900 shadow-2xl ring-1 ring-white/20 lg:bottom-6 lg:right-6 lg:w-60"
     >
       <video ref={video} src={VIDEO_SRC} muted loop playsInline preload="metadata" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} className="block aspect-video w-full bg-black object-cover" />
       <button type="button" onClick={togglePlay} aria-label={playing ? 'Pause video' : 'Play video'} className="absolute inset-0 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-white">
