@@ -156,7 +156,7 @@
   }
   /* Smaller prose for cards. */
   .cms-prose-sm {
-    @apply text-[0.95rem] leading-relaxed;
+    @apply text-base leading-relaxed;
   }
   .cms-prose-sm > * + * {
     @apply mt-3;
@@ -217,11 +217,12 @@
   /* ---- Public design system ------------------------------------------------------------------
    * Navy (ink) carries structure and type, white and cool paper are the surfaces, brand red is kept
    * for the main customer action. One vertical rhythm for every section so pages read in steps. */
+  /* One spacing scale: section-y for full sections, section-y-sm for short bands. Phones get the tightest step. */
   .section-y {
-    @apply py-12 sm:py-16 lg:py-20;
+    @apply py-10 sm:py-14 lg:py-20;
   }
   .section-y-sm {
-    @apply py-10 sm:py-12 lg:py-14;
+    @apply py-8 sm:py-10 lg:py-14;
   }
   .ui-h2 {
     @apply font-display text-display-lg font-semibold text-ink;
@@ -229,8 +230,25 @@
   .ui-h3 {
     @apply font-display text-xl font-semibold leading-snug text-ink;
   }
+  /* Body copy in cards and lists: never below 16px. */
+  .ui-body {
+    @apply text-base leading-relaxed text-neutral-700;
+  }
   .ui-kicker {
-    @apply text-xs font-semibold uppercase tracking-[0.14em] text-terra;
+    @apply text-sm font-semibold text-terra;
+  }
+  /* Small links (breadcrumbs) keep their look but get a 44px tap area. */
+  .tap-target {
+    @apply relative;
+  }
+  .tap-target::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 2.75rem);
+    height: 2.75rem;
+    transform: translate(-50%, -50%);
   }
   .ui-card {
     @apply rounded-xl border border-line bg-white;
@@ -510,57 +528,101 @@ html.site [data-dark] :focus-visible {
   background: #1a3566;
 }
 
-/* Home hero: logo reveal frames and a slow zoom on the active banner. */
-@keyframes introFromLeft {
-  from { opacity: 0; transform: translateX(-18%) scale(0.96); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes introPop {
-  from { opacity: 0; transform: scale(0.86); }
-  to { opacity: 1; transform: none; }
-}
+/* Home hero: a slow zoom on the active banner. */
 @keyframes kenburns {
   from { transform: scale(1.07); }
   to { transform: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .hero-intro-frame-0, .hero-intro-frame-1 { animation: introFromLeft 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
-  .hero-intro-frame-2, .hero-intro-frame-3 { animation: introPop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
   .hero-kenburns { animation: kenburns 6s ease-out both; }
 }
 
-/* Site loading animation (see LoadingIntro). */
-.site-intro {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #fff;
-  pointer-events: none;
-  animation: introOut 0.35s ease 1.1s forwards;
-}
-.site-intro-frame {
-  position: absolute;
-  inset: 0;
+/*
+ * Rail: a horizontal swipe row on phones (scroll-snap, the next card peeks in so it reads as swipeable) and a plain
+ * grid from 768px. Columns on wide screens come from --rail-cols. The wrapper is a focusable region so keyboard
+ * users can scroll it with the arrow keys.
+ */
+.rail {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  opacity: 0;
-  animation: introFrameIn 0.01s linear forwards;
+  gap: 0.875rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  margin-inline: -1rem;
+  padding: 0.25rem 1rem 0.75rem;
+  scrollbar-width: none;
 }
-.site-intro-img {
-  width: min(78vw, 460px);
-  height: auto;
-  max-height: 60vh;
-  object-fit: contain;
+.rail::-webkit-scrollbar {
+  display: none;
 }
-.site-intro-img-0, .site-intro-img-1 { animation: introFromLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: inherit; }
-.site-intro-img-2, .site-intro-img-3 { animation: introPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: inherit; }
-@keyframes introFrameIn { to { opacity: 1; } }
-@keyframes introOut { to { opacity: 0; visibility: hidden; } }
-html.no-intro .site-intro { display: none; }
-@media (prefers-reduced-motion: reduce) {
-  .site-intro { display: none; }
+.rail > * {
+  flex: 0 0 min(82%, 22rem);
+  scroll-snap-align: start;
+}
+@media (min-width: 640px) {
+  .rail {
+    margin-inline: -1.5rem;
+    padding-inline: 1.5rem;
+    scroll-padding-inline: 1.5rem;
+  }
+  .rail > * {
+    flex-basis: min(46%, 22rem);
+  }
+}
+/* Two-up rails and short items (a trust strip) become a grid from 768px; wider rails keep swiping on tablets. */
+@media (min-width: 768px) {
+  .rail[data-even],
+  .rail[data-cols='2'] {
+    display: grid;
+    grid-template-columns: repeat(var(--rail-cols, 2), minmax(0, 1fr));
+    gap: 1.25rem;
+    overflow: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
+  .rail > * {
+    flex-basis: min(40%, 22rem);
+  }
+}
+@media (min-width: 1024px) {
+  .rail {
+    display: grid;
+    grid-template-columns: repeat(var(--rail-cols, 3), minmax(0, 1fr));
+    gap: 1.25rem;
+    overflow: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
+}
+.rail-region:focus-visible {
+  outline-offset: 4px;
+}
+
+/*
+ * Steps: the numbers sit on one vertical pipe (the brand's own motif), red at the start and navy below.
+ * The line runs between the circles, so it never crosses a number.
+ */
+.pipe-steps > li {
+  position: relative;
+  padding-left: 3.25rem;
+  padding-bottom: 1.25rem;
+}
+.pipe-steps > li:last-child {
+  padding-bottom: 0;
+}
+.pipe-steps .pipe-line {
+  position: absolute;
+  left: 1rem;
+  top: 2.25rem;
+  bottom: 0.25rem;
+  width: 4px;
+  border-radius: 2px;
+  background: linear-gradient(#C41E1E, #0F2040);
+  opacity: 0.85;
+}
+.pipe-steps > li:last-child .pipe-line {
+  display: none;
 }
 
 /* Text marquee (home): constant-speed right-to-left loop; the track holds the text twice, so -50% is a seamless wrap. */
@@ -621,4 +683,190 @@ html.no-intro .site-intro { display: none; }
 /* Only the loading intro, the text marquee and the hero slide move: every other decorative animation is off. */
 .hero-enter > *, .hero-photo-settle, .hero-clip-reveal, .word, .hero-kenburns, .page-enter, .animate-logo-in, .animate-rise, .login-in {
   animation: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark mode (public site only)                                        */
+/* ------------------------------------------------------------------ */
+/*
+ * The toggle (ThemeToggle) sets class "dark" on <html>. Every rule below is scoped to "html.site.dark", and the
+ * admin has its own root <html> (no "site" class, no toggle) in a separate layout, so none of this ever reaches it
+ * even though admin shares this stylesheet and some of the same class names.
+ *
+ * The site already alternates light bands (white/paper surfaces, ink text) with dark navy bands (bg-ink,
+ * bg-navy-900 hero/footer/CTA, data-dark) in light mode. Those dark bands need no change here: they already read
+ * as "dark mode". Only the light bands are restyled, reusing the existing navy scale for banding (page bg =
+ * navy-900, cards = navy-800, secondary bands = navy-700, placeholders = navy-600) and the site's own terra-light
+ * (already used wherever terra sits on a dark surface, since plain terra fails contrast there).
+ */
+html.site.dark {
+  color-scheme: dark;
+}
+html.site.dark body {
+  @apply bg-[#0B1728] text-[#AEBBD0];
+}
+
+/* ---- surfaces: the literal utilities used for light-mode page/card backgrounds ---- */
+html.site.dark .bg-white {
+  @apply bg-[#0F2040];
+}
+html.site.dark .bg-white\/95 {
+  background-color: rgb(15 32 64 / 0.94);
+}
+html.site.dark .bg-paper {
+  @apply bg-[#132952];
+}
+html.site.dark .bg-mist {
+  @apply bg-[#1A3566];
+}
+html.site.dark .border-line {
+  border-color: rgb(255 255 255 / 0.14);
+}
+/* A breakpoint-prefixed use of an overridden utility (e.g. "sm:bg-white") compiles to its own class, so the plain
+   override above does not reach it; this is the one pair the site actually uses. */
+@media (min-width: 640px) {
+  html.site.dark .sm\:bg-white {
+    background-color: #0F2040;
+  }
+  html.site.dark .sm\:border-line {
+    border-color: rgb(255 255 255 / 0.14);
+  }
+}
+html.site.dark .divide-line > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(255 255 255 / 0.14);
+}
+html.site.dark .border-field {
+  border-color: rgb(255 255 255 / 0.26);
+}
+html.site.dark .ring-black\/10 {
+  --tw-ring-color: rgb(255 255 255 / 0.12);
+}
+
+/* ---- text: ink (headings) and the neutral body-copy ladder ---- */
+html.site.dark .text-ink {
+  @apply text-[#EAF1FB];
+}
+html.site.dark .text-ink\/60 {
+  color: rgb(234 241 251 / 0.6);
+}
+html.site.dark .text-ink\/70 {
+  color: rgb(234 241 251 / 0.7);
+}
+html.site.dark .decoration-ink {
+  text-decoration-color: rgb(234 241 251 / 0.25);
+}
+html.site.dark .border-ink {
+  border-color: #eaf1fb;
+}
+html.site.dark .text-neutral-900 { @apply text-[#F3F6FB]; }
+html.site.dark .text-neutral-800 { @apply text-[#E7EDF6]; }
+html.site.dark .text-neutral-700 { @apply text-[#C9D4E4]; }
+html.site.dark .text-neutral-600 { @apply text-[#AEBBD0]; }
+html.site.dark .text-neutral-500 { @apply text-[#93A2BB]; }
+html.site.dark .text-neutral-400 { @apply text-[#7688A6]; }
+html.site.dark .text-neutral-300 { @apply text-[#5A6D90]; }
+html.site.dark .border-neutral-100 { border-color: rgb(255 255 255 / 0.1); }
+html.site.dark .border-neutral-200 { border-color: rgb(255 255 255 / 0.16); }
+html.site.dark .border-neutral-300 { border-color: rgb(255 255 255 / 0.22); }
+html.site.dark .bg-neutral-100 { @apply bg-[#162540]; }
+html.site.dark .bg-neutral-200 { @apply bg-[#1C2E4C]; }
+html.site.dark .divide-neutral-100 > :not([hidden]) ~ :not([hidden]) { border-color: rgb(255 255 255 / 0.1); }
+
+/* ---- the brand accent on what is now a dark surface: terra-light, same rule the site already used for ink/navy bands ---- */
+html.site.dark .text-terra { @apply text-[#F4A3A3]; }
+html.site.dark .decoration-terra\/30 { text-decoration-color: rgb(244 163 163 / 0.3); }
+html.site.dark .group-hover\:decoration-terra { text-decoration-color: #F4A3A3; }
+html.site.dark .border-terra { border-color: #F4A3A3; }
+html.site.dark .group:hover .group-hover\:text-terra { color: #F4A3A3; }
+html.site.dark .group:hover .group-hover\:bg-white { background-color: #0F2040; }
+html.site.dark .hover\:text-neutral-600:hover { color: #AEBBD0; }
+
+/* Status colours (bg-red-50, text-green-600, and so on) are not overridden here: Tailwind's @apply cannot
+   resolve them once a plain rule also defines that exact class name (a "circular dependency" build error), even
+   for one that is never itself used with @apply. Each spot that uses one instead carries its own dark: class
+   (see RequestServiceFlow, ProApplicationForm, Toast, sections.tsx, HomeLayout). */
+
+/* ---- the public @layer components classes: @apply inlines colours at build time, so each needs its own rule ---- */
+html.site.dark .ui-h2,
+html.site.dark .ui-h3,
+html.site.dark .ui-link,
+html.site.dark .heading-xl,
+html.site.dark .heading-lg {
+  @apply text-[#EAF1FB];
+}
+html.site.dark .ui-link {
+  text-decoration-color: rgb(234 241 251 / 0.25);
+}
+html.site.dark .ui-link:hover {
+  @apply text-[#F4A3A3];
+}
+html.site.dark .ui-body,
+html.site.dark .section-subheading,
+html.site.dark .cms-prose {
+  @apply text-[#AEBBD0];
+}
+html.site.dark .ui-kicker,
+html.site.dark .eyebrow {
+  @apply text-[#F4A3A3];
+}
+html.site.dark .cms-prose h2,
+html.site.dark .cms-prose h3,
+html.site.dark .cms-prose h4,
+html.site.dark .cms-prose blockquote {
+  @apply text-[#EAF1FB];
+}
+html.site.dark .cms-prose a {
+  @apply text-[#F4A3A3] decoration-[#F4A3A3]/30;
+}
+html.site.dark .cms-prose a:hover {
+  text-decoration-color: #f4a3a3;
+}
+html.site.dark .cms-prose ul > li::before {
+  @apply bg-[#F4A3A3];
+}
+html.site.dark .cms-prose ol {
+  @apply marker:text-[#F4A3A3];
+}
+html.site.dark .cms-prose blockquote {
+  border-color: #f4a3a3;
+}
+html.site.dark .ui-card,
+html.site.dark .ui-card-link {
+  @apply border-white/10 bg-[#0F2040];
+}
+html.site.dark .ui-card-link:hover {
+  border-color: rgb(255 255 255 / 0.3);
+}
+html.site.dark .ui-btn-secondary {
+  @apply border-white/20 bg-[#0F2040] text-[#EAF1FB] hover:border-white/40 hover:bg-[#132952];
+}
+html.site.dark .ui-btn-dark {
+  @apply bg-[#1A3566] text-white hover:bg-[#2650A0];
+}
+html.site.dark .cta-line {
+  @apply border-white/20 text-[#EAF1FB] hover:border-white hover:bg-white hover:text-ink;
+}
+html.site.dark .photo-frame {
+  @apply bg-[#1A3566] ring-white/10;
+}
+html.site.dark .form-input {
+  @apply border-white/20 bg-[#0F2040] text-[#EAF1FB] placeholder:text-[#7688A6] hover:border-white/35;
+}
+html.site.dark .form-input-error {
+  @apply border-red-400/50 bg-red-50;
+}
+html.site.dark .form-label,
+html.site.dark .section-heading {
+  @apply text-[#AEBBD0];
+}
+html.site.dark .btn-outline {
+  @apply border-white/30 text-[#EAF1FB] hover:bg-white/10 hover:text-white;
+}
+html.site.dark .btn-ghost {
+  @apply text-[#EAF1FB] hover:bg-white/10;
+}
+/* The focus ring already switches to terra-light inside dark bands (bg-ink, [data-dark]); in dark mode the whole
+   page is effectively one of those bands, so the default ring does the same. */
+html.site.dark *:focus-visible {
+  outline-color: #f4a3a3;
 }
