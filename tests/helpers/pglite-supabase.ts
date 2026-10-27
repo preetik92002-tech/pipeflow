@@ -23,6 +23,7 @@ class Query implements PromiseLike<Result> {
   private max = ''
   private mode: 'many' | 'single' | 'maybe' = 'many'
   private insertRow: Row | null = null
+  private updateRow: Row | null = null
 
   constructor(private db: PGlite, private table: string) {}
 
@@ -32,6 +33,10 @@ class Query implements PromiseLike<Result> {
   }
   insert(row: Row) {
     this.insertRow = row
+    return this
+  }
+  update(row: Row) {
+    this.updateRow = row
     return this
   }
   private add(sql: (n: string) => string, value: unknown) {
@@ -67,6 +72,17 @@ class Query implements PromiseLike<Result> {
           Object.values(this.insertRow).map(param)
         )
         return { data: res.rows, error: null }
+      }
+      if (this.updateRow) {
+        const keys = Object.keys(this.updateRow).map(ident)
+        const n = this.values.length
+        const where = this.where.length ? ` where ${this.where.join(' and ')}` : ''
+        const res = await this.db.query<Row>(
+          `update ${ident(this.table)} set ${keys.map((k, i) => `${k} = $${n + i + 1}`).join(', ')}${where} returning ${this.cols}`,
+          [...this.values, ...Object.values(this.updateRow).map(param)]
+        )
+        if (this.mode === 'many') return { data: res.rows, error: null }
+        return { data: res.rows[0] ?? null, error: null }
       }
       const sql = `select ${this.cols} from ${ident(this.table)}${this.where.length ? ` where ${this.where.join(' and ')}` : ''}${this.orderBy}${this.max}`
       const rows = (await this.db.query<Row>(sql, this.values)).rows
