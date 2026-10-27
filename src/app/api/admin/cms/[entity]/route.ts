@@ -39,7 +39,7 @@ const schemas = {
     seo_title: z.string().max(180).nullable().optional(), seo_description: z.string().max(320).nullable().optional(), zip_codes: z.array(z.string().regex(/^\d{5}$/)).optional() }),
   testimonial: z.object({ reviewer_name: z.string().trim().min(1).max(120), reviewer_city: z.string().max(120).nullable().optional(),
     rating: z.number().int().min(1).max(5), review_text: z.string().trim().min(1).max(2000), service_name: z.string().max(120).nullable().optional(),
-    date: z.string().max(40).nullable().optional(), verified: z.boolean(), source: z.enum(['google','yelp','bbb','internal']).nullable().optional(),
+    date: z.string().max(40).nullable().optional(), verified: z.boolean(), source: z.enum(['google','yelp','bbb','internal','website']).nullable().optional(),
     active: z.boolean(), display_order: z.number().int().min(0), image_url: z.string().max(2000).nullable().optional() }),
   faq: z.object({ question: z.string().trim().min(1).max(300), answer: z.string().trim().min(1).max(3000),
     category: z.string().max(80).nullable().optional(), sort_order: z.number().int().min(0), active: z.boolean() }),
@@ -95,6 +95,14 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ en
       const { data: zips, error: zipError } = await admin.from('service_area_zips').select('service_area_id,zip_code').in('service_area_id', data.map((item) => item.id))
       if (zipError) throw zipError
       const items = data.map((area) => ({ ...area, zip_codes: (zips ?? []).filter((zip) => zip.service_area_id === area.id).map((zip) => zip.zip_code).join(', ') }))
+      return NextResponse.json({ items })
+    }
+    if (entity === 'testimonial' && data?.length) {
+      // Reviews sent through /reviews keep the reviewer's email in a private table; show it to the admin only.
+      const { data: subs, error: subError } = await admin.from('review_submissions').select('testimonial_id,email,matches_request').in('testimonial_id', data.map((item) => item.id))
+      if (subError) throw subError
+      const byId = new Map((subs ?? []).map((sub) => [sub.testimonial_id, sub]))
+      const items = data.map((review) => ({ ...review, submitted_email: byId.get(review.id)?.email ?? null, matches_request: byId.get(review.id)?.matches_request ?? null }))
       return NextResponse.json({ items })
     }
     return NextResponse.json({ items: data ?? [] })
