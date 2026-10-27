@@ -6,7 +6,7 @@ import { faqJsonLd, serializeJsonLd } from '@/lib/cms-pages/jsonld'
 import { ancestorPaths, breadcrumbJsonLd, buildPageContext, serviceJsonLd } from '@/lib/cms-pages/page-context'
 import { validatePath, pathToUrl } from '@/lib/cms-pages/paths'
 import { linkedCmsPaths, serviceCrumbs, serviceTemplateOf } from '@/lib/cms-pages/service-links'
-import { getPublishedPage, getPublishedTitles, getRedirect } from '@/lib/cms-pages/repository'
+import { getPublishedPage, getPublishedTitles, getRedirect, listPublishedPaths } from '@/lib/cms-pages/repository'
 import { siteConfig } from '@/lib/config/site'
 import { getActiveReviews } from '@/lib/cms/queries'
 import { generateMetadata as buildMetadata, getPublicCompanySettings, getPublicSeoSettings } from '@/lib/seo/metadata'
@@ -23,6 +23,27 @@ import { generateMetadata as buildMetadata, getPublicCompanySettings, getPublicS
 export const revalidate = 3600
 
 type Props = { params: Promise<{ path?: string[] }> }
+
+/**
+ * Without this, the catch-all has no build-time shell for any path, so every request — the
+ * homepage and every CMS page alike — renders fully dynamic (HTTP Cache-Control: private,
+ * no-store) no matter what `revalidate` says, and the host's CDN/ISR cache never gets a chance
+ * to serve it. Listing published paths here gives each one a cached shell; `revalidate` then
+ * keeps it fresh exactly as the comment above already describes. `dynamicParams` stays at its
+ * default `true`, so a page published after the last build still renders on demand and is
+ * cached from then on. If this read fails (e.g. Supabase unreachable at build time), returning
+ * an empty list falls back to today's fully-dynamic behavior for every path — never fails the
+ * build over this.
+ */
+export async function generateStaticParams(): Promise<{ path: string[] }[]> {
+  try {
+    const pages = await listPublishedPaths()
+    return pages.map((p) => ({ path: p.path === '' ? [] : p.path.split('/') }))
+  } catch (error) {
+    console.error('[cms page] generateStaticParams could not list published pages:', error instanceof Error ? error.message : error)
+    return []
+  }
+}
 
 function toPath(segments: string[] | undefined) {
   try {
