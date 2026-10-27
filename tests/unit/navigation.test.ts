@@ -23,7 +23,7 @@ describe('navigation', () => {
 
   it('default links to CMS pages point at pages that are seeded', () => {
     const urls = new Set(seedPages.map((p) => pathToUrl(p.path)))
-    const external = new Set(['/join-us', '/contact', '/blog', '/book-service'])
+    const external = new Set(['/join-us', '/contact', '/blog', '/book-service', '/reviews'])
     const all = [...DEFAULT_NAVIGATION.header, ...DEFAULT_NAVIGATION.footerServices, ...DEFAULT_NAVIGATION.footerAreas, ...DEFAULT_NAVIGATION.footerCompany, ...DEFAULT_NAVIGATION.footerResources]
     for (const l of all) expect(urls.has(l.href) || external.has(l.href), l.href).toBe(true)
   })
