@@ -104,7 +104,7 @@ export function QuickRequestForm({ id }: { id?: string }) {
       <button type="submit" disabled={busy} aria-busy={busy} className="ui-btn ui-btn-primary mt-5 w-full">
         {busy ? 'Opening request form…' : 'Request Service'}
       </button>
-      <p className="mt-3 text-xs leading-relaxed text-white/65">
+      <p className="mt-3 text-sm leading-relaxed text-white/70">
         You&apos;ll add your address and contact details on the next step.{' '}
         <Link href="/book-service" className="underline underline-offset-2 hover:text-white">
           Start from scratch
