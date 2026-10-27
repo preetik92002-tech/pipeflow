@@ -52,6 +52,19 @@ export const PHOTOS = {
 /** The site's own HVAC banner photo (not stock), used for the HVAC Repair card. */
 const HERO_HVAC_PHOTO: Photo = { src: '/images/hero/hvac.jpg', alt: 'A PipeFlow technician beside an outdoor AC unit with the Denver skyline behind', width: 1920, height: 641, focus: '85% 50%', credit: { photographer: 'PipeFlow', url: 'https://pipeflow-theta.vercel.app' } }
 
+/** The site's own photo (not stock): a technician greeting a homeowner beside a PipeFlow van. */
+export const HANDSHAKE_PHOTO: Photo = { src: '/images/about-handshake.jpg', alt: 'A PipeFlow technician shaking hands with a homeowner beside a branded van', width: 1024, height: 426, focus: '42% 50%', credit: { photographer: 'PipeFlow', url: 'https://pipeflow-theta.vercel.app' } }
+
+/**
+ * Placeholders for photos the site still needs. Each file in /public/images/placeholders is a plain navy tile with an
+ * icon, so the layout is final while the real photo is outstanding. Replace the file (same name, any format the
+ * src points to) or choose a Media Library image in the page editor. The alt text describes the intended photo.
+ */
+export const PLACEHOLDER_PHOTOS = {
+  photoUpload: { src: '/images/placeholders/placeholder-customer-photo-upload.svg', alt: 'A customer photographing a leaking pipe under a sink with a phone', width: 1200, height: 900, focus: '50% 50%', credit: { photographer: 'Placeholder: photo needed', url: '' } },
+  commercialBuilding: { src: '/images/placeholders/placeholder-commercial-building.svg', alt: 'The outside of a commercial building in Denver', width: 1200, height: 900, focus: '50% 50%', credit: { photographer: 'Placeholder: photo needed', url: '' } },
+} satisfies Record<string, Photo>
+
 
 /**
  * Pages saved before the photography existed point at /art/*.svg illustrations. Woh
@@ -74,7 +87,7 @@ const LEGACY_ART: Record<string, Photo> = {
   '/assets/hero-hvac-tech.jpg': PHOTOS.miniSplit,
 }
 
-const BY_SRC = new Map<string, Photo>(Object.values(PHOTOS).map((ph) => [ph.src, ph]))
+const BY_SRC = new Map<string, Photo>([...Object.values(PHOTOS), HANDSHAKE_PHOTO, ...Object.values(PLACEHOLDER_PHOTOS)].map((ph) => [ph.src, ph]))
 
 /** The image to show for a stored src, with the best alt text and crop we know of. */
 export function resolveImage(src: string, alt = ''): { src: string; alt: string; focus?: string } {
@@ -99,6 +112,24 @@ export const SERVICE_PHOTOS: Record<string, Photo> = {
   '/hvac/hvac-repair': HERO_HVAC_PHOTO,
   '/hvac/hvac-maintenance': PHOTOS.technicianToolBelt,
 }
+
+/** Photos for category and area pages, for link cards that point at them (related links, breadcrumbs lists). */
+export const PAGE_PHOTOS: Record<string, Photo> = {
+  '/plumbing': PHOTOS.plumberSinkTrap,
+  '/hvac': PHOTOS.acCondenser,
+  '/commercial': PHOTOS.acUnitsWall,
+  '/commercial/plumbing': PHOTOS.mechanicalPipes,
+  '/commercial/hvac': PHOTOS.acUnitsWall,
+  '/denver': PHOTOS.denverRockies,
+  '/boulder': PHOTOS.boulderFlatirons,
+  '/find-a-pro': PHOTOS.technicianToolBelt,
+  '/find-a-pro/plumbers': PHOTOS.plumberBathroom,
+  '/find-a-pro/hvac-contractors': PHOTOS.technicianEquipment,
+  '/for-contractors': PHOTOS.technicianToolBelt,
+}
+
+/** The photo for a link to one of the site's own pages: a service page first, then a category or area page. */
+export const linkPhotoFor = (href: string): Photo | undefined => SERVICE_PHOTOS[href] ?? PAGE_PHOTOS[href.split(/[?#]/)[0]]
 
 /**
  * Home page par photo-strip (scroll se chalti): 8 alag photos. Isme woh photos nahi jo isi page par hero, service tiles ya
@@ -146,4 +177,40 @@ export function servicePhotoFor(...texts: (string | undefined)[]): Photo | null 
   if (/fix|repair|leak|drain|faucet/.test(t)) return PHOTOS.plumberUnderSink
   if (/plumb/.test(t)) return PHOTOS.plumberSinkTrap
   return null
+}
+
+/** A thumbnail for a guide or article, picked from its title or URL. Null when nothing fits. */
+export function topicPhotoFor(...texts: (string | undefined)[]): Photo | null {
+  const t = texts.filter(Boolean).join(' ').toLowerCase()
+  if (/freez|frozen|burst/.test(t)) return PHOTOS.faucet
+  if (/maintenance|checklist|tune/.test(t)) return PHOTOS.technicianEquipment
+  if (/repair.*vs|vs\.? replace|replacement/.test(t) && /\bac\b|air condition/.test(t)) return PHOTOS.acUnitsWall
+  if (/\bac\b|air condition|cooling/.test(t)) return PHOTOS.miniSplit
+  return servicePhotoFor(t)
+}
+
+/**
+ * Photos that fit a page, most relevant first, chosen from its wording (title, crumbs, path). Section layouts draw from
+ * this pool in order when a run of text needs a picture, so one page never shows the same photo twice until the pool
+ * runs out.
+ */
+export function photoPool(...texts: (string | undefined)[]): Photo[] {
+  const t = texts.filter(Boolean).join(' ').toLowerCase()
+  const P = PHOTOS
+  // Topic first: almost every heading says "Denver & Boulder", so a city only decides the pool for city pages.
+  const topic = t.replace(/denver|boulder/g, ' ')
+  let pool: Photo[]
+  if (!/plumb|hvac|\bac\b|heat|pipe|commercial|contractor|resource|guide/.test(topic) && /boulder/.test(t)) pool = [P.boulderMeadow, P.boulderAutumn, P.houseBlossom, P.boulderFlatirons]
+  else if (!/plumb|hvac|\bac\b|heat|pipe|commercial|contractor|resource|guide/.test(topic) && /denver/.test(t)) pool = [P.denverStreet, P.denverCityView, P.denverAerial, P.denverRockies]
+  else if (/water heater|tankless/.test(t)) pool = [P.waterHeater, P.mechanicalPipes, P.plumberSinkPipes, P.technicianEquipment]
+  else if (/frozen|freez|burst/.test(t)) pool = [P.mechanicalPipes, P.faucet, P.plumberUnderSink]
+  else if (/commercial|business/.test(t)) pool = [P.acUnitsWall, P.mechanicalPipes, P.technicianEquipment]
+  else if (/contractor|professional|join|grow/.test(t)) pool = [P.technicianToolBelt, P.technicianEquipment, P.plumbingTools]
+  else if (/\bac\b|a\/c|air condition|cooling|mini.?split/.test(t)) pool = [P.acCondenser, P.miniSplit, P.acUnitsWall, P.technicianEquipment]
+  else if (/hvac|heating|furnace|maintenance/.test(t)) pool = [P.technicianEquipment, P.acCondenser, P.technicianToolBelt, P.miniSplit]
+  else if (/plumb|pipe|drain|leak|faucet|fix/.test(t)) pool = [P.plumberSinkTrap, P.plumbingTools, P.plumberBathroom, P.plumberUnderSink]
+  else pool = []
+  // Neutral, always-relevant photos so a long page never runs dry.
+  const fallback = [HANDSHAKE_PHOTO, P.technicianToolBelt, P.houseBlossom, P.plumberBathroom, P.denverStreet]
+  return [...new Set([...pool, ...fallback])]
 }
