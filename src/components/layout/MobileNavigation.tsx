@@ -90,7 +90,7 @@ export function MobileNavigation({ isOpen, onClose, items, cta, contractors, joi
             ref={closeButton}
             onClick={() => onClose(true)}
             aria-label="Close navigation menu"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-ink hover:bg-paper"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-ink hover:bg-paper dark:hover:bg-[#132952]"
           >
             <X className="h-6 w-6" aria-hidden="true" />
           </button>
@@ -115,7 +115,7 @@ export function MobileNavigation({ isOpen, onClose, items, cta, contractors, joi
                         aria-controls={`m-${item.href}`}
                         aria-label={`Show ${item.label} pages`}
                         onClick={() => setExpanded(open ? null : item.href)}
-                        className="flex h-11 w-11 flex-none items-center justify-center rounded-lg text-ink/70 hover:bg-paper"
+                        className="flex h-11 w-11 flex-none items-center justify-center rounded-lg text-ink/70 hover:bg-paper dark:hover:bg-[#132952]"
                       >
                         <ChevronDown className={cn('h-5 w-5 transition-transform duration-200', open && 'rotate-180')} aria-hidden="true" />
                       </button>
@@ -155,12 +155,12 @@ export function MobileNavigation({ isOpen, onClose, items, cta, contractors, joi
           {(contractors || joinPro) && (
             <p className="flex flex-wrap items-center justify-center gap-x-4 text-sm font-semibold text-neutral-600">
               {contractors && (
-                <Link href={contractors.href} className="inline-flex min-h-[2.75rem] items-center hover:text-ink">
+                <Link href={contractors.href} className="inline-flex min-h-[2.75rem] items-center hover:text-ink dark:hover:text-[#EAF1FB]">
                   For Contractors
                 </Link>
               )}
               {joinPro && joinPro.href !== contractors?.href && (
-                <Link href={joinPro.href} className="inline-flex min-h-[2.75rem] items-center hover:text-ink">
+                <Link href={joinPro.href} className="inline-flex min-h-[2.75rem] items-center hover:text-ink dark:hover:text-[#EAF1FB]">
                   {joinPro.label}
                 </Link>
               )}
