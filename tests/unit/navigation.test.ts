@@ -16,8 +16,8 @@ describe('navigation', () => {
     expect(bad('https://example.com')).toBe(true)
   })
 
-  it('limits the top menu to 8 links', () => {
-    const header = Array.from({ length: 9 }, (_, i) => ({ label: `L${i}`, href: '/' }))
+  it('limits the top menu to 9 links', () => {
+    const header = Array.from({ length: 10 }, (_, i) => ({ label: `L${i}`, href: '/' }))
     expect(navigationSchema.safeParse({ ...DEFAULT_NAVIGATION, header }).success).toBe(false)
   })
 
