@@ -45,6 +45,7 @@ function HeroPhotos() {
             fill
             sizes="100vw"
             preload={i === 0}
+            fetchPriority={i === 0 ? 'high' : undefined}
             className={`object-cover object-[78%_center] transition-opacity duration-[1600ms] ease-in-out motion-reduce:transition-none lg:object-right ${i === index ? 'opacity-100' : 'opacity-0'}`}
           />
         )
@@ -68,25 +69,23 @@ export function HomeHero({ labelId }: { labelId?: string }) {
         <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/10 to-transparent lg:bg-gradient-to-r lg:from-navy-900/95 lg:via-navy-900/55 lg:via-45% lg:to-transparent lg:to-70%" />
       </div>
 
-      <div className="container-wide relative lg:flex lg:min-h-[520px] lg:items-center xl:min-h-[560px]">
-        <div className="max-w-[40rem] pb-10 pt-1 lg:py-16">
+      <div className="container-wide relative lg:flex lg:min-h-[500px] lg:items-center xl:min-h-[540px]">
+        <div className="max-w-[40rem] pb-8 pt-1 lg:py-16">
           <h1 id={labelId} className="font-display text-display-2xl font-semibold text-white [text-wrap:balance]">
             Reliable Plumbing &amp; HVAC Solutions for Your Home and Business
           </h1>
-          <p className="mt-4 max-w-lg text-[1.05rem] leading-relaxed text-white/85 lg:text-lg">
-            Explore plumbing and HVAC services in Denver, Boulder and nearby communities, then send one simple request. We&apos;ll follow up about availability and next steps.
+          <p className="mt-4 max-w-lg text-base leading-relaxed text-white/85 sm:text-[1.05rem] lg:text-lg">
+            Plumbing and HVAC help for homes and businesses in Denver, Boulder and nearby communities. Send one request and we&apos;ll follow up with next steps.
           </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link href={nav.cta.href} className="ui-btn ui-btn-primary px-7 text-base">
+          <div className="mt-6 flex gap-3">
+            <Link href={nav.cta.href} className="ui-btn ui-btn-primary flex-1 whitespace-nowrap px-3 text-base sm:flex-none sm:px-7">
               {nav.cta.label}
             </Link>
-            <a href="#services" className="ui-btn ui-btn-on-dark px-7 text-base">
+            <a href="#services" className="ui-btn ui-btn-on-dark flex-1 whitespace-nowrap px-3 text-base sm:flex-none sm:px-7">
               Find a Service
             </a>
           </div>
-          <p className="mt-4 max-w-lg text-[0.8rem] leading-relaxed text-white/65">
-            Residential and commercial inquiries welcome. Submitting a request does not guarantee immediate service or provider availability.
-          </p>
+          <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/70">Submitting a request does not guarantee immediate service or provider availability.</p>
         </div>
       </div>
     </section>
