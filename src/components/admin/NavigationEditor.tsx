@@ -8,7 +8,7 @@ import { DEFAULT_NAVIGATION, type NavLink, type Navigation } from '@/lib/cms-pag
 import { ListEditor, TextField } from './pages/fields'
 
 const GROUPS: Array<{ key: Exclude<keyof Navigation, 'cta'>; title: string; hint: string; max: number }> = [
-  { key: 'header', title: 'Top menu', hint: 'Shown across the top of every page (up to 8).', max: 8 },
+  { key: 'header', title: 'Top menu', hint: 'Shown across the top of every page (up to 9).', max: 9 },
   { key: 'footerServices', title: 'Footer: Services', hint: 'Your service pages.', max: 12 },
   { key: 'footerAreas', title: 'Footer: Locations and Commercial', hint: 'City pages and commercial pages. City pages help local search.', max: 12 },
   { key: 'footerCompany', title: 'Footer: Find a Pro and Company', hint: 'Directory, contractors and contact.', max: 12 },
