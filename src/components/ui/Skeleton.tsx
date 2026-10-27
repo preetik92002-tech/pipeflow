@@ -50,8 +50,8 @@ export function ErrorState({
   retry?: () => void
 }) {
   return (
-    <div role="alert" className="flex flex-col items-center justify-center gap-3 rounded-xl border border-red-100 bg-red-50 p-8 text-center">
-      <p className="text-sm text-red-600 font-medium">{message}</p>
+    <div role="alert" className="flex flex-col items-center justify-center gap-3 rounded-xl border border-red-100 bg-red-50 p-8 text-center dark:border-red-400/20 dark:bg-red-950/40">
+      <p className="text-sm text-red-600 font-medium dark:text-[#f3a6a0]">{message}</p>
       {retry && (
         <button
           onClick={retry}
