@@ -60,6 +60,7 @@ export const DEFAULT_NAVIGATION: Navigation = {
   footerResources: [
     { label: 'Resources', href: '/resources' },
     { label: 'Blog', href: '/blog' },
+    { label: 'Customer Reviews', href: '/reviews' },
   ],
   cta: { label: 'Request Service', href: '/book-service' },
 }
