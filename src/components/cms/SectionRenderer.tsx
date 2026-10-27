@@ -1,9 +1,10 @@
 import type { Section, SectionData } from '@/lib/cms-pages/sections/schema'
 import { sectionsSchema } from '@/lib/cms-pages/sections/schema'
+import { linkPhotoFor, photoPool, resolveImage, servicePhotoFor, type Photo } from '@/lib/media/photos'
 import {
   HeroSection, RichTextSection, ContentBlockSection, ContentBlockGroup, GallerySection, FeatureCardsSection, ComparisonSection,
   StepsSection, FaqSection, CtaSection, TestimonialsSection, LinkListSection, ContactInfoSection, SpacerSection, ReviewsSection,
-  type PageContext, type Tone,
+  cardPhoto, type PageContext, type Rhythm, type Tone,
 } from './sections'
 import { ServicePageTemplate } from '@/components/service-pages/ServicePageTemplate'
 import { HomeLayout } from '@/components/home/HomeLayout'
@@ -62,16 +63,93 @@ export function layoutSections(sections: Section[]): Item[] {
 
 const isDark = (s: Section) => s.type === 'hero' || (s.type === 'cta' && s.data.tone === 'dark') || s.type === 'spacer'
 
-function renderSection(section: Section, index: number, tone: Tone, ctx: PageContext) {
+const AREA_LIST = /\b(areas?|cities|city|neighbou?rhoods?|locations?|communities|serving)\b/i
+
+/** Does this unit already show a photo (or a map) on its own? */
+function showsImage(item: Item, ctx: PageContext): boolean {
+  if (item.kind === 'group') return item.blocks.some((b) => b.image)
+  const s = item.section
+  switch (s.type) {
+    case 'hero': case 'gallery': case 'contactInfo': case 'serviceCategory': case 'serviceDetail': return true
+    case 'contentBlock': return !!s.data.image
+    case 'featureCards': {
+      const linked = s.data.cards.length > 0 && s.data.cards.every((c) => c.href)
+      return s.data.cards.some((c) => c.image) || (linked && s.data.cards.filter((c) => cardPhoto(c)).length * 2 > s.data.cards.length)
+    }
+    case 'linkList':
+      if (ctx.kind === 'location' && ctx.cityPhoto) return true
+      return !(AREA_LIST.test(s.data.heading) && s.data.links.length >= 4) && s.data.links.some((l) => linkPhotoFor(l.href))
+    default: return false
+  }
+}
+
+/** Closing bands and spacers break a run on their own: they neither need a photo nor count as text. */
+const isNeutral = (item: Item) => item.kind === 'one' && (item.section.type === 'cta' || item.section.type === 'spacer')
+
+/** Units that can take a photo when the page needs one (link-only and form sections cannot). */
+function canTakePhoto(item: Item): boolean {
+  if (item.kind === 'group') return true
+  const s = item.section
+  if (s.type === 'featureCards') return !s.data.cards.some((c) => c.href)
+  return ['richText', 'contentBlock', 'steps', 'faq', 'comparison'].includes(s.type)
+}
+
+/** Every image a page already shows, so a rhythm photo never repeats one of them. */
+function imagesOnPage(sections: Section[], ctx: PageContext): Set<string> {
+  const out = new Set<string>()
+  const add = (src?: string) => src && out.add(resolveImage(src).src)
+  if (ctx.cityPhoto) add(ctx.cityPhoto.src)
+  for (const s of sections) {
+    if (s.type === 'hero' && s.data.intro) add(s.data.image || servicePhotoFor(s.data.heading)?.src)
+    if (s.type === 'contentBlock') add(s.data.image)
+    if (s.type === 'featureCards') s.data.cards.forEach((c) => add(cardPhoto(c)))
+    if (s.type === 'linkList') s.data.links.forEach((l) => add(linkPhotoFor(l.href)?.src))
+    if (s.type === 'gallery') s.data.images.forEach((i) => add(i.src))
+  }
+  return out
+}
+
+/**
+ * Page rhythm: a text-only unit that follows another text-only unit gets a photo from the page's pool (picked from its
+ * heading and breadcrumb trail), on alternating sides. So no page shows two text-only sections in a row, whatever
+ * the editor stacks, and no photo repeats until the pool runs out.
+ */
+export function planRhythm(items: Item[], sections: Section[], ctx: PageContext): Map<number, Rhythm & { photos?: Photo[] }> {
+  const hero = sections.find((s) => s.type === 'hero')
+  const seen = imagesOnPage(sections, ctx)
+  const pool = photoPool(hero?.type === 'hero' ? hero.data.heading : '', ...ctx.crumbs.flatMap((c) => [c.label, c.href])).filter((p) => !seen.has(p.src))
+  let next = 0
+  const take = () => (pool.length ? pool[next++ % pool.length] : null)
+  const plan = new Map<number, Rhythm & { photos?: Photo[] }>()
+  let prevText = false
+  let splits = 0
+  items.forEach((item, i) => {
+    if (isNeutral(item)) return
+    if (showsImage(item, ctx)) {
+      prevText = false
+      return
+    }
+    if (prevText && canTakePhoto(item) && pool.length) {
+      if (item.kind === 'group') plan.set(i, { photos: item.blocks.map(() => take()!).filter(Boolean) })
+      else plan.set(i, { photo: take(), flip: splits++ % 2 === 1 })
+      prevText = false
+      return
+    }
+    prevText = true
+  })
+  return plan
+}
+
+function renderSection(section: Section, index: number, tone: Tone, ctx: PageContext, rhythm: Rhythm = {}) {
   switch (section.type) {
     case 'hero': return <HeroSection data={section.data} first={index === 0} ctx={ctx} />
-    case 'richText': return <RichTextSection data={section.data} tone={tone} />
-    case 'contentBlock': return <ContentBlockSection data={section.data} tone={tone} />
+    case 'richText': return <RichTextSection data={section.data} tone={tone} {...rhythm} />
+    case 'contentBlock': return <ContentBlockSection data={section.data} tone={tone} {...rhythm} />
     case 'gallery': return <GallerySection data={section.data} tone={tone} />
-    case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} />
-    case 'comparison': return <ComparisonSection data={section.data} tone={tone} />
-    case 'steps': return <StepsSection data={section.data} ctx={ctx} tone={tone} />
-    case 'faq': return <FaqSection data={section.data} tone={tone} />
+    case 'featureCards': return <FeatureCardsSection data={section.data} tone={tone} {...rhythm} />
+    case 'comparison': return <ComparisonSection data={section.data} tone={tone} {...rhythm} />
+    case 'steps': return <StepsSection data={section.data} ctx={ctx} tone={tone} {...rhythm} />
+    case 'faq': return <FaqSection data={section.data} tone={tone} {...rhythm} />
     case 'cta': return <CtaSection data={section.data} tone={tone} />
     case 'testimonials': return <TestimonialsSection data={section.data} tone={tone} />
     case 'linkList': return <LinkListSection data={section.data} tone={tone} ctx={ctx} />
@@ -126,15 +204,17 @@ export function SectionRenderer({ sections, ctx = DEFAULT_CTX, showLegacy = fals
   const lastIsCta = lastIdx >= 0 && items[lastIdx].kind === 'one' && (items[lastIdx] as { section: Section }).section.type === 'cta'
   const reviewsBefore = ctx.kind === 'service' ? (lastIsCta ? lastIdx : -1) : -1
   const reviewsAfterLast = ctx.kind === 'service' && !lastIsCta
+  const rhythm = planRhythm(items, valid, ctx)
   return (
     <>
       {items.map((item, itemIndex) => {
         const tone: Tone = item.kind === 'group' ? nextTone() : isDark(item.section) ? 'white' : nextTone()
-        if (item.kind === 'group') return <ContentBlockGroup key={item.id} blocks={item.blocks} tone={tone} />
+        const r = rhythm.get(itemIndex)
+        if (item.kind === 'group') return <ContentBlockGroup key={item.id} blocks={item.blocks} tone={tone} photos={r?.photos} />
         return (
           <div key={item.section.id}>
             {itemIndex === reviewsBefore && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} tone="paper" />}
-            {renderSection(item.section, item.index, tone, ctx)}
+            {renderSection(item.section, item.index, tone, ctx, r)}
             {reviewsAfterLast && itemIndex === lastIdx && <ReviewsSection reviews={ctx.reviews ?? []} stats={ctx.reviewStats} tone="paper" />}
           </div>
         )
