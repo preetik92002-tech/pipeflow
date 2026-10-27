@@ -92,7 +92,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <nav aria-label="Breadcrumb" className="text-xs text-neutral-500">
             <ol className="flex items-center gap-1.5 flex-wrap">
               <li>
-                <Link href="/" className="hover:text-ink transition-colors">
+                <Link href="/" className="hover:text-ink dark:hover:text-[#EAF1FB] transition-colors">
                   Home
                 </Link>
               </li>
@@ -100,7 +100,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <ChevronRight className="h-3 w-3 text-neutral-400" />
               </li>
               <li>
-                <Link href="/blog" className="hover:text-ink transition-colors">
+                <Link href="/blog" className="hover:text-ink dark:hover:text-[#EAF1FB] transition-colors">
                   Journal
                 </Link>
               </li>
@@ -121,7 +121,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="flex items-center gap-2.5 mb-4">
           <span className="bg-paper text-terra border border-line px-3.5 py-1 text-xs font-bold uppercase tracking-wider">{post.categoryName}</span>
           {post.ctaType === 'emergency' && (
-            <span className="bg-red-50 text-terra border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+            <span className="bg-red-50 text-terra border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1 dark:bg-red-950/40 dark:border-red-400/30 dark:text-[#F4A3A3]">
               <AlertTriangle className="h-3 w-3" />
               Urgent Guide
             </span>
