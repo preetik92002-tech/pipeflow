@@ -44,7 +44,7 @@ export function Accordion({ items, className, allowMultiple = false }: Accordion
               aria-controls={`accordion-panel-${item.id}`}
               id={`accordion-btn-${item.id}`}
               onClick={() => toggle(item.id)}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold text-ink hover:bg-paper transition-colors duration-150"
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold text-ink hover:bg-paper dark:hover:bg-[#132952] transition-colors duration-150"
             >
               <span>{item.question}</span>
               <ChevronDown className={cn('h-4 w-4 flex-shrink-0 text-neutral-400 transition-transform duration-300', isOpen && 'rotate-180')} aria-hidden="true" />
