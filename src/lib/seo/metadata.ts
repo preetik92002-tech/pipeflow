@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { cache } from 'react'
 import { siteConfig } from '@/lib/config/site'
 import { createPublicClient } from '@/lib/supabase/public'
+import { getSupabasePublicEnv } from '@/lib/supabase/env'
 import { isPublishableMessage } from '@/lib/config/contact'
 
 export type PublicSeoSettings = {
@@ -22,7 +23,7 @@ export type PublicSeoSettings = {
  * shares one Supabase round trip instead of issuing duplicate queries.
  */
 export const getPublicSeoSettings = cache(async (): Promise<PublicSeoSettings | null> => {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null
+  if (!getSupabasePublicEnv()) return null
   const supabase = createPublicClient()
   const { data, error } = await supabase.from('seo_settings').select('default_title,title_template,default_description,keywords,default_og_image,canonical_domain,homepage_title,homepage_description,robots_txt_custom').limit(1).maybeSingle()
   if (error) throw new Error(`Unable to load public SEO settings: ${error.message}`)
@@ -82,7 +83,7 @@ export async function generateMetadata(options: GenerateMetadataOptions = {}): P
 }
 
 export const getPublicCompanySettings = cache(async (): Promise<Partial<typeof siteConfig.company>> => {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return {}
+  if (!getSupabasePublicEnv()) return {}
   const supabase = createPublicClient()
   const { data, error } = await supabase.from('site_settings').select('setting_value').eq('setting_key', 'company_info').maybeSingle()
   if (error) throw new Error(`Unable to load public company settings: ${error.message}`)
@@ -137,7 +138,7 @@ export async function generateLocalBusinessSchema() {
 }
 
 const getPublicOperatingHours = cache(async (): Promise<{ weekday?: string; weekend?: string }> => {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return {}
+  if (!getSupabasePublicEnv()) return {}
   const supabase = createPublicClient()
   const { data, error } = await supabase.from('site_settings').select('setting_value').eq('setting_key', 'operating_hours').maybeSingle()
   if (error) throw new Error(`Unable to load public operating hours: ${error.message}`)
@@ -167,7 +168,7 @@ export const getPublicSiteSettingsBundle = cache(async (): Promise<PublicSiteSet
     emergencyAvailable: true,
     analytics: { enabled: true },
   }
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallback
+  if (!getSupabasePublicEnv()) return fallback
   try {
     const supabase = createPublicClient()
     const [siteResult, analyticsResult] = await Promise.all([

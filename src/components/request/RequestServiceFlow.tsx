@@ -166,7 +166,7 @@ export function RequestServiceFlow({ prefill = {}, phone }: { prefill?: RequestP
     })
     const body = await res.json()
     if (!res.ok) throw new Error(body.error || 'Upload failed.')
-    const storage = createClient().storage.from('service-requests')
+    const storage = (await createClient()).storage.from('service-requests')
     const paths: string[] = []
     for (let i = 0; i < files.length; i++) {
       const u = body.uploads[i] as { path: string; token: string }

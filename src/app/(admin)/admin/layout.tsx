@@ -55,14 +55,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (isBarePage) return
 
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push(`/admin/login?redirectTo=${encodeURIComponent(pathname)}`)
-      } else {
-        setAuthorized(true)
-      }
-    })
+    createClient()
+      .then((supabase) => supabase.auth.getUser())
+      .then(({ data: { user } }) => {
+        if (!user) {
+          router.push(`/admin/login?redirectTo=${encodeURIComponent(pathname)}`)
+        } else {
+          setAuthorized(true)
+        }
+      })
+      // Without a client there is no session to check; the login page explains what is wrong.
+      .catch(() => router.push(`/admin/login?redirectTo=${encodeURIComponent(pathname)}`))
   }, [pathname, isBarePage, router])
 
   if (isBarePage) {
@@ -72,7 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const handleSignOut = async () => {
     try {
       setSigningOut(true)
-      const supabase = createClient()
+      const supabase = await createClient()
       await supabase.auth.signOut()
       router.push('/admin/login')
       router.refresh()

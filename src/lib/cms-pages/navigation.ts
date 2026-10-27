@@ -1,13 +1,14 @@
 import 'server-only'
 import { cache } from 'react'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseServiceEnv } from '@/lib/supabase/env'
 import { DEFAULT_NAVIGATION, navigationSchema, type Navigation } from './navigation-schema'
 
 const KEY = 'navigation'
 
 /** The saved menus, or the defaults when nothing is saved or what is saved is invalid. */
 export const getNavigation = cache(async (): Promise<Navigation> => {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return DEFAULT_NAVIGATION
+  if (!getSupabaseServiceEnv()) return DEFAULT_NAVIGATION
   try {
     const { data } = await createAdminClient().from('site_settings').select('setting_value').eq('setting_key', KEY).maybeSingle()
     const parsed = navigationSchema.safeParse(data?.setting_value)

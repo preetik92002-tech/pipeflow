@@ -1,5 +1,6 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import 'server-only'
+import { getSupabasePublicEnv } from './env'
 
 /**
  * Anonymous, cookie-free Supabase client for public (RLS-scoped, non-user-specific)
@@ -12,12 +13,11 @@ import 'server-only'
  * cookie-based server client.
  */
 export function createPublicClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!supabaseUrl || !supabaseKey) {
+  const config = getSupabasePublicEnv()
+  if (!config) {
     throw new Error('Supabase public client is unavailable: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
   }
-  return createSupabaseClient(supabaseUrl, supabaseKey, {
+  return createSupabaseClient(config.url, config.anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 }

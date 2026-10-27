@@ -10,10 +10,13 @@ export default function AdminUnauthorizedPage() {
   const router = useRouter()
 
   const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/admin/login')
-    router.refresh()
+    try {
+      const supabase = await createClient()
+      await supabase.auth.signOut()
+    } finally {
+      router.push('/admin/login')
+      router.refresh()
+    }
   }
 
   return (

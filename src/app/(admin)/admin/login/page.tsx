@@ -36,7 +36,7 @@ function LoginFormContent() {
     setError(null)
     setLoading(true)
     try {
-      const supabase = createClient()
+      const supabase = await createClient()
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
       if (authError) {
         setError(friendlyError(authError.message))

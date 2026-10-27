@@ -1,4 +1,6 @@
 [build.environment]
-  # Next.js embeds these public Supabase values in browser bundles by design.
-  # Keep scanning enabled for all other values, including SUPABASE_SERVICE_ROLE_KEY.
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  # Supabase keys are read at runtime (src/lib/supabase/env.ts) and never compiled into the build, so
+  # secret scanning stays on for NEXT_PUBLIC_SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY.
+  # Only the project URL is exempt: it is a public hostname, not a credential, and it legitimately appears
+  # in pre-rendered pages as the address of images stored in Supabase Storage.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL"

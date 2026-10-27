@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSupabasePublicEnv } from '@/lib/supabase/env'
 
 const ADMIN_ROLES = ['super_admin', 'admin', 'editor', 'marketing']
 
@@ -19,14 +20,8 @@ export async function proxy(request: NextRequest) {
 
   let supabaseResponse = NextResponse.next({ request })
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const isConfigured = Boolean(
-    supabaseUrl &&
-    supabaseKey &&
-    !supabaseUrl.includes('placeholder') &&
-    !supabaseKey.includes('placeholder')
-  )
+  // Read at request time (see lib/supabase/env.ts), so the key is never compiled into the proxy bundle.
+  const supabaseConfig = getSupabasePublicEnv()
 
   const isProtectedAdminRoute =
     pathname.startsWith('/admin') &&
@@ -34,18 +29,13 @@ export async function proxy(request: NextRequest) {
     pathname !== '/admin/unauthorized'
 
   // Fail closed: without Supabase configuration, no protected admin route is available.
-  if (isProtectedAdminRoute && !isConfigured) {
+  if (isProtectedAdminRoute && !supabaseConfig) {
     return NextResponse.redirect(new URL('/admin/login?setup=required', request.url))
   }
 
   // Always refresh cookies for Supabase session persistence
-  if (
-    supabaseUrl &&
-    supabaseKey &&
-    !supabaseUrl.includes('placeholder') &&
-    !supabaseKey.includes('placeholder')
-  ) {
-    const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  if (supabaseConfig) {
+    const supabase = createServerClient(supabaseConfig.url, supabaseConfig.anonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll()

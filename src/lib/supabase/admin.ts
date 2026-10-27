@@ -1,5 +1,6 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import 'server-only'
+import { getSupabaseServiceEnv } from './env'
 
 /**
  * Server-only Supabase admin client utilizing the SERVICE_ROLE key.
@@ -9,16 +10,15 @@ import 'server-only'
  * NEVER import or execute this file in client-side code!
  */
 export function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const config = getSupabaseServiceEnv()
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!config) {
     throw new Error('Supabase admin access is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.')
   }
 
   return createSupabaseClient(
-    supabaseUrl,
-    serviceRoleKey,
+    config.url,
+    config.serviceRoleKey,
     {
       auth: {
         persistSession: false,
