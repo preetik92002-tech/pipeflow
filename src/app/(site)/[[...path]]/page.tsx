@@ -1,7 +1,9 @@
 import { cache } from 'react'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { SectionRenderer } from '@/components/cms/SectionRenderer'
+import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { faqJsonLd, serializeJsonLd } from '@/lib/cms-pages/jsonld'
 import { ancestorPaths, breadcrumbJsonLd, buildPageContext, serviceJsonLd } from '@/lib/cms-pages/page-context'
 import { validatePath, pathToUrl } from '@/lib/cms-pages/paths'
@@ -122,6 +124,34 @@ export default async function CmsPage({ params }: Props) {
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(ld) }} />
       ))}
       <SectionRenderer sections={page.sections} ctx={ctx} />
+      {ctx.kind === 'home' && (
+        <section className="border-t border-white/10 bg-ink py-10 text-white sm:py-12" aria-labelledby="home-customer-reviews-heading">
+          <div className="container-wide">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="ui-kicker !text-terra-light">Customer reviews</p>
+                <h2 id="home-customer-reviews-heading" className="mt-2 font-display text-display-md font-semibold text-white">
+                  What customers say
+                </h2>
+              </div>
+              <Link href="/reviews" className="inline-flex min-h-11 w-fit items-center font-semibold text-white underline decoration-white/40 underline-offset-4 transition-colors hover:text-terra-light hover:decoration-terra-light">
+                Read All Reviews
+              </Link>
+            </div>
+            {ctx.reviews?.length ? (
+              <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {ctx.reviews.slice(0, 3).map((review, index) => (
+                  <ReviewCard key={`${review.name}-${review.date ?? ''}-${index}`} review={review} />
+                ))}
+              </div>
+            ) : (
+              <p className="mt-6 rounded-xl border border-white/15 bg-white/5 p-5 text-sm text-white/75">
+                Customer reviews will appear here once they are published.
+              </p>
+            )}
+          </div>
+        </section>
+      )}
     </>
   )
 }
