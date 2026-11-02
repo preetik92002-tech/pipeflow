@@ -95,6 +95,15 @@ export function Navigation({ items, className }: { items: MenuItem[]; className?
   return (
     <nav ref={root} aria-label="Main navigation" className={className}>
       <ul className="flex items-center gap-0.5">
+        <li>
+          <Link
+            href="/"
+            aria-current={isActivePath(pathname, '/') ? 'page' : undefined}
+            className={cn('block whitespace-nowrap rounded-lg px-2 py-2 text-[0.9rem] font-semibold transition-colors hover:bg-paper dark:hover:bg-[#132952] xl:px-3 xl:text-[0.93rem]', isActivePath(pathname, '/') ? 'text-terra' : 'text-ink')}
+          >
+            Home
+          </Link>
+        </li>
         {items.map((item, i) => {
           const active = itemActive(pathname, item)
           if (item.children.length === 0)
